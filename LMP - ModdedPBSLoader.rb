@@ -374,7 +374,7 @@ def pbCompileModAbilities(mod,overwrite=true)
   code+="\ndef self.getCount\nreturn #{records.length}\nend\n"
   code+="\ndef self.maxValue\nreturn #{maxValue}\nend\nend"
   eval(code)
-  pbAddScript(code,"PBAbilities")
+  pbAddModScript(code,"PBAbilities")
 end
 
 def pbCompileModMoves(mod,overwrite=true)

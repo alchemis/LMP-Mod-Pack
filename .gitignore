@@ -9,6 +9,11 @@
 /test/tmp/
 /test/version_tmp/
 /tmp/
+
+PBMoves.rb
+PBAbilities.rb
+PBPBSpecies.rb
+
 AMB*
 SWM*
 # Used by dotenv library to load environment variables.
