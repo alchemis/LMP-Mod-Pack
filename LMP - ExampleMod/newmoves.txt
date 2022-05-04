@@ -1,0 +1,1 @@
+1,EXAMPLEMOVE,Example Move,000,120,BUG,Physical,85,10,0,00,0,abef,"This is an example move, it's copied from Megahorn"

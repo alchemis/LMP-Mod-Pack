@@ -1,7 +1,7 @@
 [4]
-Name=Charmander
-InternalName=CHARMANDER
-Type1=GHOST
+Name=TestOverwrite
+InternalName=TESTOVERWRITE
+Type1=NORMAL
 BaseStats=39,52,43,65,60,50
 GenderRate=FemaleOneEighth
 GrowthRate=Parabolic

@@ -1,0 +1,6 @@
+pbCompileModMoves("LMP - ExampleMod",overwrite=false)
+pbCompileModMoves("LMP - ExampleMod")
+pbCompileModAbilities("LMP - ExampleMod",overwrite=true)
+pbCompileModAbilities("LMP - ExampleMod",overwrite=false)
+pbCompileModPokemonData("LMP - ExampleMod")
+pbCompileModPokemonData("LMP - ExampleMod",overwrite=false)

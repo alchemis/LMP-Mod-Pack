@@ -35,10 +35,10 @@ def pbAddModScript(script,sectionname)
 end
 	
 
-def pbCompileModPokemonData(mod,overwrite=true,modGraphics=false)
+def pbCompileModPokemonData(mod,overwrite=true)
 
   if overwrite == true
-	path = mod + "/overwrites.txt"
+	path = mod + "/pokemonoverwrites.txt"
   else
     path = mod + "/newpokemon.txt"
   end
@@ -81,6 +81,7 @@ def pbCompileModPokemonData(mod,overwrite=true,modGraphics=false)
      "BaseEXP"=>[:BaseEXP,"w"],
   }
   optionaltypes={
+     "ModdedGraphics"=>[0,"i"],
      "BattlerPlayerY"=>[0,"i"],
      "BattlerEnemyY"=>[0,"i"],
      "BattlerAltitude"=>[0,"i"],
@@ -144,7 +145,7 @@ def pbCompileModPokemonData(mod,overwrite=true,modGraphics=false)
       thesemoves=[]
       theseevos=[]
 	  
-	  $ListOfModPokemonByParent[dexdata[:ID]] = Hash[:parent => mod, :id => currentmap, :overwrite => overwrite] if modGraphics
+	  
 	  
       if !lastsection["Type2"] || lastsection["Type2"]==""
         if !lastsection["Type1"] || lastsection["Type1"]==""
@@ -231,6 +232,9 @@ def pbCompileModPokemonData(mod,overwrite=true,modGraphics=false)
               elsif key=="Kind"
                 raise _INTL("Kind {1} is greater than 20 characters long (section {2}, PBS/pokemon.txt)",value,dexdata[:ID]) if value.length>20
                 kinds[dexdata[:ID]]=value
+			  elsif key=="ModdedGraphics"
+				$ListOfModPokemonByParent[dexdata[:ID]] = Hash[:parent => mod, :id => currentmap, :overwrite => overwrite] if value==1
+			  
               elsif key=="Pokedex"
                 entries[dexdata[:ID]]=value
               elsif key=="BattlerPlayerY"
@@ -336,9 +340,137 @@ def pbCompileModPokemonData(mod,overwrite=true,modGraphics=false)
   
 end
 
+def pbCompileModAbilities(mod,overwrite=true)
+
+  if overwrite == true
+	path = mod + "/abilityoverwrites.txt"
+  else
+    path = mod + "/newabilities.txt"
+  end
+  
+  records=moduleToHash(PBAbilities)
+  movenames=getAllPokemonMessages(MessageTypes::Abilities)
+  movedescs=getAllPokemonMessages(MessageTypes::AbilityDescs)
+  maxValue=PBAbilities.maxValue
+  
+  pbCompilerEachPreppedLine("Data/Mods/"+path){|line,lineno|
+     record=pbGetCsvRecord(line,lineno,[0,"vnss"])
+	  if overwrite == false
+	    record[0] = maxValue+1
+	  end
+     movenames[record[0]]=record[2]
+     movedescs[record[0]]=record[3]
+     maxValue=[maxValue,record[0]].max
+	 
+	 records.delete(records.key(records[0]))
+	 records[record[1]] = record[0]
+	 puts "Added Ability with id " + record[0].to_s + " Overwrite? " + overwrite.to_s
+  }
+  MessageTypes.setMessages(MessageTypes::Abilities,movenames)
+  MessageTypes.setMessages(MessageTypes::AbilityDescs,movedescs)
+  code="class PBAbilities\n"
+  code+=hashtoString(records)
+  code+="\ndef self.getName(id)\nreturn pbGetMessage(MessageTypes::Abilities,id)\nend"
+  code+="\ndef self.getCount\nreturn #{records.length}\nend\n"
+  code+="\ndef self.maxValue\nreturn #{maxValue}\nend\nend"
+  eval(code)
+  pbAddScript(code,"PBAbilities")
+end
+
+def pbCompileModMoves(mod,overwrite=true)
+
+  if overwrite == true
+	path = mod + "/moveoverwrites.txt"
+  else
+    path = mod + "/newmoves.txt"
+  end
+  
+
+  records=moduleToHash(PBMoves)
+  movenames=getAllPokemonMessages(MessageTypes::Moves)
+  movedescs=getAllPokemonMessages(MessageTypes::MoveDescriptions)
+  movedata=$cache.pkmn_move
+  movedata[0] = [0,0,0,0,0,0,0,0,0,0]
+  
+  maxValue=PBMoves.maxValue
+  
+  pbCompilerEachPreppedLine("Data/Mods/"+path){|line,lineno|
+      thisline=line.clone
+      record=[]
+      flags=0
+      record=pbGetCsvRecord(line,lineno,[0,"vnsxueeuuuxiss",
+        nil,nil,nil,nil,nil,PBTypes,["Physical","Special","Status"],
+        nil,nil,nil,nil,nil,nil,nil])
+      #pbCheckWord(record[3],_INTL("Function code"))
+	  if overwrite == false
+	    record[0] = maxValue+1
+	  end
+      flags|=1 if record[12][/a/]
+      flags|=2 if record[12][/b/]
+      flags|=4 if record[12][/c/]
+      flags|=8 if record[12][/d/]
+      flags|=16 if record[12][/e/]
+      flags|=32 if record[12][/f/]
+      flags|=64 if record[12][/g/]
+      flags|=128 if record[12][/h/]
+      flags|=256 if record[12][/i/]
+      flags|=512 if record[12][/j/]
+      flags|=1024 if record[12][/k/]
+      flags|=2048 if record[12][/l/]
+      flags|=4096 if record[12][/m/]
+      flags|=8192 if record[12][/n/]
+      flags|=16384 if record[12][/o/]
+      flags|=32768 if record[12][/p/]
+      if record[6]==2 && record[4]!=0
+        raise _INTL("Status moves must have a base damage of 0, use either Physical or Special\n{1}",FileLineData.linereport)
+      end
+      if record[6]!=2 && record[4]==0
+        print _INTL(
+          "Warning: Physical and special moves can't have a base damage of 0, changing to a Status move\n{1}",FileLineData.linereport)
+        record[6]=2
+      end
+      
+      movedata[record[0]]=[                                             #movedata[fuckinpieceofshit][3]
+        record[3],  # Function code
+        record[4],  # Damage
+        record[5],  # Type
+        record[6],  # Category
+        record[7],  # Accuracy
+        record[8],  # Total PP
+        record[9],  # Effect chance
+        record[10], # Target
+        record[11], # Priority
+        flags,      # Flags
+      ]
+      movenames[record[0]]=record[2]  # Name
+      movedescs[record[0]]=record[13] # Description
+
+		maxValue=[maxValue,record[0]].max
+		records.delete(records.key(records[0]))
+		records[record[1]] = record[0]
+		puts "Added move with id " + record[0].to_s + " Overwrite? " + overwrite.to_s
+
+  }
+  $cache.pkmn_move = movedata
+  MessageTypes.setMessages(MessageTypes::Moves,movenames)
+  MessageTypes.setMessages(MessageTypes::MoveDescriptions,movedescs)
+  code="class PBMoves\n"
+   code+=hashtoString(records)
+  code+="\ndef self.getName(id)\nreturn pbGetMessage(MessageTypes::Moves,id) if id < 10000 \nreturn PokeBattle_ZMoves::ZMOVENAMES[id-10001]\nend"
+  code+="\ndef self.getCount\nreturn #{records.length}\nend"
+  code+="\ndef self.maxValue\nreturn #{maxValue}\nend\nend"
+  eval(code)
+  pbAddModScript(code,"PBMoves")
+end
 
 
-
+=begin
+pbCompileModMoves("LMP - DummyPokemon",overwrite=false)
+pbCompileModMoves("LMP - DummyPokemon")
+pbCompileModAbilities("LMP - DummyPokemon",overwrite=true)
+pbCompileModAbilities("LMP - DummyPokemon",overwrite=false)
 pbCompileModPokemonData("LMP - DummyPokemon")
-pbCompileModPokemonData("LMP - DummyPokemon",overwrite=false,modGraphics=true)
+pbCompileModPokemonData("LMP - DummyPokemon",overwrite=false)
+=end
+
 
