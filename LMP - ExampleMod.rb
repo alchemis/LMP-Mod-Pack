@@ -1,6 +1,2 @@
-pbCompileModMoves("LMP - ExampleMod",overwrite=false)
-pbCompileModMoves("LMP - ExampleMod")
-pbCompileModAbilities("LMP - ExampleMod",overwrite=true)
-pbCompileModAbilities("LMP - ExampleMod",overwrite=false)
-pbCompileModPokemonData("LMP - ExampleMod")
-pbCompileModPokemonData("LMP - ExampleMod",overwrite=false)
+$ModPBSToLoad=Hash[] if !defined?($ModPBSToLoad)
+$ModPBSToLoad = Hash["LMP - ExampleMod" => [:newabilties, :newmoves, :newpokemon, :pokemonoverwrites, :moveoverwrites, :abilityoverwrites]]

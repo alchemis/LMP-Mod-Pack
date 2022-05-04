@@ -1,5 +1,5 @@
 $ListOfModPokemonByParent = Hash[]
-
+$ModPBSToLoad = Hash[] if !defined?($ModPBSToLoad)
 def hasModGraphics?(id)
 	return $ListOfModPokemonByParent.has_key?(id)
 end
@@ -7,7 +7,7 @@ end
 def getAllPokemonMessages(messagetype)
 	messages = []
 	messages[0] = nil
-	for i in 0...$cache.pkmn_dex.length
+	for i in 0...pbGetMessageCount(messagetype)
 		messages[i] = pbGetMessage(messagetype,i)
 	end
 	return messages
@@ -282,7 +282,7 @@ def pbCompileModPokemonData(mod,overwrite=true)
 		#dexdata[:ID] = maxValue
 	  #end
 	  dexdatas.update(dexdata[:ID] => dexdata)
-	  puts "Added pokemon with id " + dexdata[:ID].to_s + " Overwrite? " + overwrite.to_s
+	  puts "Added pokemon with id " + dexdata[:ID].to_s + " and speciesname " + speciesnames[dexdata[:ID]] +" Overwrite? " + overwrite.to_s
     }
 	
   }
@@ -331,12 +331,13 @@ def pbCompileModPokemonData(mod,overwrite=true)
   $cache.pkmn_egg = eggmoves
   $cache.pkmn_evo = evolutions
   
+  
+  
   MessageTypes.setMessages(MessageTypes::Species,speciesnames)
   MessageTypes.setMessages(MessageTypes::Kinds,kinds)
   MessageTypes.setMessages(MessageTypes::Entries,entries)
   MessageTypes.setMessages(MessageTypes::FormNames,formnames)
   
-
   
 end
 
@@ -463,7 +464,32 @@ def pbCompileModMoves(mod,overwrite=true)
   pbAddModScript(code,"PBMoves")
 end
 
+def pbLoadModdedPBS
+	for key,value in $ModPBSToLoad
+		puts "Loading "+key.to_s+" PBS Files.."
+		if :newmoves in value
+			pbCompileModMoves(key,overwrite=false)
+		end
+		if :moveoverwrites in value
+			pbCompileModMoves(key,overwrite=true)
+		end
+		if :newabilities in value
+			pbCompileModAbilities(key,overwrite=false)
+		end
+		if :abilityoverwrites in value
+			pbCompileModAbilities(key,overwrite=true)
+		end
+		if :newpokemon in value
+			pbCompileModPokemonData(key,overwrite=false)
+		end
+		if :pokemonoverwrites in value
+			pbCompileModPokemonData(key,overwrite=true)
+		end
+	
+	end
+end
 
+pbLoadModdedPBS
 =begin
 pbCompileModMoves("LMP - DummyPokemon",overwrite=false)
 pbCompileModMoves("LMP - DummyPokemon")
@@ -472,5 +498,4 @@ pbCompileModAbilities("LMP - DummyPokemon",overwrite=false)
 pbCompileModPokemonData("LMP - DummyPokemon")
 pbCompileModPokemonData("LMP - DummyPokemon",overwrite=false)
 =end
-
 

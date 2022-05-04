@@ -154,7 +154,11 @@
 	end
 
 	def pbPokemonIconBitmap(pokemon,egg=false)   # pbpokemonbitmap, but for icons
+	  if !pokemon
+		return
+	  end
 	  species = pokemon.species
+	  puts "loading icon for pokemon " + species.to_s
 	  mod = ""
 	  if hasModGraphics?(species)
 		mod = "Data/Mods/" + $ListOfModPokemonByParent[species][:parent]
