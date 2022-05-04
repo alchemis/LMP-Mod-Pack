@@ -2,30 +2,34 @@
 
 class PokemonOptions
   #####MODDED
-  attr_accessor :lyr_fasthatch
+  attr_accessor :lmp_fasthatch
   
   
-  def lyr_fasthatch
-    @lyr_fasthatch = 0 if !@lyr_fasthatch
-    return @lyr_fasthatch
+  def lmp_fasthatch
+    @lmp_fasthatch = 0 if !@lmp_fasthatch
+    return @lmp_fasthatch
   end
   #####/MODDED
 end
 
 #####MODDED
 #Make sure it exists
-$amb_ModAdditionalOptions=[] if !defined?($amb_ModAdditionalOptions)
+#$amb_ModAdditionalOptions=[] if !defined?($amb_ModAdditionalOptions)
 
+if defined?($amb_ModAdditionalOptions)
 #Record the new option
-$amb_ModAdditionalOptions["lyr_fasthatch"] = EnumOption.new(_INTL("Fast Hatch"),[_INTL("Off"),_INTL("On")],
-                                                                proc { $idk[:settings].lyr_fasthatch },
-                                                                proc {|value|  $idk[:settings].lyr_fasthatch=value },
-                                                                "Skip hatching animation."
-															)
+	$amb_ModAdditionalOptions["lmp_fasthatch"] = EnumOption.new(_INTL("Fast Hatch"),[_INTL("Off"),_INTL("On")],
+																	proc { $idk[:settings].lmp_fasthatch },
+																	proc {|value|  $idk[:settings].lmp_fasthatch=value },
+																	"Skip hatching animation."
+																)
+else
+	$idk[:settings].lmp_fasthatch = 1
+end
 #####/MODDED
 
 def pbHatch(pokemon)
-  fasthatch=defined?($idk[:settings].lyr_fasthatch) ? $idk[:settings].lyr_fasthatch : 0
+  fasthatch=defined?($idk[:settings].lmp_fasthatch) ? $idk[:settings].lmp_fasthatch : 0
   if $game_system && $game_system.is_a?(Game_System)
     playingBGM=$game_system.getPlayingBGM
     playingBGMposition = Audio.bgm_pos if playingBGM
