@@ -1,5 +1,6 @@
 $ListOfModPokemonByParent = Hash[]
 $ModPBSToLoad = Hash[] if !defined?($ModPBSToLoad)
+
 def hasModGraphics?(id)
 	return $ListOfModPokemonByParent.has_key?(id)
 end
