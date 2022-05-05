@@ -282,7 +282,7 @@ def pbCompileModPokemonData(mod,overwrite=true)
 		#dexdata[:ID] = maxValue
 	  #end
 	  dexdatas.update(dexdata[:ID] => dexdata)
-	  puts "Added pokemon with id " + dexdata[:ID].to_s + " and speciesname " + speciesnames[dexdata[:ID]] +" Overwrite? " + overwrite.to_s
+	  #puts "Added pokemon with id " + dexdata[:ID].to_s + " and speciesname " + speciesnames[dexdata[:ID]] +" Overwrite? " + overwrite.to_s
     }
 	
   }
@@ -365,7 +365,7 @@ def pbCompileModAbilities(mod,overwrite=true)
 	 
 	 records.delete(records.key(records[0]))
 	 records[record[1]] = record[0]
-	 puts "Added Ability with id " + record[0].to_s + " Overwrite? " + overwrite.to_s
+	 #puts "Added Ability with id " + record[0].to_s + " Overwrite? " + overwrite.to_s
   }
   MessageTypes.setMessages(MessageTypes::Abilities,movenames)
   MessageTypes.setMessages(MessageTypes::AbilityDescs,movedescs)
@@ -449,7 +449,7 @@ def pbCompileModMoves(mod,overwrite=true)
 		maxValue=[maxValue,record[0]].max
 		records.delete(records.key(records[0]))
 		records[record[1]] = record[0]
-		puts "Added move with id " + record[0].to_s + " Overwrite? " + overwrite.to_s
+		#puts "Added move with id " + record[0].to_s + " Overwrite? " + overwrite.to_s
 
   }
   $cache.pkmn_move = movedata
@@ -466,7 +466,7 @@ end
 
 def pbLoadModdedPBS
 	for key,value in $ModPBSToLoad
-		puts "Loading "+key.to_s+" PBS Files.."
+		puts "LMP: Loading "+key.to_s+"'s PBS Files.."
 		if :newmoves in value
 			pbCompileModMoves(key,overwrite=false)
 		end

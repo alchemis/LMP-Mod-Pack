@@ -158,7 +158,7 @@
 		return
 	  end
 	  species = pokemon.species
-	  puts "loading icon for pokemon " + species.to_s
+	  #puts "loading icon for pokemon " + species.to_s
 	  mod = ""
 	  if hasModGraphics?(species)
 		mod = "Data/Mods/" + $ListOfModPokemonByParent[species][:parent]
