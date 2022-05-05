@@ -9,7 +9,7 @@ How to install:
 **Dependencies**:
  - **LMP - ModdedPBSLoader**: depends on **LMP - ModdedPokemonGraphicsLoader**
  - **LMP - CreateAllFields**: depends on **LMP - ModdedPBSLoader** and **LMP - ModdedPokemonGraphicsLoader**
- -  - **LMP - ExampleMod**: depends on **LMP - ModdedPBSLoader** and **LMP - ModdedPokemonGraphicsLoader**
+ - **LMP - ExampleMod**: depends on **LMP - ModdedPBSLoader** and **LMP - ModdedPokemonGraphicsLoader**
 
 **What the mods do:**
  - **LMP - FastHatch:** Skips the animation when hatching eggs, if **AMB - AddOpt** is installed it adds a toggle in the menu.
