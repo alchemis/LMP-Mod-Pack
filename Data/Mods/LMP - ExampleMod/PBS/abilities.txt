@@ -1,0 +1,2 @@
+1,EXAMPLEABILITY,Example Ability,"This is an example ability."
+2,STENCH,Example Overwrite,"This overwrites Stench."

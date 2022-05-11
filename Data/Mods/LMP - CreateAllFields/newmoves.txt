@@ -1,0 +1,23 @@
+1,HEATEDTERRAIN,Heated Terrain,600,0,FIRE,Status,0,10,0,20,0,,"The user superheats the field, increasing the power of fire moves. "
+2,HOLYTERRAIN,Holy Terrain,601,0,NORMAL,Status,0,10,0,20,0,,"The calls the might of the gods, increasing the power of normal moves. "
+3,PERFORMANCE,Performance,602,0,FIGHTING,Status,0,10,0,20,0,,"The user starts a performance, increasing the power of fighting moves."
+4,CHECKMATE,Checkmate,603,0,PSYCHIC,Status,0,10,0,20,0,,"The user creates a chess arena, increasing the power of psychic moves."
+5,CORRUPT,Corrupt,604,0,POISON,Status,0,10,0,20,0,,"The user corrupts the field, increasing the power of poison moves."
+6,POISONMIST,Poison Mist,605,0,POISON,Status,0,10,0,20,0,,"The user spews corrosive mist, increasing the power of poison moves."
+7,DESERTTERRAIN,Desert Terrain,606,0,GROUND,Status,0,10,0,20,0,,"The user creates a desert, increasing the power of certain moves."
+8,ICYTERRAIN,Icy Terrain,607,0,ICE,Status,0,10,0,20,0,,"The user freezes the field, increasing the power of ice moves."
+9,ROCKYTERRAIN,Rocky Terrain,608,0,ROCK,Status,0,10,0,20,0,,"The user scatters stones around, increasing the power of rock moves."
+10,FORESTTERRAIN,Forest Terrain,609,0,GRASS,Status,0,10,0,20,0,,"The user grows a forest, increasing the power of grass moves."
+11,AUTOMATE,Automate,610,0,STEEL,Status,0,10,0,20,0,,"The user builds a factory, increasing the power of steel and electric moves."
+12,LAYWASTE,Lay Waste,611,0,POISON,Status,0,10,0,20,0,,"The user lays waste to the field, increasing the power of poison moves."
+13,ASHENTERRAIN,Ashen Terrain,612,0,FIGHTING,Status,0,10,0,20,0,,"The user scatters ashes around, increasing the power of fighting and psychic moves."
+14,FLOOD,Flood,613,0,WATER,Status,0,10,0,20,0,,"The floods the field, increasing the power of water moves."
+15,TUNNEL,Tunnel,614,0,ROCK,Status,0,10,0,20,0,,"The user digs a cave, increasing the power of rock moves."
+16,MURKYWATER,Murky Water,615,0,WATER,Status,0,10,0,20,0,,"The user floods the field with tainted water, increasing the power of poison moves."
+17,SUMMIT,Summit,616,0,ROCK,Status,0,10,0,20,0,,"The user climbs a mountain, increasing the power of flying and rock moves."
+18,MIRRORMAZE,Mirror Maze,617,0,ICE,Status,0,10,0,20,0,,"The user creates a mirror maze, increasing the power the beam and light-based moves."
+19,FAIRYTALE,Fairy Tale,618,0,FAIRY,Status,0,10,0,20,0,,"The user makes a fairy tale real, increasing the power of steel and fairy moves."
+20,DRAGONSLAIR,Dragon's Lair,619,0,DRAGON,Status,0,10,0,20,0,,"The user retreats to their lair, increasing the power of dragon moves."
+
+
+

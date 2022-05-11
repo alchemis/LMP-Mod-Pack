@@ -18,7 +18,12 @@ rebornmap.png
 x64-msvcrt-ruby300.dll
 rubyscreen.dll
 Data/*
+!Data/Mods
 !Data/Mods/*
+Data/Mods/AMB*
+Data/Mods/SWM*
+Data/Mods/*.dat
+Data/Mods/*.ini
 !Data/!script_order.csv
 Scripts/*
 !Scripts/idk.rb
