@@ -193,49 +193,64 @@ def pbCompileMetadata
   }
 end
 
-def pbCompileItems
-  records=[]
+def pbCompileModItems
+  mods = $ModList
+  #load vanilla data
+  records=$cache.items
+  itemnames=getAllPokemonMessages(MessageTypes::Items)
+  itemdescs=getAllPokemonMessages(MessageTypes::ItemDescriptions)
+  movedata=$cache.pkmn_move
   records[0] = []
-  constants=""
-  itemnames=[]
-  itemdescs=[]
-  maxValue=0
-  pbCompilerEachCommentedLine("PBS/items.txt"){|line,lineno|
-     linerecord=pbGetCsvRecord(line,lineno,[0,"vnsuusuuUN"])
-     record=[]
-     record[ITEMID]        = linerecord[0]
-     constant=linerecord[1]
-     constants+="#{constant}=#{record[0]}\n"
-     record[ITEMNAME]      = linerecord[2]
-     itemnames[record[0]]=linerecord[2]
-     record[ITEMPOCKET]    = linerecord[3]
-     record[ITEMPRICE]     = linerecord[4]
-     record[ITEMDESC]      = linerecord[5]
-     itemdescs[record[0]]=linerecord[5]
-     record[ITEMUSE]       = linerecord[6]
-     record[ITEMBATTLEUSE] = linerecord[7]
-     record[ITEMTYPE]      = linerecord[8]
-     if linerecord[9]!="" && linerecord[9]
-       record[ITEMMACHINE] = parseMove(linerecord[9])
-     else
-       record[ITEMMACHINE] = 0
-     end
-     maxValue=[maxValue,record[0]].max
-     records[record[ITEMID]] = record
+  constants=moduleToHash(PBItems)
+  maxValue=PBItems.maxValue
+  mods.each{ |mod| 
+	  next if !($ModSettings[mod]["ModPBS"].include?("items"))
+	  pbCompilerEachCommentedLine("Data/Mods/#{mod}/PBS/items.txt"){|line,lineno|
+		 linerecord=pbGetCsvRecord(line,lineno,[0,"vnsuusuuUN"])
+		 record=[]
+		 if constants.keys.include?(linerecord[1])
+			#puts "Item Already exists, overwriting #{linerecord[1]}"
+			record[ITEMID]        = constants[linerecord[1]] 
+			record[0] = constants[linerecord[1]] 
+		 else
+			#puts "Item doesn't exist adding #{linerecord[1]}"
+			record[ITEMID]        = maxValue + 1
+			constants[linerecord[1]] = maxValue + 1
+			record[0] = maxValue + 1
+		 end
+		 
+		 record[ITEMNAME]      = linerecord[2]
+		 itemnames[record[0]]=linerecord[2]
+		 record[ITEMPOCKET]    = linerecord[3]
+		 record[ITEMPRICE]     = linerecord[4]
+		 record[ITEMDESC]      = linerecord[5]
+		 itemdescs[record[0]]=linerecord[5]
+		 record[ITEMUSE]       = linerecord[6]
+		 record[ITEMBATTLEUSE] = linerecord[7]
+		 record[ITEMTYPE]      = linerecord[8]
+		 if linerecord[9]!="" && linerecord[9]
+		   record[ITEMMACHINE] = parseMove(linerecord[9])
+		 else
+		   record[ITEMMACHINE] = 0
+		 end
+		 maxValue=[maxValue,record[0]].max
+		 records[record[ITEMID]] = record
+	  }
   }
-  File.open("Data/items.dat","wb"){|file|
+  File.open("Data/Mods/items.dat","wb"){|file|
     Marshal.dump(records,file)
   }
   $cache.items = records
   MessageTypes.setMessages(MessageTypes::Items,itemnames)
   MessageTypes.setMessages(MessageTypes::ItemDescriptions,itemdescs)
   #writeSerialRecords("Data/items.dat",records)
-  code="class PBItems\n#{constants}"
+  code="class PBItems\n"
+  code+=hashtoString(constants)
   code+="\ndef PBItems.getName(id)\nreturn pbGetMessage(MessageTypes::Items,id)\nend\n"
   code+="\ndef PBItems.getCount\nreturn #{records.length}\nend\n"
   code+="\ndef PBItems.maxValue\nreturn #{maxValue}\nend\nend"
   eval(code)
-  pbAddScript(code,"PBItems")
+  pbAddModScript(code,"PBItems")
   Graphics.update
 end
 
@@ -411,7 +426,7 @@ def pbCompileModMoves
 		  #pbCheckWord(record[3],_INTL("Function code"))
 		  
 		  #Check if there is already a move with the same internal name, if so, set the ID to the same as that move, else, set the ID to that of the last move in the list plus 1
-		  if  !(records.values.include?(record[1]))
+		  if  !(records.keys.include?(record[1]))
 			record[0] = maxValue+1
 			overwriting = false
 		  else
@@ -757,47 +772,68 @@ def pbCompileTrainers
 end
 
 
-def pbCompileMachines
+def pbCompileModMachines
   lineno=1
   havesection=false
   sectionname=nil
-  sections=[]
-  if safeExists?("PBS/tm.txt")
-    f=File.open("PBS/tm.txt","rb")
-    FileLineData.file="PBS/tm.txt"
-    f.each_line {|line|
-       if lineno==1 && line[0]==0xEF && line[1]==0xBB && line[2]==0xBF
-         line=line[3,line.length-3]
-       end
-       FileLineData.setLine(line,lineno)
-       if !line[/^\#/] && !line[/^\s*$/]
-         if line[/^\s*\[\s*(.*)\s*\]\s*$/]
-           sectionname=parseMove($~[1])
-           sections[sectionname]=[]
-           havesection=true
-         else
-           if sectionname==nil
-             raise _INTL("Expected a section at the beginning of the file.  This error may also occur if the file was not saved in UTF-8.\n{1}",FileLineData.linereport)
-           end
-           specieslist=line.sub(/\s+$/,"").split(",")
-           for species in specieslist
-             next if !species || species==""
-             sec=sections[sectionname]
-             sec[sec.length]=parseSpecies(species)
-           end
-         end
-       end
-       lineno+=1
-       if lineno%500==0
-         Graphics.update
-       end
-       if lineno%50==0
-         pbSetWindowText(_INTL("Processing line {1}",lineno))
-       end
-    }
-    f.close
-  end
-  save_data(sections,"Data/tm.dat")
+  sections=$cache.tm_data
+  mods = $ModList
+  mods.each{ |mod| 
+	  next if !($ModSettings[mod]["ModPBS"].include?("tms"))
+	  force_overwrite = true if $ModSettings[mod]["forceOverwriteAbilities"] == "true"
+	  path = "Data/Mods/#{mod}/PBS/tm.txt"
+	  
+	  if safeExists?(path)
+		f=File.open(path,"rb")
+		FileLineData.file=path
+		f.each_line {|line|
+		   if lineno==1 && line[0]==0xEF && line[1]==0xBB && line[2]==0xBF
+			 line=line[3,line.length-3]
+		   end
+		   removing = false
+		   FileLineData.setLine(line,lineno)
+		   if !line[/^\#/] && !line[/^\s*$/]
+			 if line[/^\s*\[\s*(.*)\s*\]\s*$/]
+			   sectionname=parseMove($~[1])
+			   #puts " processing tms for move #{sectionname}"
+			   sections[sectionname] = [] if (sections[sectionname].nil?)
+			   havesection=true
+			 else
+			   if sectionname==nil
+				 raise _INTL("Expected a section at the beginning of the file.  This error may also occur if the file was not saved in UTF-8.\n{1}",FileLineData.linereport)
+			   end
+			   specieslist=line.sub(/\s+$/,"").split(",")
+			   for species in specieslist
+				 next if !species || species==""
+				 if species[0,1] == "!"
+					removing = true
+					species.slice!(0)
+				 end
+				 sec=sections[sectionname]
+				 if removing == false
+					if sec.include?(parseSpecies(species))
+						next
+					else
+						sec[sec.length]=parseSpecies(species)
+					end
+				 else
+					sec.delete(parseSpecies(species)) if sec.include?(parseSpecies(species))
+				 end
+			   end
+			 end
+		   end
+		   lineno+=1
+		   if lineno%500==0
+			 Graphics.update
+		   end
+		   if lineno%50==0
+			 pbSetWindowText(_INTL("Processing line {1}",lineno))
+		   end
+		}
+		f.close
+	  end
+	}
+  save_data(sections,"Data/Mods/tm.dat")
 end
 
 
@@ -1155,7 +1191,7 @@ def pbCompileModPokemonData(overwrite=true)
 				  if key=="InternalName"
 					raise _INTL("Invalid internal name: {1} (section {2}, PBS/pokemon.txt)",value,dexdata[:ID]) if !value[/^(?![0-9])\w*$/]
 					#constants+="#{value}=#{currentmap}\n"
-					puts 
+					#puts 
 					if constants.keys.include?(value)
 						#puts "overwriting " + value
 						dexdata[:ID] = constants[value]
@@ -1346,20 +1382,20 @@ def pbCompileAllModData(mustcompile)
     # yield(_INTL("Compiling map connection data"))
     # #pbCompileModConnections
     # # No dependencies
-    puts "Compiling ability data"
+    puts "Compiling mod ability data"
     pbCompileModAbilities
     # # Depends on PBTypes
-    puts "Compiling move data"
+    puts "Compiling mod move data"
     pbCompileModMoves
     # # Depends on PBMoves
-    # yield(_INTL("Compiling item data"))
-    # #pbCompileModItems
+    puts "Compiling mod item data"
+    pbCompileModItems
     # # Depends on PBMoves, PBItems, PBTypes, PBAbilities
-    puts "Compiling Pokemon data"
+    puts "Compiling mod Pokemon data"
     pbCompileModPokemonData
     # # Depends on PBSpecies, PBMoves
-    # yield(_INTL("Compiling machine data"))
-    # #pbCompileModMachines
+    puts "Compiling mod machine data"
+    pbCompileModMachines
     # # Depends on PBSpecies, PBItems, PBMoves
     # yield(_INTL("Compiling Trainer data"))
     # #pbCompileModTrainers

@@ -1,0 +1,3 @@
+1,LAXINCENSE,Example Overwrite,1,9600,"An item to be held by a Pokémon. This item was overwritten.",0,0,0
+2,EXAMPLEITEM,Example Item,1,9600,"A custom item to be held by a Pokémon. This item was added.",0,0,0
+3,TM101,TM101,4,1000,"Example move TM.",3,0,0,EXAMPLEMOVE

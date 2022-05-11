@@ -24,7 +24,7 @@ BattlerEnemyY=22
 BattlerAltitude=0
 Evolutions=
 [2]
-Name=TestOverwrite
+Name=ExampleOverwrite
 InternalName=CHARMANDER
 Type1=NORMAL
 BaseStats=39,52,43,65,60,50

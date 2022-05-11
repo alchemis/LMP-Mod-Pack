@@ -1,0 +1,9 @@
+#Add EXAMPLEMODPOKEMON to WORKUP compatibility list and remove charmander now called "ExampleOverwrite"
+
+[WORKUP]
+EXAMPLEMODPOKEMON,!CHARMANDER
+
+
+#To define a custom TM you must also add an item for it, see items.txt
+[EXAMPLEMOVE]
+EXAMPLEMODPOKEMON,CHARMANDER

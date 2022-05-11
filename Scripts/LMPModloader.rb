@@ -57,7 +57,6 @@ def loadMods
 	puts "load order is: " + $ModList.to_s
 	cacheModMoves
 	cacheModDex
-
 	MessageTypes.loadMessageFile("Data/Mods/messages.dat")
 	#load mod scripts from mod subfolders as defined in their modsettings.ini
 	$ModList.each{ | mod |
@@ -93,14 +92,15 @@ end
 def cacheModMoves
 	pbCompileModMoves if !File.exists?("Data/Mods/moves.dat")
 	$cache.pkmn_move          = load_data("Data/Mods/moves.dat")
+	$cache.tm_data            = load_data("Data/Mods/tm.dat")
 	#Not Implemented
 	#$cache.move2anim          = load_data("Data/Mods/move2anim.dat")
-	#$cache.tm_data            = load_data("Data/Mods/tm.dat")
+	
 end
 
-def cacheItems
-	pbCompileItems if !File.exists?("Data/items.dat")
-	$cache.items           = load_data("Data/items.dat") if !$cache.items
+def cacheModItems
+	pbCompileModItems if !File.exists?("Data/Mods/items.dat")
+	$cache.items           = load_data("Data/Mods/items.dat")
 end
 
 def cacheTrainers
