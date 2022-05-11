@@ -23,6 +23,7 @@ Data/*
 Data/Mods/AMB*
 Data/Mods/SWM*
 Data/Mods/PB*
+Data/Mods/PBMoves.rb
 Data/Mods/*.dat
 Data/Mods/*.ini
 !Data/!script_order.csv
