@@ -10,7 +10,7 @@ How to install:
 **Dependencies**:
  - **LMPModloader**: depends on **LMP - ModdedPokemonGraphicsLoader** and **LMPModcompiler**
  - **LMP - CreateAllFields**: depends on **LMPModloader**
- - **LMP - ExampleMod**: depends on **LMP - Modloader**
+ - **LMP - ExampleMod**: depends on **LMPModloader**
 
 **What the mods do:**
  - **LMP - FastHatch:** Skips the animation when hatching eggs, if **AMB - AddOpt** is installed it adds a toggle in the menu.
