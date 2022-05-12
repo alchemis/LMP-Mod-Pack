@@ -19,3 +19,10 @@ How to install:
  - **LMP - ModdedPokemonGraphicsLoader:** Loads Pókemon graphics from Mods folder at runtime, does nothing on its own.
  - **LMP - CreateAllFields:** Allows most fields to be created with a move, like Misty Terrain. These moves are signature moves of otherwise subpar Pokémon. (See list in uhhh i'll make it sometime)
  - **LMP - ExampleMod:** Using ModdedPBSLoader and ModdedPokemonGraphicsLoader, implements a few pokemon as an example on how to make a mod using this framework. (This mod is intended for developers, see code)
+
+**TO-DO:**
+ - Finish gui
+ - Allow overwriting only one field in pbs files.
+ - Handle all pbs files
+ - Implement ExtendedLearnsets
+ - Change CreateAllFields into ExtraMoves
