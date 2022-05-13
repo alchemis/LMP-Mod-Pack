@@ -103,6 +103,14 @@ namespace ModLoader
         void SortByDefaultOrder()
         {
             modList.Sort((a,b) => a.DefaultLoadOrder.CompareTo(b.DefaultLoadOrder));
+            foreach(var group in modList.GroupBy(x=>x.DefaultLoadOrder))
+            {
+                int count = group.Count();
+                if (count <= 1) continue;
+                var lowestIndex = group.Min(x => modList.IndexOf(x));
+
+                modList.Sort(lowestIndex, count, Comparer<Mod>.Default);
+            }
             modList.ForEach((x) => x.LoadOrder = modList.IndexOf(x));
         }
 
@@ -236,7 +244,6 @@ namespace ModLoader
             if (result == DialogResult.No) return;
 
             var selected = SelectedMod;
-            FindMods();
             SortByDefaultOrder();
             listBox1.SelectedItem = selected;
 
@@ -250,10 +257,13 @@ namespace ModLoader
             if (Updating) return;
 
             Updating = true;
+            var selected = SelectedMod;
             boundList.ResetBindings();
             checkBoxModEnabled.Checked = SelectedMod.Enabled;
             labelDescription.Text = SelectedMod.ModDesc;
             groupBoxMod.Text = $"Mod: {SelectedMod.ModName}";
+            listBox1.SelectedItem = selected;
+
             Updating = false;
         }
     }
