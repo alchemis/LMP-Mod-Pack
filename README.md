@@ -4,8 +4,6 @@ How to install:
 
  - Download the latest release and extract it into a working installation of Reborn.
  
- WARNING: The GUI .exe file has a false positive in virustotal, and Windows Defender will scan it upon launch (and find nothing wrong with it), the source code is avaliable and you may compile it yourself, instructions coming soon. Fix hopefully coming soon, the responsible AV company has been contacted!
- 
  
 **Dependencies**:
  - **LMPModloader**: depends on **LMP - ModdedPokemonGraphicsLoader** and **LMPModcompiler**
@@ -28,7 +26,8 @@ How to install:
 
 # ModLoader
 
-**Coming soon!**
+**Badge coming soon!**
+
 [![Build Status](https://dev.azure.com/lyraLMP/LMP-Modloader/_apis/build/status/alchemis.LMP-Mod-Pack?branchName=main)](https://dev.azure.com/lyraLMP/LMP-Modloader/_build/latest?definitionId=1&branchName=main)
 
 A simple modloader GUI to sort and toggle LMP mods easily. Works from any folder (asks you where the game is) or you can drop it in the root folder of the game.
