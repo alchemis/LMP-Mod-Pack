@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace ModLoader
 {
@@ -12,41 +8,23 @@ namespace ModLoader
         public static IniResult Read(string filePath)
         {
             IniResult iniResult = new IniResult();
-            Regex headerDetector = new Regex(@"\[(.*)\]");
-            Regex commentExtractor = new Regex(@"[#].*");
-            var lines = File.ReadAllLines(filePath, Encoding.UTF8);
-            int startPos = 0;
-
-            string lastHeader = string.Empty;
-
-            for (int i = startPos; i < lines.Length; i++)
+            var lines = File.ReadAllLines(filePath);
+            for (int i = 0; i < lines.Length; i++)
             {
-                var curatedLine = lines[i];
-                if (commentExtractor.IsMatch(curatedLine))
-                {
-                    curatedLine = commentExtractor.Replace(curatedLine, "").Trim();
-                }
-
+                var curatedLine = lines[i].Trim();
                 if (string.IsNullOrEmpty(curatedLine)) continue;
+                if (curatedLine[0] == '#') continue;
 
-                if (curatedLine.Contains('='))
-                {
-                    var propertyName = curatedLine.Split('=')[0].Trim();
-                    var propertyValue = curatedLine.Split('=')[1].Trim();
+                var parts = curatedLine.Split('=');
 
-                    if (string.IsNullOrEmpty(propertyName))
-                    {
-                        throw new FormatException($"The property at: {i} is empty");
-                    }
+                if (parts.Length == 1) throw new FormatException($"The line {i} in the file {filePath} does not contains \"=\" \nLine: {curatedLine}");
+                
+                var propertyName = parts[0].Trim();
 
-                    iniResult[propertyName] = propertyValue;
-                }
-                else
-                {
-                    throw new FormatException($"The line {i} in the file {filePath} does not contains \"=\" \nLine: {curatedLine}");
-                }
+                if (string.IsNullOrEmpty(propertyName)) throw new FormatException($"The property at: {i} is empty");
+
+                iniResult[propertyName] = parts[1].Trim();
             }
-
             return iniResult;
         }
     }

@@ -1,13 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ModLoader
 {
-    internal class Mod
+    internal class Mod : IComparable<Mod>
     {
         public override string ToString()
         {
             return $"{(Enabled ? "✅" : "❌")} {ModName}";
         }
+
+        public int CompareTo(Mod other)
+        {
+            return ModName.CompareTo(other.ModName);
+        }
+
         public string PathToIni { get; set; }
         public string ModName { get; set; }
         public string ModDesc { get; set; }
