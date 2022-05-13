@@ -12,24 +12,19 @@ namespace ModLoader
             for (int i = 0; i < lines.Length; i++)
             {
                 var curatedLine = lines[i].Trim();
-                if (curatedLine[0] == '#') continue;
                 if (string.IsNullOrEmpty(curatedLine)) continue;
+                if (curatedLine[0] == '#') continue;
 
-                if (curatedLine.IndexOf('=') != -1)
-                {
-                    var propertyName = curatedLine.Split('=')[0].Trim();
-                    var propertyValue = curatedLine.Split('=')[1].Trim();
+                var parts = curatedLine.Split('=');
 
-                    if (string.IsNullOrEmpty(propertyName)) throw new FormatException($"The property at: {i} is empty");
+                if (parts.Length == 1) throw new FormatException($"The line {i} in the file {filePath} does not contains \"=\" \nLine: {curatedLine}");
+                
+                var propertyName = parts[0].Trim();
 
-                    iniResult[propertyName] = propertyValue;
-                }
-                else
-                {
-                    throw new FormatException($"The line {i} in the file {filePath} does not contains \"=\" \nLine: {curatedLine}");
-                }
+                if (string.IsNullOrEmpty(propertyName)) throw new FormatException($"The property at: {i} is empty");
+
+                iniResult[propertyName] = parts[1].Trim();
             }
-
             return iniResult;
         }
     }
