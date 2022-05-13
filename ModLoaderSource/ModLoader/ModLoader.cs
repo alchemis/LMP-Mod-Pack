@@ -122,7 +122,6 @@ namespace ModLoader
             SortByDefaultOrder();
             List<Mod> modsInFile = new List<Mod>();
             var lines = File.ReadAllLines(LoadOrderFile);
-            int lastI = 0;
             for(int i = 0; i < lines.Length; i++)
             {
                 var modname = lines[i].Trim();
@@ -141,7 +140,6 @@ namespace ModLoader
                 modsInFile.Add(mod);
                 mod.LoadOrder = i;
                 mod.Enabled = isEnabled;
-                lastI = i;
             }        
         }
 
