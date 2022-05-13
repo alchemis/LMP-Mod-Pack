@@ -26,3 +26,8 @@ How to install:
  - Handle all pbs files
  - Implement ExtendedLearnsets
  - Change CreateAllFields into ExtraMoves
+
+# ModLoader
+[![Build Status](https://armisius.visualstudio.com/ModLoader/_apis/build/status/Tilation.LMP-Mod-Pack-with-modloader?branchName=main)](https://armisius.visualstudio.com/ModLoader/_build/latest?definitionId=5&branchName=main)
+
+A simple modloader GUI to sort and toggle mods easily.
