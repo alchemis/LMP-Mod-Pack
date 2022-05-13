@@ -6,12 +6,13 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{5ECE65B8-36E4-4108-8C1A-363186B15A6F}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>ModLoader</RootNamespace>
-    <AssemblyName>ModLoader</AssemblyName>
+    <RootNamespace>ModManager</RootNamespace>
+    <AssemblyName>ModManager</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -27,7 +28,6 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -67,7 +67,7 @@
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
-    <StartupObject>ModLoader.Program</StartupObject>
+    <StartupObject>ModManager.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <NoWin32Manifest>true</NoWin32Manifest>
@@ -90,20 +90,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ModLoader.cs">
+    <Compile Include="ModManager.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ModLoader.Designer.cs">
-      <DependentUpon>ModLoader.cs</DependentUpon>
+    <Compile Include="ModManager.Designer.cs">
+      <DependentUpon>ModManager.cs</DependentUpon>
     </Compile>
     <Compile Include="IniReader.cs" />
     <Compile Include="IniResult.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="ModLoader.resx">
-      <DependentUpon>ModLoader.cs</DependentUpon>
-    </EmbeddedResource>
     <None Include="LMPModLoader.pfx" />
     <None Include="Properties\app.manifest" />
   </ItemGroup>

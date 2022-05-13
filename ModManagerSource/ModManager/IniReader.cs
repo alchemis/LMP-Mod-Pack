@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace ModLoader
+namespace ModManager
 {
     public static class IniReader
     {

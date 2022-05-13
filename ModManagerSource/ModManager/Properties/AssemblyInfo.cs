@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TMP - ModLoader")]
-[assembly: AssemblyDescription("Pokemon Reborn ModLoader")]
+[assembly: AssemblyTitle("TMP - ModManager")]
+[assembly: AssemblyDescription("Pokemon Reborn ModManager")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ModLoader")]
+[assembly: AssemblyProduct("ModManager")]
 [assembly: AssemblyCopyright("Copyright ©  2022 - Tilation")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

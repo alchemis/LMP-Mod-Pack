@@ -13,7 +13,7 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  binariesLocation: '$(Build.SourcesDirectory)/ModLoaderSource/ModLoader/bin/Release/'
+  binariesLocation: '$(Build.SourcesDirectory)/ModManagerSource/ModManager/bin/Release/'
   releaseVersionName: 'release-v$(Build.BuildNumber)-$(Build.SourceBranchName)'
   windowsBinariesArchiveName: '$(releaseVersionName)-winx86x64.zip'
 
@@ -50,7 +50,7 @@ steps:
     action: 'create'
     target: '$(Build.SourceVersion)'
     tagSource: 'userSpecifiedTag'
-    tag: 'modloader-$(Build.BuildNumber)'
+    tag: 'ModManager-$(Build.BuildNumber)'
     title: '$(releaseVersionName)'
     changeLogCompareToRelease: 'lastFullRelease'
     changeLogType: 'commitBased'
