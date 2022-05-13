@@ -34,3 +34,4 @@ Scripts/*
 ModLoaderSource/ModLoader/bin/*
 ModLoaderSource/ModLoader/obj/*
 ModLoaderSource/.vs/*
+*.pfx
