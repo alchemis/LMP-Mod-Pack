@@ -4,9 +4,12 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 name: $(Date:yy.MM).$(Rev:r)
 
-
 trigger:
-- main
+  tags:
+    include:
+      - 'modloader.*'
+
+  
 
 pool:
   vmImage: 'windows-latest'
