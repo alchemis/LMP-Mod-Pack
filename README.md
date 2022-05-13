@@ -3,14 +3,14 @@ This is a mod pack for **Pokémon Reborn.**
 How to install:
 
  - Download the project zip and copy it into a working installation of Reborn,
- - Heavily WIP, won't run without extra tweaking, gui is not finished yet and you'd need python installed to run it
- - Will update this doc when it's more usable.
+ - Download the GUI from releases and put it in the same folder as Game.exe
+ 
+ WARNING: The GUI .exe file has a false positive in virustotal, and windows defender will scan it, however the source code is avaliable and you may compile it yourself, instructions coming soon.
  
  
 **Dependencies**:
  - **LMPModloader**: depends on **LMP - ModdedPokemonGraphicsLoader** and **LMPModcompiler**
- - **LMP - CreateAllFields**: depends on **LMPModloader**
- - **LMP - ExampleMod**: depends on **LMPModloader**
+ - **All LMP Mods**: depend on **LMPModloader**
 
 **What the mods do:**
  - **LMP - FastHatch:** Skips the animation when hatching eggs, if **AMB - AddOpt** is installed it adds a toggle in the menu.
@@ -21,8 +21,7 @@ How to install:
  - **LMP - ExampleMod:** Using ModdedPBSLoader and ModdedPokemonGraphicsLoader, implements a few pokemon as an example on how to make a mod using this framework. (This mod is intended for developers, see code)
 
 **TO-DO:**
- - Finish gui
- - Allow overwriting only one field in pbs files.
  - Handle all pbs files
+ - Handle maps and events :eyes:
  - Implement ExtendedLearnsets
  - Change CreateAllFields into ExtraMoves
