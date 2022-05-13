@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -14,21 +15,22 @@ namespace ModLoader
         readonly List<Mod> modList = new List<Mod>();
         readonly BindingList<Mod> boundList;
 
-        readonly List<string> errors = new List<string>();
-
         private string BasePath { get; set; } = "";
         private string ModsDirectory => Path.Combine(BasePath, "Data/Mods");
         private string LoadOrderFile => Path.Combine(BasePath, "Data/Mods/load_order.ini");
         private string MustCompileFile => Path.Combine(BasePath, "Data/Mods/mustcompile.ini");
         private Mod SelectedMod => listBox1.SelectedItem as Mod;
         
+        private bool Updating { get; set; }
+
         public ModLoader()
         {
             InitializeComponent();
             labelDescription.MaximumSize = new Size(tableLayoutPanel2.Width, labelDescription.MaximumSize.Height);
-            if (!Directory.Exists("./Data/Mods/"))
+            while(!Directory.Exists("./Data/Mods/") && !Directory.Exists(ModsDirectory))
             {
                 var diag = new FolderBrowserDialog();
+                diag.SelectedPath = Environment.CurrentDirectory;
                 diag.Description = "Select the root folder for Pokemon Reborn, or move the mod loader's executable where the game is.";
                 var result = diag.ShowDialog();
                 if (result == DialogResult.OK)
@@ -49,9 +51,15 @@ namespace ModLoader
             
             if (File.Exists(LoadOrderFile))
             {
+                ReadLoadOrderFromFile();
                 SortByLoadOrder();
             }
-            boundList.ResetBindings();
+            else
+            {
+                SortByDefaultOrder();
+            }
+
+            UpdateUI();
         }
 
         void FindMods()
@@ -88,32 +96,49 @@ namespace ModLoader
                 modList.Add(mod);
             }
         }
-        
-        void DefaultSort()
+
+        /// <summary>
+        /// Should call <see cref="UpdateUI"/> after this.
+        /// </summary>
+        void SortByDefaultOrder()
         {
-            FindMods();
             modList.Sort((a,b) => a.DefaultLoadOrder.CompareTo(b.DefaultLoadOrder));
             modList.ForEach((x) => x.LoadOrder = modList.IndexOf(x));
-            boundList.ResetBindings();
         }
 
-
-        void SortByLoadOrder()
+        /// <summary>
+        /// Should call <see cref="UpdateUI"/> after this.
+        /// </summary>
+        void ReadLoadOrderFromFile()
         {
-            // Only get lines with text
-            var lines = File.ReadAllLines(LoadOrderFile).Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)).ToArray();
-
+            SortByDefaultOrder();
+            List<Mod> modsInFile = new List<Mod>();
+            var lines = File.ReadAllLines(LoadOrderFile);
+            int lastI = 0;
             for(int i = 0; i < lines.Length; i++)
             {
-                var modname = lines[i];
+                var modname = lines[i].Trim();
+                if (string.IsNullOrEmpty(modname)) continue;
+
+                bool isEnabled = modname[0] != '!';
+
+                if (!isEnabled) modname = new string(modname.Skip(1).ToArray());
+
                 var mod = modList.FirstOrDefault(x=>x.ModName == modname);
                 if (mod == null)
                 {
-                    MessageBox.Show($"The mod {mod} doesn't exist", "Modloader");
+                    MessageBox.Show($"The mod {mod} is missing.", "Modloader");
                     continue;
                 }
+                modsInFile.Add(mod);
                 mod.LoadOrder = i;
-            }
+                mod.Enabled = isEnabled;
+                lastI = i;
+            }        
+        }
+
+        void SortByLoadOrder()
+        {
             modList.Sort((a, b) => a.LoadOrder.CompareTo(b.LoadOrder));
         }
 
@@ -123,6 +148,7 @@ namespace ModLoader
             labelDescription.Text = SelectedMod.ModDesc;
             groupBoxMod.Text = $"Mod: {SelectedMod.ModName}";
             checkBoxModEnabled.Checked = SelectedMod.Enabled;
+            UpdateUI();
         }
 
         private void Form1_SizeChanged(object sender, EventArgs e)
@@ -134,7 +160,7 @@ namespace ModLoader
         {
             if (SelectedMod == null) return;
             SelectedMod.Enabled = checkBoxModEnabled.Checked;
-            boundList.ResetBindings();
+            UpdateUI();
         }
 
         private void listBox1_KeyDown(object sender, KeyEventArgs e)
@@ -144,7 +170,7 @@ namespace ModLoader
                 if (SelectedMod == null) return;
                 SelectedMod.Enabled = !SelectedMod.Enabled;
                 checkBoxModEnabled.Checked = SelectedMod.Enabled;
-                boundList.ResetBindings();
+                UpdateUI();
             }
         }
 
@@ -162,6 +188,7 @@ namespace ModLoader
             boundList.ResetBindings();
             listBox1.SelectedItem = selected;
 
+            UpdateUI();
         }
 
         private void buttonMoveDown_Click(object sender, EventArgs e)
@@ -176,20 +203,31 @@ namespace ModLoader
             modList.Sort((a, b) => a.LoadOrder.CompareTo(b.LoadOrder));
             boundList.ResetBindings();
             listBox1.SelectedItem = selected;
+
+            UpdateUI();
         }
 
         private void buttonSave_Click(object sender, EventArgs e)
         {
-            foreach(var mod in modList)
-            {
-                var txt = File.ReadAllText(mod.PathToIni);
-                var newTxt = Regex.Replace(txt, @"\benabled\s*=.*", $"enabled={mod.Enabled}".ToLower());
-                File.WriteAllText(mod.PathToIni, newTxt);
-            }
-            File.WriteAllLines(LoadOrderFile, modList.Where(x=>x.Enabled == true).Select(x => x.ModName).ToArray());
-            if (checkBoxForceRecompile.Checked && File.Exists(MustCompileFile)) File.Delete(MustCompileFile);
+            SaveLoadOrderToDisk();
+            UpdateUI();
+        }
 
-            MessageBox.Show($"{modList.Count(x=>x.Enabled)} Mods are now enabled!", "Modloader");
+        private void SaveLoadOrderToDisk()
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < modList.Count; i++)
+            {
+                var mod = modList[i];
+                if (!mod.Enabled) sb.Append('!');
+                sb.AppendLine(mod.ModName);
+            }
+            File.WriteAllText(LoadOrderFile, sb.ToString());
+
+            if (checkBoxForceRecompile.Checked && File.Exists(MustCompileFile))
+                File.Delete(MustCompileFile);
+
+            MessageBox.Show($"{modList.Count(x => x.Enabled)} Mods are now enabled!", "Modloader");
         }
 
         private void buttonResetDefaults_Click(object sender, EventArgs e)
@@ -198,11 +236,25 @@ namespace ModLoader
             if (result == DialogResult.No) return;
 
             var selected = SelectedMod;
-            DefaultSort();
+            FindMods();
+            SortByDefaultOrder();
             listBox1.SelectedItem = selected;
-            boundList.ResetBindings();
+
+            UpdateUI();
 
             MessageBox.Show("Restored defaults, however, changes are not yet saved", "ModLoader");
+        }
+
+        void UpdateUI()
+        {
+            if (Updating) return;
+
+            Updating = true;
+            boundList.ResetBindings();
+            checkBoxModEnabled.Checked = SelectedMod.Enabled;
+            labelDescription.Text = SelectedMod.ModDesc;
+            groupBoxMod.Text = $"Mod: {SelectedMod.ModName}";
+            Updating = false;
         }
     }
 }
