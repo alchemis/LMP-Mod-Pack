@@ -57,6 +57,8 @@ def loadMods
 	puts "load order is: " + $ModList.to_s
 	cacheModMoves
 	cacheModDex
+	cacheModItems
+	cacheModMetadata
 	MessageTypes.loadMessageFile("Data/Mods/messages.dat")
 	#load mod scripts from mod subfolders as defined in their modsettings.ini
 	$ModList.each{ | mod |
@@ -68,10 +70,10 @@ def loadMods
 	
 	
 	#Not implemented/needed yet:
-	# cacheItems
+	# 
 	# cacheTrainers
 	# cacheFields
-	# cacheMetadata
+
 	# $cache.RXanimations       = load_data("Data/Animations.rxdata") if !$cache.RXanimations
 	# $cache.RXtilesets         = load_data("Data/tilesets.rxdata") if !$cache.RXtilesets
 	# $cache.RXevents           = load_data("Data/CommonEvents.rxdata") if !$cache.RXevents
@@ -122,12 +124,13 @@ def cacheMapInfos
 	$cache.mapinfos           = load_data("Data/MapInfos.rxdata") if !$cache.mapinfos
 end
 
-def cacheMetadata
-	$cache.regions            = load_data("Data/regionals.dat") if !$cache.regions
-	$cache.encounters         = load_data("Data/encounters.dat") if !$cache.encounters
-	$cache.metadata           = load_data("Data/metadata.dat") if !$cache.metadata
-	$cache.map_conns          = load_data("Data/connections.dat") if !$cache.map_conns
-	$cache.town_map           = load_data("Data/townmap.dat") if !$cache.town_map
+def cacheModMetadata
+	#Comments are not implemented/needed yet
+	#$cache.regions            = load_data("Data/regionals.dat") if !$cache.regions
+	$cache.encounters         = load_data("Data/Mods/encounters.dat") if !$cache.encounters
+	#$cache.metadata           = load_data("Data/metadata.dat") if !$cache.metadata
+	#$cache.map_conns          = load_data("Data/connections.dat") if !$cache.map_conns
+	#$cache.town_map           = load_data("Data/townmap.dat") if !$cache.town_map
 	PBTypes.loadTypeData
 	#MessageTypes.loadMessageFile("Data/Messages.dat")
 end

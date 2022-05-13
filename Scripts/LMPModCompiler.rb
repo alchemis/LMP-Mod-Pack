@@ -1,6 +1,22 @@
 $ListOfModPokemonByParent = Hash[]
 $ModPBSToLoad = Hash[] if !defined?($ModPBSToLoad)
 
+#This file is extremely hacky, it's based on Compiler.rb from Pokemon Reborn scripts, but some things had to be edited very heavily.
+#It would be kind of useless to mark down which things are modified as most things are.
+
+#notable diferences from compiler.rb: uses flags from mod_settings.ini to determine how to load PBS files from mods.
+
+#saves an extra file called graphicspaths.dat containing the path to graphic files for modded pokemon. might be very buggy 0_0
+#variables that are modified are named from "pbCompileX" to "pbCompileModX", the original compiler should thus not be overwritten with defs from here, which are loaded with LMPModloader
+
+
+#Done PBS files: moves, pokemon, abilities, tm, items
+#TODO: trainers, metadata, encounters other pbs that are necessary
+#TODO: fix graphics system to be universal and better
+
+## my edits to this file are not optimal and not very readable, awful code warning: HERE BE DRAGONS ##
+
+
 def hasModGraphics?(id)
 	return $ListOfModPokemonByParent.has_key?(id)
 end
@@ -56,47 +72,47 @@ def pbCompileShadowMoves
   save_data(sections,"Data/shadowmoves.dat")
 end
 
-def pbCompileBTTrainers(filename)
-  sections=[]
-  btTrainersRequiredTypes={
-     "Type"=>[0,"e",PBTrainers],
-     "Name"=>[1,"s"],
-     "BeginSpeech"=>[2,"s"],
-     "EndSpeechWin"=>[3,"s"],
-     "EndSpeechLose"=>[4,"s"],
-     "PokemonNos"=>[5,"*u"]
-  }
-  requiredtypes=btTrainersRequiredTypes
-  trainernames=[]
-  beginspeech=[]
-  endspeechwin=[]
-  endspeechlose=[]
-  if safeExists?(filename)
-    File.open(filename,"rb"){|f|
-       FileLineData.file=filename
-       pbEachFileSectionEx(f){|section,name|
-          rsection=[]
-          for key in section.keys
-            FileLineData.setSection(name,key,section[key])
-            schema=requiredtypes[key]
-            next if !schema
-            record=pbGetCsvRecord(section[key],0,schema)
-            rsection[schema[0]]=record
-          end
-          trainernames.push(rsection[1])
-          beginspeech.push(rsection[2])
-          endspeechwin.push(rsection[3])
-          endspeechlose.push(rsection[4])
-          sections.push(rsection)
-       }
-    }
-  end
-  MessageTypes.addMessagesAsHash(MessageTypes::TrainerNames,trainernames)
-  MessageTypes.addMessagesAsHash(MessageTypes::BeginSpeech,beginspeech)
-  MessageTypes.addMessagesAsHash(MessageTypes::EndSpeechWin,endspeechwin)
-  MessageTypes.addMessagesAsHash(MessageTypes::EndSpeechLose,endspeechlose)
-  return sections
-end
+# def pbCompileBTTrainers(filename)
+  # sections=[]
+  # btTrainersRequiredTypes={
+     # "Type"=>[0,"e",PBTrainers],
+     # "Name"=>[1,"s"],
+     # "BeginSpeech"=>[2,"s"],
+     # "EndSpeechWin"=>[3,"s"],
+     # "EndSpeechLose"=>[4,"s"],
+     # "PokemonNos"=>[5,"*u"]
+  # }
+  # requiredtypes=btTrainersRequiredTypes
+  # trainernames=[]
+  # beginspeech=[]
+  # endspeechwin=[]
+  # endspeechlose=[]
+  # if safeExists?(filename)
+    # File.open(filename,"rb"){|f|
+       # FileLineData.file=filename
+       # pbEachFileSectionEx(f){|section,name|
+          # rsection=[]
+          # for key in section.keys
+            # FileLineData.setSection(name,key,section[key])
+            # schema=requiredtypes[key]
+            # next if !schema
+            # record=pbGetCsvRecord(section[key],0,schema)
+            # rsection[schema[0]]=record
+          # end
+          # trainernames.push(rsection[1])
+          # beginspeech.push(rsection[2])
+          # endspeechwin.push(rsection[3])
+          # endspeechlose.push(rsection[4])
+          # sections.push(rsection)
+       # }
+    # }
+  # end
+  # MessageTypes.addMessagesAsHash(MessageTypes::TrainerNames,trainernames)
+  # MessageTypes.addMessagesAsHash(MessageTypes::BeginSpeech,beginspeech)
+  # MessageTypes.addMessagesAsHash(MessageTypes::EndSpeechWin,endspeechwin)
+  # MessageTypes.addMessagesAsHash(MessageTypes::EndSpeechLose,endspeechlose)
+  # return sections
+# end
 
 def pbCompileTownMap
   nonglobaltypes={
@@ -298,110 +314,116 @@ def pbCompileConnections
 end
 
 
-def pbCompileEncounters
-  lines=[]
-  linenos=[]
-  FileLineData.file="PBS/encounters.txt"
-  File.open("PBS/encounters.txt","rb"){|f|
-     lineno=1
-     f.each_line {|line|
-        if lineno==1 && line[0]==0xEF && line[1]==0xBB && line[2]==0xBF
-          line=line[3,line.length-3]
-        end
-        line=prepline(line)
-        if line.length!=0
-          lines[lines.length]=line
-          linenos[linenos.length]=lineno
-        end
-        lineno+=1
-     }
+def pbCompileModEncounters
+  mods = $ModList
+  encounters=$cache.encounters 
+  mods.each{ |mod| 
+	  next if !($ModSettings[mod]["ModPBS"].include?("encounters"))
+	  lines=[]
+	  linenos=[]
+	  FileLineData.file="Data/Mods/#{mod}/PBS/encounters.txt"
+	  File.open("Data/Mods/#{mod}/PBS/encounters.txt","rb"){|f|
+		 lineno=1
+		 f.each_line {|line|
+			if lineno==1 && line[0]==0xEF && line[1]==0xBB && line[2]==0xBF
+			  line=line[3,line.length-3]
+			end
+			line=prepline(line)
+			if line.length!=0
+			  lines[lines.length]=line
+			  linenos[linenos.length]=lineno
+			end
+			lineno+=1
+		 }
+	  }
+
+	  thisenc=nil
+	  lastenc=-1
+	  lastenclen=0
+	  needdensity=false
+	  lastmapid=-1
+	  i=0;
+	  while i<lines.length
+		line=lines[i]
+		FileLineData.setLine(line,linenos[i])
+		mapid=line[/^\d+$/]
+		if mapid
+		  lastmapid=mapid
+		  if thisenc && (thisenc[1][EncounterTypes::Land] ||
+						 thisenc[1][EncounterTypes::LandMorning] ||
+						 thisenc[1][EncounterTypes::LandDay] ||
+						 thisenc[1][EncounterTypes::BugContest] ||
+						 thisenc[1][EncounterTypes::LandNight]) &&
+						 thisenc[1][EncounterTypes::Cave]
+			raise _INTL("Can't define both Land and Cave encounters in the same area (map ID {1})",mapid)
+		  end
+		  thisenc=[EncounterTypes::EnctypeDensities.clone,[]]
+		  encounters[mapid.to_i]=thisenc
+		  needdensity=true
+		  i+=1
+		  next
+		end
+		enc=findIndex(EncounterTypes::Names){|val| val==line}
+		if enc>=0
+		  needdensity=false
+		  enclines=EncounterTypes::EnctypeChances[enc].length
+		  encarray=[]
+		  j=i+1; k=0
+		  while j<lines.length && k<enclines
+			line=lines[j]
+			FileLineData.setLine(lines[j],linenos[j])
+			splitarr=strsplit(line,/\s*,\s*/)
+			if !splitarr || splitarr.length<2
+			  raise _INTL("In encounters.txt, expected a species entry line,\ngot \"{1}\" instead (probably too few entries in an encounter type).\nPlease check the format of the section numbered {2},\nwhich is just before this line.\n{3}",
+				 line,lastmapid,FileLineData.linereport)
+			end
+			splitarr[2]=splitarr[1] if splitarr.length==2
+			splitarr[1]=splitarr[1].to_i
+			splitarr[2]=splitarr[2].to_i
+			maxlevel=PBExperience::MAXLEVEL
+			if splitarr[1]<=0 || splitarr[1]>maxlevel
+			  raise _INTL("Level number is not valid: {1}\n{2}",splitarr[1],FileLineData.linereport)
+			end
+			if splitarr[2]<=0 || splitarr[2]>maxlevel
+			  raise _INTL("Level number is not valid: {1}\n{2}",splitarr[2],FileLineData.linereport)
+			end
+			if splitarr[1]>splitarr[2]
+			  raise _INTL("Minimum level is greater than maximum level: {1}\n{2}",line,FileLineData.linereport)
+			end
+			splitarr[0]=parseSpecies(splitarr[0])
+			linearr=splitarr
+			encarray.push(linearr)
+			thisenc[1][enc]=encarray
+			j+=1
+			k+=1
+		  end
+		  if j==lines.length && k<enclines
+			 raise _INTL("Reached end of file unexpectedly. There were too few entries in the last section, expected {1} entries.\nPlease check the format of the section numbered {2}.\n{3}",
+				enclines,lastmapid,FileLineData.linereport)
+		  end
+		  i=j
+		elsif needdensity
+		  needdensity=false
+		  nums=strsplit(line,/,/)
+		  if nums && nums.length>=3
+			for j in 0...EncounterTypes::EnctypeChances.length
+			  next if !EncounterTypes::EnctypeChances[j] ||
+					  EncounterTypes::EnctypeChances[j].length==0
+			  next if EncounterTypes::EnctypeCompileDens[j]==0
+			  thisenc[0][j]=nums[EncounterTypes::EnctypeCompileDens[j]-1].to_i
+			end
+		  else
+			raise _INTL("Wrong syntax for densities in encounters.txt; got \"{1}\"\n{2}",line,FileLineData.linereport)
+		  end
+		  i+=1
+		else
+		  raise _INTL("Undefined encounter type {1}, expected one of the following:\n{2}\n{3}",
+			 line,EncounterTypes::Names.inspect,FileLineData.linereport)
+		end
+	  end
   }
-  encounters={}
-  thisenc=nil
-  lastenc=-1
-  lastenclen=0
-  needdensity=false
-  lastmapid=-1
-  i=0;
-  while i<lines.length
-    line=lines[i]
-    FileLineData.setLine(line,linenos[i])
-    mapid=line[/^\d+$/]
-    if mapid
-      lastmapid=mapid
-      if thisenc && (thisenc[1][EncounterTypes::Land] ||
-                     thisenc[1][EncounterTypes::LandMorning] ||
-                     thisenc[1][EncounterTypes::LandDay] ||
-                     thisenc[1][EncounterTypes::BugContest] ||
-                     thisenc[1][EncounterTypes::LandNight]) &&
-                     thisenc[1][EncounterTypes::Cave]
-        raise _INTL("Can't define both Land and Cave encounters in the same area (map ID {1})",mapid)
-      end
-      thisenc=[EncounterTypes::EnctypeDensities.clone,[]]
-      encounters[mapid.to_i]=thisenc
-      needdensity=true
-      i+=1
-      next
-    end
-    enc=findIndex(EncounterTypes::Names){|val| val==line}
-    if enc>=0
-      needdensity=false
-      enclines=EncounterTypes::EnctypeChances[enc].length
-      encarray=[]
-      j=i+1; k=0
-      while j<lines.length && k<enclines
-        line=lines[j]
-        FileLineData.setLine(lines[j],linenos[j])
-        splitarr=strsplit(line,/\s*,\s*/)
-        if !splitarr || splitarr.length<2
-          raise _INTL("In encounters.txt, expected a species entry line,\ngot \"{1}\" instead (probably too few entries in an encounter type).\nPlease check the format of the section numbered {2},\nwhich is just before this line.\n{3}",
-             line,lastmapid,FileLineData.linereport)
-        end
-        splitarr[2]=splitarr[1] if splitarr.length==2
-        splitarr[1]=splitarr[1].to_i
-        splitarr[2]=splitarr[2].to_i
-        maxlevel=PBExperience::MAXLEVEL
-        if splitarr[1]<=0 || splitarr[1]>maxlevel
-          raise _INTL("Level number is not valid: {1}\n{2}",splitarr[1],FileLineData.linereport)
-        end
-        if splitarr[2]<=0 || splitarr[2]>maxlevel
-          raise _INTL("Level number is not valid: {1}\n{2}",splitarr[2],FileLineData.linereport)
-        end
-        if splitarr[1]>splitarr[2]
-          raise _INTL("Minimum level is greater than maximum level: {1}\n{2}",line,FileLineData.linereport)
-        end
-        splitarr[0]=parseSpecies(splitarr[0])
-        linearr=splitarr
-        encarray.push(linearr)
-        thisenc[1][enc]=encarray
-        j+=1
-        k+=1
-      end
-      if j==lines.length && k<enclines
-         raise _INTL("Reached end of file unexpectedly. There were too few entries in the last section, expected {1} entries.\nPlease check the format of the section numbered {2}.\n{3}",
-            enclines,lastmapid,FileLineData.linereport)
-      end
-      i=j
-    elsif needdensity
-      needdensity=false
-      nums=strsplit(line,/,/)
-      if nums && nums.length>=3
-        for j in 0...EncounterTypes::EnctypeChances.length
-          next if !EncounterTypes::EnctypeChances[j] ||
-                  EncounterTypes::EnctypeChances[j].length==0
-          next if EncounterTypes::EnctypeCompileDens[j]==0
-          thisenc[0][j]=nums[EncounterTypes::EnctypeCompileDens[j]-1].to_i
-        end
-      else
-        raise _INTL("Wrong syntax for densities in encounters.txt; got \"{1}\"\n{2}",line,FileLineData.linereport)
-      end
-      i+=1
-    else
-      raise _INTL("Undefined encounter type {1}, expected one of the following:\n{2}\n{3}",
-         line,EncounterTypes::Names.inspect,FileLineData.linereport)
-    end
-  end
-  save_data(encounters,"Data/encounters.dat")
+  $cache.encounters = encounters
+  save_data(encounters,"Data/Mods/encounters.dat")
 end
 
 def pbCompileModMoves
@@ -480,6 +502,7 @@ def pbCompileModMoves
 		  else
 			records[record[1]] = record[0]
 		  end
+		  puts "Added Move with id #{record[0]} and internalname #{record[1]} Overwrite? " + overwriting.to_s
 	  }
 	}
   File.open("Data/Mods/moves.dat","wb"){|file|
@@ -489,7 +512,7 @@ def pbCompileModMoves
   MessageTypes.setMessages(MessageTypes::Moves,movenames)
   MessageTypes.setMessages(MessageTypes::MoveDescriptions,movedescs)
   code="class PBMoves\n"
-   code+=hashtoString(records)
+  code+=hashtoString(records)
   code+="\ndef self.getName(id)\nreturn pbGetMessage(MessageTypes::Moves,id) if id < 10000 \nreturn PokeBattle_ZMoves::ZMOVENAMES[id-10001]\nend"
   code+="\ndef self.getCount\nreturn #{records.length}\nend"
   code+="\ndef self.maxValue\nreturn #{maxValue}\nend\nend"
@@ -536,240 +559,245 @@ def pbCompileModAbilities()
   pbAddModScript(code,"PBAbilities")
 end
 
-def pbCompileTrainers
-  # Trainer types
-  records=[]
-  trainernames=[]
-  count=0
-  maxValue=0
-  pbCompilerEachPreppedLine("PBS/trainertypes.txt"){|line,lineno|
-     record=pbGetCsvRecord(line,lineno,[0,"unsUSSSeU", # ID can be 0
-        nil,nil,nil,nil,nil,nil,nil,{
-        ""=>2,"Male"=>0,"M"=>0,"0"=>0,"Female"=>1,"F"=>1,"1"=>1,"Mixed"=>2,"X"=>2,"2"=>2
-        },nil]
-     )
-     if record[3] && (record[3]<0 || record[3]>255)
-       raise _INTL("Bad money amount (must be from 0 through 255)\n{1}",FileLineData.linereport)
-     end
-     record[3]=30 if !record[3]
-     if record[8] && (record[8]<0 || record[8]>255)
-       raise _INTL("Bad skill value (must be from 0 through 255)\n{1}",FileLineData.linereport)
-     end
-     record[8]=record[3] if !record[8]
-     trainernames[record[0]]=record[2]
-     if records[record[0]]
-       raise _INTL("Two trainer types ({1} and {2}) have the same ID ({3}), which is not allowed.\n{4}",
-          records[record[0]][1],record[1],record[0],FileLineData.linereport)
-     end
-     records[record[0]]=record
-     maxValue=[maxValue,record[0]].max
-  }
-  count=records.compact.length
-  MessageTypes.setMessages(MessageTypes::TrainerTypes,trainernames)
-  code="class PBTrainers\n"
-  for rec in records
-    next if !rec
-    code+="#{rec[1]}=#{rec[0]}\n"
-  end
-  code+="\ndef self.getName(id)\nreturn pbGetMessage(MessageTypes::TrainerTypes,id)\nend"
-  code+="\ndef self.getCount\nreturn #{count}\nend"
-  code+="\ndef self.maxValue\nreturn #{maxValue}\nend\nend"
-  eval(code)
-  pbAddScript(code,"PBTrainers")
-  File.open("Data/trainertypes.dat","wb"){|f|
-     Marshal.dump(records,f)
-  }
-  # Individual trainers
-  lines=[]
-  linenos=[]
-  lineno=1
-  File.open("PBS/trainers.txt","rb"){|f|
-     FileLineData.file="PBS/trainers.txt"
-     f.each_line {|line|
-        if lineno==1 && line[0]==0xEF && line[1]==0xBB && line[2]==0xBF
-          line=line[3,line.length-3]
-        end
-        line=prepline(line)
-        if line!=""
-          lines.push(line)
-          linenos.push(lineno)
-        end
-        lineno+=1
-     }
-  }
-  trainers=Array.new(maxValue)
-  for i in 0..trainers.length
-    trainers[i] = []
-  end
-  trainernames.clear
-  i=0; loop do break unless i<lines.length
-    FileLineData.setLine(lines[i],linenos[i])
-    trainername=parseTrainer(lines[i])
-    FileLineData.setLine(lines[i+1],linenos[i+1])
-    nameline=strsplit(lines[i+1],/\s*,\s*/)
-    name=nameline[0]
-    raise _INTL("Trainer name too long\n{1}",FileLineData.linereport) if name.length>=0x10000
-    trainernames.push(name)
-    partyid=0
-    if nameline[1] && nameline[1]!=""
-      raise _INTL("Expected a number for the trainer battle ID\n{1}",FileLineData.linereport) if !nameline[1][/^\d+$/]
-      partyid=nameline[1].to_i
-    end
-    FileLineData.setLine(lines[i+2],linenos[i+2])
-    items=strsplit(lines[i+2],/\s*,\s*/)
-    items[0].gsub!(/^\s+/,"")   # Number of Pokémon
-    raise _INTL("Expected a number for the number of Pokémon\n{1}",FileLineData.linereport) if !items[0][/^\d+$/]
-    numpoke=items[0].to_i
-    realitems=[]
-    for j in 1...items.length   # Items held by Trainer
-      realitems.push(parseItem(items[j])) if items[j] && items[j]!=""
-    end
-    pkmn=[]
-    for j in 0...numpoke
-      FileLineData.setLine(lines[i+j+3],linenos[i+j+3])
-      poke=strsplit(lines[i+j+3],/\s*,\s*/)
-      begin
-        # Species
-        poke[TPSPECIES]=parseSpecies(poke[TPSPECIES])
-      rescue
-        raise _INTL("Expected a species name: {1}\n{2}",poke[0],FileLineData.linereport)
-      end
-      # Level
-      poke[TPLEVEL]=poke[TPLEVEL].to_i
-      raise _INTL("Bad level: {1} (must be from 1-{2})\n{3}",poke[TPLEVEL],
-        PBExperience::MAXLEVEL,FileLineData.linereport) if poke[TPLEVEL]<=0 || poke[TPLEVEL]>PBExperience::MAXLEVEL
-      # Held item
-      if !poke[TPITEM] || poke[TPITEM]==""
-        poke[TPITEM]=TPDEFAULTS[TPITEM]
-      else
-        poke[TPITEM]=parseItem(poke[TPITEM])
-      end
-      # Moves
-      moves=[]
-      for j in [TPMOVE1,TPMOVE2,TPMOVE3,TPMOVE4]
-        moves.push(parseMove(poke[j])) if poke[j] && poke[j]!=""
-      end
-      for j in 0...4
-        index=[TPMOVE1,TPMOVE2,TPMOVE3,TPMOVE4][j]
-        if moves[j] && moves[j]!=0
-          poke[index]=moves[j]
-        else
-          poke[index]=TPDEFAULTS[index]
-        end
-      end
-      # Ability
-      if !poke[TPABILITY] || poke[TPABILITY]==""
-        poke[TPABILITY]=TPDEFAULTS[TPABILITY]
-      else
-        poke[TPABILITY]=poke[TPABILITY].to_i
-        raise _INTL("Bad abilityflag: {1} (must be 0 or 1 or 2-5)\n{2}",poke[TPABILITY],FileLineData.linereport) if poke[TPABILITY]<0 || poke[TPABILITY]>5
-      end
-      # Gender
-      if !poke[TPGENDER] || poke[TPGENDER]==""
-        poke[TPGENDER]=TPDEFAULTS[TPGENDER]
-      else
-        if poke[TPGENDER]=="M"
-          poke[TPGENDER]=0
-        elsif poke[TPGENDER]=="F"
-          poke[TPGENDER]=1
-        elsif poke[TPGENDER]=="U"
-          poke[TPGENDER]=2
-        else
-          poke[TPGENDER]=poke[TPGENDER].to_i
-          raise _INTL("Bad genderflag: {1} (must be M or F or U, or 0 or 1 or 2)\n{2}",poke[TPGENDER],FileLineData.linereport) if poke[TPGENDER]<0 || poke[TPGENDER]>2
-        end
-      end
-      # Form
-      if !poke[TPFORM] || poke[TPFORM]==""
-        poke[TPFORM]=TPDEFAULTS[TPFORM]
-      else
-        poke[TPFORM]=poke[TPFORM].to_i
-        raise _INTL("Bad form: {1} (must be 0 or greater)\n{2}",poke[TPFORM],FileLineData.linereport) if poke[TPFORM]<0
-      end
-      # Shiny
-      if !poke[TPSHINY] || poke[TPSHINY]==""
-        poke[TPSHINY]=TPDEFAULTS[TPSHINY]
-      elsif poke[TPSHINY]=="shiny"
-        poke[TPSHINY]=true
-      else
-        poke[TPSHINY]=csvBoolean!(poke[TPSHINY].clone)
-      end
-      # Nature
-      if !poke[TPNATURE] || poke[TPNATURE]==""
-        poke[TPNATURE]=TPDEFAULTS[TPNATURE]
-      else
-        poke[TPNATURE]=parseNature(poke[TPNATURE])
-      end
-      # IVs
-      if !poke[TPIV] || poke[TPIV]==""
-        poke[TPIV]=TPDEFAULTS[TPIV]
-      else
-        poke[TPIV]=poke[TPIV].to_i
-        raise _INTL("Bad IV: {1} (must be from 0-31 (32 special case))\n{2}",poke[TPIV],FileLineData.linereport) if poke[TPIV]<0 || poke[TPIV]>32
-      end
-      # Happiness
-      if !poke[TPHAPPINESS] || poke[TPHAPPINESS]==""
-        poke[TPHAPPINESS]=TPDEFAULTS[TPHAPPINESS]
-      else
-        poke[TPHAPPINESS]=poke[TPHAPPINESS].to_i
-        raise _INTL("Bad happiness: {1} (must be from 0-255)\n{2}",poke[TPHAPPINESS],FileLineData.linereport) if poke[TPHAPPINESS]<0 || poke[TPHAPPINESS]>255
-      end
-      # Nickname
-      if !poke[TPNAME] || poke[TPNAME]==""
-        poke[TPNAME]=TPDEFAULTS[TPNAME]
-      else
-        poke[TPNAME]=poke[TPNAME].to_s
-        raise _INTL("Bad nickname: {1} (must be 1-20 characters)\n{2}",poke[TPNAME],FileLineData.linereport) if (poke[TPNAME].to_s).length>20
-      end
-      # Shadow
-      if !poke[TPSHADOW] || poke[TPSHADOW]==""
-        poke[TPSHADOW]=TPDEFAULTS[TPSHADOW]
-      else
-        poke[TPSHADOW]=csvBoolean!(poke[TPSHADOW].clone)
-      end
-      # Ball
-      if !poke[TPBALL] || poke[TPBALL]==""
-        poke[TPBALL]=TPDEFAULTS[TPBALL]
-      else
-        poke[TPBALL]=poke[TPBALL].to_i
-        raise _INTL("Bad form: {1} (must be 0 or greater)\n{2}",poke[TPBALL],FileLineData.linereport) if poke[TPBALL]<0
-      end
-      for value in [TPHPEV,TPATKEV,TPDEFEV,TPSPEEV,TPSPAEV,TPSPDEV]
-        if !poke[value] || poke[value]==""
-          poke[value]=TPDEFAULTS[value]
-        else
-          poke[value]=poke[value].to_i
-        end
-      end
-      pkmn.push(poke)
-    end
-    i+=3+numpoke
-    MessageTypes.setMessagesAsHash(MessageTypes::TrainerNames,trainernames)
-    trainers[trainername].push([name,realitems,pkmn,partyid])
-  end
-  fulltrainerdata = Array.new(maxValue)
-  #build hashes for each trainer class
-  for i in 0...trainers.length
-    namearray=[]
-    classhash = {}
-    trainerlist = trainers[i]
-    for trainer in trainerlist #make a list of the names in each class
-      namearray.push(trainer[0])
-    end
-    namearray.uniq!
-    for name in namearray
-      namehash = {}
-      for trainer in trainerlist
-        next if trainer[0] != name
-        namehash[trainer[3]] = [trainer[2],trainer[1]] #we don't want this to be an array since some IDs are >1000
-      end
-      classhash[name] = namehash
-    end
-    fulltrainerdata[i] = classhash
-  end
-  save_data(fulltrainerdata,"Data/trainers.dat")
-  $cache.trainers = fulltrainerdata
-end
+# def pbCompileModTrainers
+  # # Trainer types
+  # records=moduleToHash(PBTrainers)
+  # trainernames=getAllPokemonMessages(MessageTypes::TrainerTypes)
+  # count=PBTrainers.count
+  # maxValue=PBTrainers.maxValue
+  # mods.each{ |mod| 
+	  # next if !($ModSettings[mod]["ModPBS"].include?("trainertypes"))
+	  # pbCompilerEachPreppedLine("Data/Mods/" + mod + "/PBS/trainertypes.txt"){|line,lineno|
+		 # record=pbGetCsvRecord(line,lineno,[0,"unsUSSSeU", # ID can be 0
+			# nil,nil,nil,nil,nil,nil,nil,{
+			# ""=>2,"Male"=>0,"M"=>0,"0"=>0,"Female"=>1,"F"=>1,"1"=>1,"Mixed"=>2,"X"=>2,"2"=>2
+			# },nil]
+		 # )
+		 # if record[3] && (record[3]<0 || record[3]>255)
+		   # raise _INTL("Bad money amount (must be from 0 through 255)\n{1}",FileLineData.linereport)
+		 # end
+		 # record[3]=30 if !record[3]
+		 # if record[8] && (record[8]<0 || record[8]>255)
+		   # raise _INTL("Bad skill value (must be from 0 through 255)\n{1}",FileLineData.linereport)
+		 # end
+		 # record[8]=record[3] if !record[8]
+		 # trainernames[record[0]]=record[2]
+		 # if records[record[0]]
+		   # raise _INTL("Two trainer types ({1} and {2}) have the same ID ({3}), which is not allowed.\n{4}",
+			  # records[record[0]][1],record[1],record[0],FileLineData.linereport)
+		 # end
+		 # records[record[0]]=record
+		 # maxValue=[maxValue,record[0]].max
+	  # }
+	# }
+  # count=records.compact.length
+  # MessageTypes.setMessages(MessageTypes::TrainerTypes,trainernames)
+  # code="class PBTrainers\n"
+  # for rec in records
+    # next if !rec
+    # code+="#{rec[1]}=#{rec[0]}\n"
+  # end
+  # code+="\ndef self.getName(id)\nreturn pbGetMessage(MessageTypes::TrainerTypes,id)\nend"
+  # code+="\ndef self.getCount\nreturn #{count}\nend"
+  # code+="\ndef self.maxValue\nreturn #{maxValue}\nend\nend"
+  # eval(code)
+  # pbAddScript(code,"PBTrainers")
+  # File.open("Data/trainertypes.dat","wb"){|f|
+     # Marshal.dump(records,f)
+  # }
+  # # Individual trainers
+  # mods.each{ |mod| 
+	  # next if !($ModSettings[mod]["ModPBS"].include?("trainers"))
+	  # lines=[]
+	  # linenos=[]
+	  # lineno=1
+	  # File.open("PBS/trainers.txt","rb"){|f|
+		 # FileLineData.file="PBS/trainers.txt"
+		 # f.each_line {|line|
+			# if lineno==1 && line[0]==0xEF && line[1]==0xBB && line[2]==0xBF
+			  # line=line[3,line.length-3]
+			# end
+			# line=prepline(line)
+			# if line!=""
+			  # lines.push(line)
+			  # linenos.push(lineno)
+			# end
+			# lineno+=1
+		 # }
+	  # }
+	  # trainers=Array.new(maxValue)
+	  # for i in 0..trainers.length
+		# trainers[i] = []
+	  # end
+	  # trainernames.clear
+	  # i=0; loop do break unless i<lines.length
+		# FileLineData.setLine(lines[i],linenos[i])
+		# trainername=parseTrainer(lines[i])
+		# FileLineData.setLine(lines[i+1],linenos[i+1])
+		# nameline=strsplit(lines[i+1],/\s*,\s*/)
+		# name=nameline[0]
+		# raise _INTL("Trainer name too long\n{1}",FileLineData.linereport) if name.length>=0x10000
+		# trainernames.push(name)
+		# partyid=0
+		# if nameline[1] && nameline[1]!=""
+		  # raise _INTL("Expected a number for the trainer battle ID\n{1}",FileLineData.linereport) if !nameline[1][/^\d+$/]
+		  # partyid=nameline[1].to_i
+		# end
+		# FileLineData.setLine(lines[i+2],linenos[i+2])
+		# items=strsplit(lines[i+2],/\s*,\s*/)
+		# items[0].gsub!(/^\s+/,"")   # Number of Pokémon
+		# raise _INTL("Expected a number for the number of Pokémon\n{1}",FileLineData.linereport) if !items[0][/^\d+$/]
+		# numpoke=items[0].to_i
+		# realitems=[]
+		# for j in 1...items.length   # Items held by Trainer
+		  # realitems.push(parseItem(items[j])) if items[j] && items[j]!=""
+		# end
+		# pkmn=[]
+		# for j in 0...numpoke
+		  # FileLineData.setLine(lines[i+j+3],linenos[i+j+3])
+		  # poke=strsplit(lines[i+j+3],/\s*,\s*/)
+		  # begin
+			# # Species
+			# poke[TPSPECIES]=parseSpecies(poke[TPSPECIES])
+		  # rescue
+			# raise _INTL("Expected a species name: {1}\n{2}",poke[0],FileLineData.linereport)
+		  # end
+		  # # Level
+		  # poke[TPLEVEL]=poke[TPLEVEL].to_i
+		  # raise _INTL("Bad level: {1} (must be from 1-{2})\n{3}",poke[TPLEVEL],
+			# PBExperience::MAXLEVEL,FileLineData.linereport) if poke[TPLEVEL]<=0 || poke[TPLEVEL]>PBExperience::MAXLEVEL
+		  # # Held item
+		  # if !poke[TPITEM] || poke[TPITEM]==""
+			# poke[TPITEM]=TPDEFAULTS[TPITEM]
+		  # else
+			# poke[TPITEM]=parseItem(poke[TPITEM])
+		  # end
+		  # # Moves
+		  # moves=[]
+		  # for j in [TPMOVE1,TPMOVE2,TPMOVE3,TPMOVE4]
+			# moves.push(parseMove(poke[j])) if poke[j] && poke[j]!=""
+		  # end
+		  # for j in 0...4
+			# index=[TPMOVE1,TPMOVE2,TPMOVE3,TPMOVE4][j]
+			# if moves[j] && moves[j]!=0
+			  # poke[index]=moves[j]
+			# else
+			  # poke[index]=TPDEFAULTS[index]
+			# end
+		  # end
+		  # # Ability
+		  # if !poke[TPABILITY] || poke[TPABILITY]==""
+			# poke[TPABILITY]=TPDEFAULTS[TPABILITY]
+		  # else
+			# poke[TPABILITY]=poke[TPABILITY].to_i
+			# raise _INTL("Bad abilityflag: {1} (must be 0 or 1 or 2-5)\n{2}",poke[TPABILITY],FileLineData.linereport) if poke[TPABILITY]<0 || poke[TPABILITY]>5
+		  # end
+		  # # Gender
+		  # if !poke[TPGENDER] || poke[TPGENDER]==""
+			# poke[TPGENDER]=TPDEFAULTS[TPGENDER]
+		  # else
+			# if poke[TPGENDER]=="M"
+			  # poke[TPGENDER]=0
+			# elsif poke[TPGENDER]=="F"
+			  # poke[TPGENDER]=1
+			# elsif poke[TPGENDER]=="U"
+			  # poke[TPGENDER]=2
+			# else
+			  # poke[TPGENDER]=poke[TPGENDER].to_i
+			  # raise _INTL("Bad genderflag: {1} (must be M or F or U, or 0 or 1 or 2)\n{2}",poke[TPGENDER],FileLineData.linereport) if poke[TPGENDER]<0 || poke[TPGENDER]>2
+			# end
+		  # end
+		  # # Form
+		  # if !poke[TPFORM] || poke[TPFORM]==""
+			# poke[TPFORM]=TPDEFAULTS[TPFORM]
+		  # else
+			# poke[TPFORM]=poke[TPFORM].to_i
+			# raise _INTL("Bad form: {1} (must be 0 or greater)\n{2}",poke[TPFORM],FileLineData.linereport) if poke[TPFORM]<0
+		  # end
+		  # # Shiny
+		  # if !poke[TPSHINY] || poke[TPSHINY]==""
+			# poke[TPSHINY]=TPDEFAULTS[TPSHINY]
+		  # elsif poke[TPSHINY]=="shiny"
+			# poke[TPSHINY]=true
+		  # else
+			# poke[TPSHINY]=csvBoolean!(poke[TPSHINY].clone)
+		  # end
+		  # # Nature
+		  # if !poke[TPNATURE] || poke[TPNATURE]==""
+			# poke[TPNATURE]=TPDEFAULTS[TPNATURE]
+		  # else
+			# poke[TPNATURE]=parseNature(poke[TPNATURE])
+		  # end
+		  # # IVs
+		  # if !poke[TPIV] || poke[TPIV]==""
+			# poke[TPIV]=TPDEFAULTS[TPIV]
+		  # else
+			# poke[TPIV]=poke[TPIV].to_i
+			# raise _INTL("Bad IV: {1} (must be from 0-31 (32 special case))\n{2}",poke[TPIV],FileLineData.linereport) if poke[TPIV]<0 || poke[TPIV]>32
+		  # end
+		  # # Happiness
+		  # if !poke[TPHAPPINESS] || poke[TPHAPPINESS]==""
+			# poke[TPHAPPINESS]=TPDEFAULTS[TPHAPPINESS]
+		  # else
+			# poke[TPHAPPINESS]=poke[TPHAPPINESS].to_i
+			# raise _INTL("Bad happiness: {1} (must be from 0-255)\n{2}",poke[TPHAPPINESS],FileLineData.linereport) if poke[TPHAPPINESS]<0 || poke[TPHAPPINESS]>255
+		  # end
+		  # # Nickname
+		  # if !poke[TPNAME] || poke[TPNAME]==""
+			# poke[TPNAME]=TPDEFAULTS[TPNAME]
+		  # else
+			# poke[TPNAME]=poke[TPNAME].to_s
+			# raise _INTL("Bad nickname: {1} (must be 1-20 characters)\n{2}",poke[TPNAME],FileLineData.linereport) if (poke[TPNAME].to_s).length>20
+		  # end
+		  # # Shadow
+		  # if !poke[TPSHADOW] || poke[TPSHADOW]==""
+			# poke[TPSHADOW]=TPDEFAULTS[TPSHADOW]
+		  # else
+			# poke[TPSHADOW]=csvBoolean!(poke[TPSHADOW].clone)
+		  # end
+		  # # Ball
+		  # if !poke[TPBALL] || poke[TPBALL]==""
+			# poke[TPBALL]=TPDEFAULTS[TPBALL]
+		  # else
+			# poke[TPBALL]=poke[TPBALL].to_i
+			# raise _INTL("Bad form: {1} (must be 0 or greater)\n{2}",poke[TPBALL],FileLineData.linereport) if poke[TPBALL]<0
+		  # end
+		  # for value in [TPHPEV,TPATKEV,TPDEFEV,TPSPEEV,TPSPAEV,TPSPDEV]
+			# if !poke[value] || poke[value]==""
+			  # poke[value]=TPDEFAULTS[value]
+			# else
+			  # poke[value]=poke[value].to_i
+			# end
+		  # end
+		  # pkmn.push(poke)
+		# end
+		# i+=3+numpoke
+		# MessageTypes.setMessagesAsHash(MessageTypes::TrainerNames,trainernames)
+		# trainers[trainername].push([name,realitems,pkmn,partyid])
+	  # end
+  # fulltrainerdata = Array.new(maxValue)
+  # # build hashes for each trainer class
+  # for i in 0...trainers.length
+    # namearray=[]
+    # classhash = {}
+    # trainerlist = trainers[i]
+    # for trainer in trainerlist #make a list of the names in each class
+      # namearray.push(trainer[0])
+    # end
+    # namearray.uniq!
+    # for name in namearray
+      # namehash = {}
+      # for trainer in trainerlist
+        # next if trainer[0] != name
+        # namehash[trainer[3]] = [trainer[2],trainer[1]] #we don't want this to be an array since some IDs are >1000
+      # end
+      # classhash[name] = namehash
+    # end
+    # fulltrainerdata[i] = classhash
+  # end
+  # save_data(fulltrainerdata,"Data/trainers.dat")
+  # $cache.trainers = fulltrainerdata
+# end
 
 
 def pbCompileModMachines
@@ -837,69 +865,69 @@ def pbCompileModMachines
 end
 
 
-def pbCompileTrainerLists
-  btTrainersRequiredTypes={
-     "Trainers"=>[0,"s"],
-     "Pokemon"=>[1,"s"],
-     "Challenges"=>[2,"*s"]
-  }
-  if !safeExists?("PBS/trainerlists.txt")
-    File.open("PBS/trainerlists.txt","wb"){|f|
-       f.write("[DefaultTrainerList]\nTrainers=bttrainers.txt\nPokemon=btpokemon.txt\n")
-    }
-  end
-  database=[]
-  sections=[]
-  MessageTypes.setMessagesAsHash(MessageTypes::BeginSpeech,[])
-  MessageTypes.setMessagesAsHash(MessageTypes::EndSpeechWin,[])
-  MessageTypes.setMessagesAsHash(MessageTypes::EndSpeechLose,[])
-  File.open("PBS/trainerlists.txt","rb"){|f|
-     pbEachFileSectionEx(f){|section,name|
-        next if name!="DefaultTrainerList" && name!="TrainerList"
-        rsection=[]
-        for key in section.keys
-          FileLineData.setSection(name,key,section[key])
-          schema=btTrainersRequiredTypes[key]
-          next if key=="Challenges" && name=="DefaultTrainerList"
-          next if !schema
-          record=pbGetCsvRecord(section[key],0,schema)
-          rsection[schema[0]]=record
-        end
-        if !rsection[0]
-          raise _INTL("No trainer data file given in section {1}\n{2}",name,FileLineData.linereport)
-        end
-        if !rsection[1]
-          raise _INTL("No trainer data file given in section {1}\n{2}",name,FileLineData.linereport)
-        end
-        rsection[3]=rsection[0]
-        rsection[4]=rsection[1]
-        rsection[5]=(name=="DefaultTrainerList")
-        if safeExists?("PBS/"+rsection[0])
-          rsection[0]=pbCompileBTTrainers("PBS/"+rsection[0])
-        else
-          rsection[0]=[]
-        end
-        if safeExists?("PBS/"+rsection[1])
-          filename="PBS/"+rsection[1]
-          rsection[1]=[]
-          pbCompilerEachCommentedLine(filename){|line,lineno|
-             rsection[1].push(PBPokemon.fromInspected(line))
-          }
-        else
-          rsection[1]=[]
-        end
-        if !rsection[2]
-          rsection[2]=[]
-        end
-        while rsection[2].include?("")
-          rsection[2].delete("")
-        end
-        rsection[2].compact!
-        sections.push(rsection)
-     }
-  }
-  save_data(sections,"Data/trainerlists.dat")
-end
+# def pbCompileTrainerLists
+  # btTrainersRequiredTypes={
+     # "Trainers"=>[0,"s"],
+     # "Pokemon"=>[1,"s"],
+     # "Challenges"=>[2,"*s"]
+  # }
+  # if !safeExists?("PBS/trainerlists.txt")
+    # File.open("PBS/trainerlists.txt","wb"){|f|
+       # f.write("[DefaultTrainerList]\nTrainers=bttrainers.txt\nPokemon=btpokemon.txt\n")
+    # }
+  # end
+  # database=[]
+  # sections=[]
+  # MessageTypes.setMessagesAsHash(MessageTypes::BeginSpeech,[])
+  # MessageTypes.setMessagesAsHash(MessageTypes::EndSpeechWin,[])
+  # MessageTypes.setMessagesAsHash(MessageTypes::EndSpeechLose,[])
+  # File.open("PBS/trainerlists.txt","rb"){|f|
+     # pbEachFileSectionEx(f){|section,name|
+        # next if name!="DefaultTrainerList" && name!="TrainerList"
+        # rsection=[]
+        # for key in section.keys
+          # FileLineData.setSection(name,key,section[key])
+          # schema=btTrainersRequiredTypes[key]
+          # next if key=="Challenges" && name=="DefaultTrainerList"
+          # next if !schema
+          # record=pbGetCsvRecord(section[key],0,schema)
+          # rsection[schema[0]]=record
+        # end
+        # if !rsection[0]
+          # raise _INTL("No trainer data file given in section {1}\n{2}",name,FileLineData.linereport)
+        # end
+        # if !rsection[1]
+          # raise _INTL("No trainer data file given in section {1}\n{2}",name,FileLineData.linereport)
+        # end
+        # rsection[3]=rsection[0]
+        # rsection[4]=rsection[1]
+        # rsection[5]=(name=="DefaultTrainerList")
+        # if safeExists?("PBS/"+rsection[0])
+          # rsection[0]=pbCompileBTTrainers("PBS/"+rsection[0])
+        # else
+          # rsection[0]=[]
+        # end
+        # if safeExists?("PBS/"+rsection[1])
+          # filename="PBS/"+rsection[1]
+          # rsection[1]=[]
+          # pbCompilerEachCommentedLine(filename){|line,lineno|
+             # rsection[1].push(PBPokemon.fromInspected(line))
+          # }
+        # else
+          # rsection[1]=[]
+        # end
+        # if !rsection[2]
+          # rsection[2]=[]
+        # end
+        # while rsection[2].include?("")
+          # rsection[2].delete("")
+        # end
+        # rsection[2].compact!
+        # sections.push(rsection)
+     # }
+  # }
+  # save_data(sections,"Data/trainerlists.dat")
+# end
 
 def pbCompileTypes
   sections=[]
@@ -1427,6 +1455,7 @@ def pbCompileAllModData(mustcompile)
     # # Depends on PBSpecies, PBMoves
     puts "Compiling mod machine data"
     pbCompileModMachines
+	
     # # Depends on PBSpecies, PBItems, PBMoves
     # yield(_INTL("Compiling Trainer data"))
     # #pbCompileModTrainers
@@ -1440,8 +1469,8 @@ def pbCompileAllModData(mustcompile)
     # yield(_INTL("Compiling battle Trainer data"))
     # #pbCompileModTrainerLists
     # # Depends on PBSpecies
-    # yield(_INTL("Compiling encounter data"))
-    # #pbCompileModEncounters
+    puts "Compiling encounter data"
+    pbCompileModEncounters
     # # Depends on PBSpecies, PBMoves
     # yield(_INTL("Compiling shadow move data"))
     # #pbCompileModShadowMoves
@@ -1474,117 +1503,115 @@ def doneCompiling
 	File.open("Data/Mods/mustcompile.ini", "w") { |f| f.write "done" }
 end
 
-def quickCompile
-  msgwindow=Kernel.pbCreateMessageWindow;pbCompileAllData(true) {|msg| Kernel.pbMessageDisplay(msgwindow,msg,false) }
-end
+# def quickCompile
+  # msgwindow=Kernel.pbCreateMessageWindow;pbCompileAllData(true) {|msg| Kernel.pbMessageDisplay(msgwindow,msg,false) }
+# end
 
-def pbCompileFields
-	fields = []
-	for i in 0...43
-		rawfield = FIELDEFFECTS[i]
-		next if !rawfield
-		currentfield = FEData.new
-		#Basic data copying
-		currentfield.fieldname 			= rawfield[:FIELDNAME] 		  if rawfield[:FIELDNAME]
-		currentfield.intromessage 		= rawfield[:INTROMESSAGE] 	  if rawfield[:INTROMESSAGE] 
-		currentfield.fieldgraphics 		= rawfield[:FIELDGRAPHICS] 	  if rawfield[:FIELDGRAPHICS] 
-		currentfield.secretpoweranim 	= rawfield[:SECRETPOWERANIM]  if rawfield[:SECRETPOWERANIM] 
-		currentfield.naturemoves 		= rawfield[:NATUREMOVES] 	  if rawfield[:NATUREMOVES] 
-		currentfield.mimicry 			= rawfield[:MIMICRY] 		  if rawfield[:MIMICRY]
-		currentfield.statusmoveboost 	= rawfield[:STATUSMOVEBOOST]  if rawfield[:STATUSMOVEBOOST]
-		#now for worse shit
-		#invert hashes such that move => mod
-		movedamageboost 	= pbHashForwardizer(rawfield[:MOVEDAMAGEBOOST]) 	|| {}
-		movetypemod 		= pbHashForwardizer(rawfield[:MOVETYPEMOD])  		|| {}
-		movetypechange 		= pbHashForwardizer(rawfield[:MOVETYPECHANGE])  	|| {}
-		moveaccuracyboost 	= pbHashForwardizer(rawfield[:MOVEACCURACYBOOST]) 	|| {}
-		typedamageboost 	= pbHashForwardizer(rawfield[:TYPEDAMAGEBOOST]) 	|| {}
-		typetypemod 		= pbHashForwardizer(rawfield[:TYPETYPEMOD])  		|| {}
-		typetypechange 		= pbHashForwardizer(rawfield[:TYPETYPECHANGE])  	|| {}
-		fieldchange 		= pbHashForwardizer(rawfield[:FIELDCHANGE]) 		|| {}
-		typecondition 		= rawfield[:TYPECONDITION] 	 ? rawfield[:TYPECONDITION]   : {}
-		changecondition 	= rawfield[:CHANGECONDITION] ? rawfield[:CHANGECONDITION] : {}
-    dontchangebackup  = rawfield[:DONTCHANGEBACKUP] ? rawfield[:DONTCHANGEBACKUP] : {}
-		changeeffects 		= rawfield[:CHANGEEFFECTS] 	 ? rawfield[:CHANGEEFFECTS]   : {}
-
-		#messages get stored separately and are replaced by an index
-		movemessages  = rawfield[:MOVEMESSAGES]  || {}
-		typemessages  = rawfield[:TYPEMESSAGES]  || {} 
-		changemessage = rawfield[:CHANGEMESSAGE] || {}
-		movemessagelist = []
-		typemessagelist = []
-		changemessagelist = []
-		[movemessages,typemessages,changemessage].each_with_index{|hashdata, index|
-			messagelist = hashdata.keys
-			newhashdata = {}
-			hashdata.each {|key, value|
-				newhashdata[messagelist.index(key)+1] = value
-			}
-			invhash = pbHashForwardizer(newhashdata)
-			case index
-			when 0
-				movemessagelist = messagelist
-				movemessages = invhash
-			when 1
-				typemessagelist = messagelist
-				typemessages = invhash
-			when 2
-				changemessagelist = messagelist
-				changemessage = invhash
-			end
-		}
-
-		#now we have all our hashes de-backwarded, and can fuse them all together.
-		#first, moves:
-		#get all the keys in one place
-		keys = (movedamageboost.keys << movetypemod.keys << movetypechange.keys << moveaccuracyboost.keys << fieldchange.keys).flatten 
-		#now we take all the old hashes and squish them into one:
-		fieldmovedata = {}
-		for move in keys
-			movedata = {}
-			movedata[:mult] = movedamageboost[move] if movedamageboost[move]
-			movedata[:typemod] = movetypemod[move] if movetypemod[move]
-			movedata[:typechange] = movetypechange[move] if movetypechange[move]
-			movedata[:accmod] = moveaccuracyboost[move] if moveaccuracyboost[move]
-			movedata[:multtext] = movemessages[move] if movemessages[move]
-			movedata[:fieldchange] = fieldchange[move] if fieldchange[move]
-			movedata[:changetext] = changemessage[move] if changemessage[move]
-			movedata[:changeeffect] = changeeffects[move] if changeeffects[move]
-      movedata[:dontchangebackup] = dontchangebackup.include?(move) ? true : false
-			fieldmovedata[move] = movedata
-		end
-		#now, types!
-		fieldtypedata = {}
-		keys = (typedamageboost.keys << typetypemod.keys << typetypechange.keys).flatten
-		for type in keys
-			typedata = {}
-			typedata[:mult] = typedamageboost[type] if typedamageboost[type]
-			typedata[:typemod] = typetypemod[type] if typetypemod[type]
-			typedata[:typechange] = typetypechange[type] if typetypechange[type]
-			typedata[:multtext] = typemessages[type] if typemessages[type]
-			typedata[:condition] = typecondition[type] if typecondition[type]
-			fieldtypedata[type] = typedata
-		end
-		#seeds for good measure.
-		seeddata = {}
-		seeddata = {
-			:seedtype => rawfield[:SEED],
-			:effect => rawfield[:SEEDEFFECT],
-			:duration => rawfield[:SEEDEFFECTVAL],
-			:message => rawfield[:SEEDEFFECTSTR],
-			:animation => rawfield[:SEEDANIM],
-			:stats => rawfield[:SEEDSTATS]
-		}
-		currentfield.fieldtypedata = fieldtypedata
-		currentfield.fieldmovedata = fieldmovedata
-		currentfield.seeddata = seeddata
-		currentfield.movemessagelist = movemessagelist
-		currentfield.typemessagelist = typemessagelist
-		currentfield.changemessagelist = changemessagelist
-    currentfield.fieldchangeconditions = changecondition
-		#all done!
-		fields.push(currentfield)
-	end
-	save_data(fields,"Data/fields.dat")
-	$cache.FEData = fields
-end
+# def pbCompileFields
+	# fields = []
+	# for i in 0...43
+		# rawfield = FIELDEFFECTS[i]
+		# next if !rawfield
+		# currentfield = FEData.new
+		# #Basic data copying
+		# currentfield.fieldname 			= rawfield[:FIELDNAME] 		  if rawfield[:FIELDNAME]
+		# currentfield.intromessage 		= rawfield[:INTROMESSAGE] 	  if rawfield[:INTROMESSAGE] 
+		# currentfield.fieldgraphics 		= rawfield[:FIELDGRAPHICS] 	  if rawfield[:FIELDGRAPHICS] 
+		# currentfield.secretpoweranim 	= rawfield[:SECRETPOWERANIM]  if rawfield[:SECRETPOWERANIM] 
+		# currentfield.naturemoves 		= rawfield[:NATUREMOVES] 	  if rawfield[:NATUREMOVES] 
+		# currentfield.mimicry 			= rawfield[:MIMICRY] 		  if rawfield[:MIMICRY]
+		# currentfield.statusmoveboost 	= rawfield[:STATUSMOVEBOOST]  if rawfield[:STATUSMOVEBOOST]
+		# #now for worse shit
+		# #invert hashes such that move => mod
+		# movedamageboost 	= pbHashForwardizer(rawfield[:MOVEDAMAGEBOOST]) 	|| {}
+		# movetypemod 		= pbHashForwardizer(rawfield[:MOVETYPEMOD])  		|| {}
+		# movetypechange 		= pbHashForwardizer(rawfield[:MOVETYPECHANGE])  	|| {}
+		# moveaccuracyboost 	= pbHashForwardizer(rawfield[:MOVEACCURACYBOOST]) 	|| {}
+		# typedamageboost 	= pbHashForwardizer(rawfield[:TYPEDAMAGEBOOST]) 	|| {}
+		# typetypemod 		= pbHashForwardizer(rawfield[:TYPETYPEMOD])  		|| {}
+		# typetypechange 		= pbHashForwardizer(rawfield[:TYPETYPECHANGE])  	|| {}
+		# fieldchange 		= pbHashForwardizer(rawfield[:FIELDCHANGE]) 		|| {}
+		# typecondition 		= rawfield[:TYPECONDITION] 	 ? rawfield[:TYPECONDITION]   : {}
+		# changecondition 	= rawfield[:CHANGECONDITION] ? rawfield[:CHANGECONDITION] : {}
+    # dontchangebackup  = rawfield[:DONTCHANGEBACKUP] ? rawfield[:DONTCHANGEBACKUP] : {}
+		# changeeffects 		= rawfield[:CHANGEEFFECTS] 	 ? rawfield[:CHANGEEFFECTS]   : {}
+		# #messages get stored separately and are replaced by an index
+		# movemessages  = rawfield[:MOVEMESSAGES]  || {}
+		# typemessages  = rawfield[:TYPEMESSAGES]  || {} 
+		# changemessage = rawfield[:CHANGEMESSAGE] || {}
+		# movemessagelist = []
+		# typemessagelist = []
+		# changemessagelist = []
+		# [movemessages,typemessages,changemessage].each_with_index{|hashdata, index|
+			# messagelist = hashdata.keys
+			# newhashdata = {}
+			# hashdata.each {|key, value|
+				# newhashdata[messagelist.index(key)+1] = value
+			# }
+			# invhash = pbHashForwardizer(newhashdata)
+			# case index
+			# when 0
+				# movemessagelist = messagelist
+				# movemessages = invhash
+			# when 1
+				# typemessagelist = messagelist
+				# typemessages = invhash
+			# when 2
+				# changemessagelist = messagelist
+				# changemessage = invhash
+			# end
+		# }
+		# #now we have all our hashes de-backwarded, and can fuse them all together.
+		# #first, moves:
+		# #get all the keys in one place
+		# keys = (movedamageboost.keys << movetypemod.keys << movetypechange.keys << moveaccuracyboost.keys << fieldchange.keys).flatten 
+		# #now we take all the old hashes and squish them into one:
+		# fieldmovedata = {}
+		# for move in keys
+			# movedata = {}
+			# movedata[:mult] = movedamageboost[move] if movedamageboost[move]
+			# movedata[:typemod] = movetypemod[move] if movetypemod[move]
+			# movedata[:typechange] = movetypechange[move] if movetypechange[move]
+			# movedata[:accmod] = moveaccuracyboost[move] if moveaccuracyboost[move]
+			# movedata[:multtext] = movemessages[move] if movemessages[move]
+			# movedata[:fieldchange] = fieldchange[move] if fieldchange[move]
+			# movedata[:changetext] = changemessage[move] if changemessage[move]
+			# movedata[:changeeffect] = changeeffects[move] if changeeffects[move]
+      # movedata[:dontchangebackup] = dontchangebackup.include?(move) ? true : false
+			# fieldmovedata[move] = movedata
+		# end
+		# #now, types!
+		# fieldtypedata = {}
+		# keys = (typedamageboost.keys << typetypemod.keys << typetypechange.keys).flatten
+		# for type in keys
+			# typedata = {}
+			# typedata[:mult] = typedamageboost[type] if typedamageboost[type]
+			# typedata[:typemod] = typetypemod[type] if typetypemod[type]
+			# typedata[:typechange] = typetypechange[type] if typetypechange[type]
+			# typedata[:multtext] = typemessages[type] if typemessages[type]
+			# typedata[:condition] = typecondition[type] if typecondition[type]
+			# fieldtypedata[type] = typedata
+		# end
+		# #seeds for good measure.
+		# seeddata = {}
+		# seeddata = {
+			# :seedtype => rawfield[:SEED],
+			# :effect => rawfield[:SEEDEFFECT],
+			# :duration => rawfield[:SEEDEFFECTVAL],
+			# :message => rawfield[:SEEDEFFECTSTR],
+			# :animation => rawfield[:SEEDANIM],
+			# :stats => rawfield[:SEEDSTATS]
+		# }
+		# currentfield.fieldtypedata = fieldtypedata
+		# currentfield.fieldmovedata = fieldmovedata
+		# currentfield.seeddata = seeddata
+		# currentfield.movemessagelist = movemessagelist
+		# currentfield.typemessagelist = typemessagelist
+		# currentfield.changemessagelist = changemessagelist
+    # currentfield.fieldchangeconditions = changecondition
+		# #all done!
+		# fields.push(currentfield)
+	# end
+	# save_data(fields,"Data/fields.dat")
+	# $cache.FEData = fields
+# end
