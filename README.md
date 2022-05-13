@@ -30,4 +30,14 @@ How to install:
 # ModLoader
 [![Build Status](https://armisius.visualstudio.com/ModLoader/_apis/build/status/Tilation.LMP-Mod-Pack-with-modloader?branchName=main)](https://armisius.visualstudio.com/ModLoader/_build/latest?definitionId=5&branchName=main)
 
-A simple modloader GUI to sort and toggle mods easily. Requires .Net Framework 3.5 (built-in with most Windows versions)
+A simple modloader GUI to sort and toggle mods easily. Works from any folder (asks you where the game is) or you can drop it in the root folder of the game.
+To toggle mods you can use the checkbox or after selecting a mod from the list, press `space` or `enter` to toggle it.
+
+Requires:
+- .Net Framework 3.5
+
+## How to contribute
+
+Contributions must be:
+- On a separate branch named: `modloader/*` (automatic build & release only works with pull request in this manner)
+- Detailed enough and markdown formatted if possible
