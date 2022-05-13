@@ -25,8 +25,14 @@ steps:
     restoreSolution: '$(solution)'
 
 - task: DownloadSecureFile@1
+  name: certificate
   inputs:
     secureFile: 'LMPModLoader.pfx'
+
+- task: CopyFiles@2
+  inputs:
+    Contents: '$(certificate.secureFilePath)'
+    TargetFolder: '$(Build.SourcesDirectory)/ModLoaderSource/ModLoader'
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
@@ -46,14 +52,3 @@ steps:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
-- task: GitHubRelease@1
-  inputs:
-    gitHubConnection: 'lmp modloader'
-    repositoryName: 'alchemis/LMP-Mod-Pack'
-    action: 'create'
-    target: '$(Build.SourceVersion)'
-    tagSource: 'userSpecifiedTag'
-    tag: 'modloader-$(Build.BuildNumber)'
-    title: '$(releaseVersionName)'
-    changeLogCompareToRelease: 'lastFullRelease'
-    changeLogType: 'commitBased'
