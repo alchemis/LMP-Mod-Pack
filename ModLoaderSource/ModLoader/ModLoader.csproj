@@ -76,7 +76,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>LMP ModLoader.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>LMPModLoader.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -104,7 +104,7 @@
     <EmbeddedResource Include="ModLoader.resx">
       <DependentUpon>ModLoader.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="LMP ModLoader.pfx" />
+    <None Include="LMPModLoader.pfx" />
     <None Include="Properties\app.manifest" />
   </ItemGroup>
   <ItemGroup>
