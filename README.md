@@ -39,5 +39,6 @@ Requires:
 ## How to contribute
 
 Contributions must be:
-- On a separate branch named: `modloader/*` (automatic build & release only works with pull request in this manner)
+- On a separate branch named: `modloader/*`
 - Detailed enough and markdown formatted if possible
+- Automatic build & release works only with changes inside the `ModLoaderSource` folder
