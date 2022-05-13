@@ -28,7 +28,7 @@ How to install:
 
 # ModLoader
 
-PONER ACA LA BADGE DE AZURE PIPELINES
+[![Build Status](https://dev.azure.com/lyraLMP/LMP-Modloader/_apis/build/status/alchemis.LMP-Mod-Pack?branchName=main)](https://dev.azure.com/lyraLMP/LMP-Modloader/_build/latest?definitionId=1&branchName=main)
 
 A simple modloader GUI to sort and toggle LMP mods easily. Works from any folder (asks you where the game is) or you can drop it in the root folder of the game.
 To toggle mods you can use the checkbox or after selecting a mod from the list, press `space` or `enter` to toggle it.
