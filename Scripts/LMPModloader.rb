@@ -2,9 +2,24 @@ $ModList = []
 $ModSettings = Hash[]
 $ListOfModPokemonByParent = Hash[] if !defined?($ListOfModPokemonByParent)
 
+
+#gets the load order from load_order.ini, the
 def getModLoadOrder
-		loadOrderFile = File.open("Data/Mods/load_order.ini")
-		$ModList = loadOrderFile.readlines.map(&:chomp)
+	if File.exists?("Data/Mods/load_order.ini")
+			File.open("Data/Mods/load_order.ini", "r") { |file_handle|
+			  file_handle.each_line { |line|
+				line=line.chomp
+				next if line[0,1] == "#"
+				next if line == ""
+				next if line[0,1] == "!"
+				$ModList.append(line)
+			  }
+			}
+
+	else 
+		raise _INTL("LMPModloader: Load order not found! Run the ModLoaderGUI first")
+	end
+
 end
 
 def is_integer_in_disguise?(str)
@@ -14,6 +29,7 @@ end
 def getModSettings
 	$ModList.each { |mod|
 		$ModSettings[mod] = Hash[]
+		raise _INTL("#{mod}: Mod in load order but #{mod}/mod_settings.ini not found! You may need to rebuild the load order from the Mod Loader GUI if you deleted mods.") if !File.exists?("Data/Mods/#{mod}/mod_settings.ini")
 		File.open("Data/Mods/#{mod}/mod_settings.ini", "r") { |file_handle|
 		  file_handle.each_line { |line|
 			next if line[0,1] == "#"
