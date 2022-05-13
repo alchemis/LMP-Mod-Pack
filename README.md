@@ -4,7 +4,7 @@ How to install:
 
  - Download the latest release and extract it into a working installation of Reborn.
  
- WARNING: The GUI .exe file has a false positive in virustotal, and Windows Defender will scan it upon launch (and find nothing wrong with it), the source code is avaliable and you may compile it yourself, instructions coming soon.
+ WARNING: The GUI .exe file has a false positive in virustotal, and Windows Defender will scan it upon launch (and find nothing wrong with it), the source code is avaliable and you may compile it yourself, instructions coming soon. Fix hopefully coming soon, the responsible AV company has been contacted!
  
  
 **Dependencies**:
