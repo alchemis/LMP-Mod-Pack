@@ -1057,6 +1057,7 @@ def pbCompileModPokemonData(overwrite=true)
      "Weight"=>[:Weight,"f"],
      "BaseEXP"=>[:BaseEXP,"w"],
   }
+  
   optionaltypes={
      "ModdedGraphics"=>[0,"i"],
      "BattlerPlayerY"=>[0,"i"],
@@ -1110,9 +1111,17 @@ def pbCompileModPokemonData(overwrite=true)
   metrics=$cache.pkmn_metrics
   constants=moduleToHash(PBSpecies)
   maxValue=constants.values.max
+
   #Begin loading mod files
   mods.each{ |mod| 
 	  next if !($ModSettings[mod]["ModPBS"].include?("pokemon"))
+	  overwriteKeys = []
+	  selectiveOverwrite = false
+	  
+	  if $ModSettings[mod]["selectiveOverwrite"] == "true"
+		selectiveOverwrite = true
+	  end
+	  
 	  File.open("Data/Mods/" + mod + "/PBS/pokemon.txt","rb"){|f|
 		FileLineData.file="Data/Mods/" + mod + "/PBS/pokemon.txt"
 		pbEachFileSection(f){|lastsection,currentmap|
@@ -1128,13 +1137,18 @@ def pbCompileModPokemonData(overwrite=true)
 		  theseevos=[]
 		  tempname = ""
 		  
-		  
-		  if !lastsection["Type2"] || lastsection["Type2"]==""
-			if !lastsection["Type1"] || lastsection["Type1"]==""
-			  raise _INTL("No Pokémon type is defined in section {2} (PBS/pokemon.txt)",key,sectionDisplay) if hash==requiredtypes
-			  next
-			end
+		  if !selectiveOverwrite
+			if !lastsection["Type2"] || lastsection["Type2"]==""
+				if !lastsection["Type1"] || lastsection["Type1"]==""
+				  raise _INTL("No Pokémon type is defined in section {2} (PBS/pokemon.txt)",key,sectionDisplay) if hash==requiredtypes
+				  next
+				end
 			lastsection["Type2"]=lastsection["Type1"].clone
+			end
+		  end
+		  if selectiveOverwrite
+			optionaltypes = requiredtypes.merge(optionaltypes)
+			requiredtypes = { "InternalName"=>[0,"c"] }
 		  end
 		  [requiredtypes,optionaltypes].each{|hash|
 			for key in hash.keys
@@ -1155,6 +1169,7 @@ def pbCompileModPokemonData(overwrite=true)
 			  loop do
 				sublist=-1
 				check = false
+				
 				for i in 0...schema.length
 				  next if schema[i,1]=="*"
 				  sublist+=1
@@ -1188,13 +1203,16 @@ def pbCompileModPokemonData(overwrite=true)
 					  value=secvalue
 					  secvalue=""
 				  end
+				  
 				  if key=="InternalName"
 					raise _INTL("Invalid internal name: {1} (section {2}, PBS/pokemon.txt)",value,dexdata[:ID]) if !value[/^(?![0-9])\w*$/]
 					#constants+="#{value}=#{currentmap}\n"
 					#puts 
 					if constants.keys.include?(value)
 						#puts "overwriting " + value
+
 						dexdata[:ID] = constants[value]
+						dexdata=dexdatas[dexdata[:ID]]
 						speciesnames[dexdata[:ID]]=tempname
 					else
 						dexdata[:ID] = maxValue+1
@@ -1202,6 +1220,7 @@ def pbCompileModPokemonData(overwrite=true)
 						constants[value] = dexdata[:ID]
 						#puts "adding " + dexdata[:ID].to_s + " with internalname/speciesname = " + value + "/" + tempname
 						overwrite = false
+						raise _INTL("#{mod} Error: pokemon #{value} is being added (not overwritten) and selectiveOverwrite is enabled in mod_settings.txt Check the internalname?") if selectiveOverwrite
 						$ListOfModPokemonByParent[dexdata[:ID]] = Hash[:parent => mod, :id => currentmap, :overwrite => overwrite]
 					end
 				  elsif key=="BaseStats"
@@ -1243,6 +1262,7 @@ def pbCompileModPokemonData(overwrite=true)
 				  elsif key=="Name"
 					raise _INTL("Species name {1} is greater than 20 characters long (section {2}, PBS/pokemon.txt)",value,dexdata[:ID]) if value.length>20
 					tempname=value
+					speciesnames[dexdata[:ID]]=tempname if selectiveOverwrite
 				  elsif key=="FormNames"
 					formnames[dexdata[:ID]]=value
 				  else
@@ -1265,14 +1285,14 @@ def pbCompileModPokemonData(overwrite=true)
 		  for i in 0...theseevos.length/3
 			evolist.push([theseevos[i*3],theseevos[i*3+1],theseevos[i*3+2]])
 		  end
-		  moves[dexdata[:ID]]=movelist
-		  evolutions[dexdata[:ID]]=evolist
-		  dexdata[:BaseStats] = basestatarray
-		  dexdata[:EVs] = evarray
-		  dexdata[:Abilities] = abilarray
-		  dexdata[:EggGroups] = egggrouparray
+		  moves[dexdata[:ID]]=movelist if lastsection.keys.include?("Moves")
+		  evolutions[dexdata[:ID]]=evolist if lastsection.keys.include?("Evolutions")
+		  dexdata[:BaseStats] = basestatarray if lastsection.keys.include?("BaseStats")
+		  dexdata[:EVs] = evarray if lastsection.keys.include?("EffortPoints")
+		  dexdata[:Abilities] = abilarray if lastsection.keys.include?("Abilities")
+		  dexdata[:EggGroups] = egggrouparray if lastsection.keys.include?("Compatibility")
 		  dexdatas.update(dexdata[:ID] => dexdata)
-		  puts "Added pokemon with id " + dexdata[:ID].to_s + " and speciesname " + speciesnames[dexdata[:ID]].to_s + " Overwrite? " + overwrite.to_s
+		  puts "Added pokemon with id " + dexdata[:ID].to_s + " and speciesname " + speciesnames[dexdata[:ID]].to_s + " Overwrite? " + overwrite.to_s + " selectiveOverwrite? " + selectiveOverwrite.to_s
 		}
 		
 	  }

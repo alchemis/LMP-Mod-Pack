@@ -7,7 +7,7 @@
 7,DESERTTERRAIN,Desert Terrain,606,0,GROUND,Status,0,10,0,20,0,,"The user creates a desert, increasing the power of certain moves."
 8,ICYTERRAIN,Icy Terrain,607,0,ICE,Status,0,10,0,20,0,,"The user freezes the field, increasing the power of ice moves."
 9,ROCKYTERRAIN,Rocky Terrain,608,0,ROCK,Status,0,10,0,20,0,,"The user scatters stones around, increasing the power of rock moves."
-10,FORESTTERRAIN,Forest Terrain,609,0,GRASS,Status,0,10,0,20,0,,"The user grows a forest, increasing the power of grass moves."
+10,FORESTTERRAIN,Forest Terrain,609,0,GRASS,Status,0,10,0,20,0,,"The user grows a forest, increasing the power of bug moves."
 11,AUTOMATE,Automate,610,0,STEEL,Status,0,10,0,20,0,,"The user builds a factory, increasing the power of steel and electric moves."
 12,LAYWASTE,Lay Waste,611,0,POISON,Status,0,10,0,20,0,,"The user lays waste to the field, increasing the power of poison moves."
 13,ASHENTERRAIN,Ashen Terrain,612,0,FIGHTING,Status,0,10,0,20,0,,"The user scatters ashes around, increasing the power of fighting and psychic moves."
@@ -18,6 +18,6 @@
 18,MIRRORMAZE,Mirror Maze,617,0,ICE,Status,0,10,0,20,0,,"The user creates a mirror maze, increasing the power the beam and light-based moves."
 19,FAIRYTALE,Fairy Tale,618,0,FAIRY,Status,0,10,0,20,0,,"The user makes a fairy tale real, increasing the power of steel and fairy moves."
 20,DRAGONSLAIR,Dragon's Lair,619,0,DRAGON,Status,0,10,0,20,0,,"The user retreats to their lair, increasing the power of dragon moves."
-
+21,DRAGONSLAIR,Dragon's Lair,619,0,DRAGON,Status,0,10,0,20,0,,"The user retreats to their lair, increasing the power of dragon moves."
 
 

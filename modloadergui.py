@@ -29,7 +29,7 @@ def findMods(rebuild=False):
 	return(Modlist)
 	
 def defaultSort():
-	LoadOrder = findMods(rebuild=True)
+	findMods(rebuild=True)
 	load_first = []
 	load_main = []
 	load_after = []
