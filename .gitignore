@@ -2,7 +2,7 @@ Audio/*
 Graphics/*
 Fonts/*
 PBS/*
-Game.exe
+*.exe
 Game.ini
 intl.dat
 updater.exe
