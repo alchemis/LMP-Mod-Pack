@@ -1,6 +1,3 @@
-$ModPBSToLoad=Hash[] if !defined?($ModPBSToLoad)
-$ModPBSToLoad = Hash["LMP - CreateAllFields" => [:newmoves,:pokemonoverwrites]]
-
 
 ################################################################################
 # Superheated Terrain

@@ -18,6 +18,5 @@
 18,MIRRORMAZE,Mirror Maze,617,0,ICE,Status,0,10,0,20,0,,"The user creates a mirror maze, increasing the power the beam and light-based moves."
 19,FAIRYTALE,Fairy Tale,618,0,FAIRY,Status,0,10,0,20,0,,"The user makes a fairy tale real, increasing the power of steel and fairy moves."
 20,DRAGONSLAIR,Dragon's Lair,619,0,DRAGON,Status,0,10,0,20,0,,"The user retreats to their lair, increasing the power of dragon moves."
-21,DRAGONSLAIR,Dragon's Lair,619,0,DRAGON,Status,0,10,0,20,0,,"The user retreats to their lair, increasing the power of dragon moves."
 
 
