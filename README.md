@@ -41,4 +41,4 @@ Requires:
 Contributions must be:
 - On a separate branch named: `modloader/*`.
 - Detailed enough and markdown formatted if possible.
-- Automatic build & release works only with changes inside the `ModLoaderSource` folder
+- Automatic build & release works only with changes inside the `ModLoaderSource` folder.
