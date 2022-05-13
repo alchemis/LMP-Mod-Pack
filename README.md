@@ -2,10 +2,9 @@
 This is a mod pack for **Pokémon Reborn.**
 How to install:
 
- - Download the project zip and copy it into a working installation of Reborn,
- - Download the GUI from releases and put it in the same folder as Game.exe
+ - Download the latest release and extract it into a working installation of Reborn.
  
- WARNING: The GUI .exe file has a false positive in virustotal, and windows defender will scan it, however the source code is avaliable and you may compile it yourself, instructions coming soon.
+ WARNING: The GUI .exe file has a false positive in virustotal, and Windows Defender will scan it upon launch (and find nothing wrong with it), the source code is avaliable and you may compile it yourself, instructions coming soon.
  
  
 **Dependencies**:
