@@ -894,7 +894,7 @@ def PBSpecies.getName(id)
 return pbGetMessage(MessageTypes::Species,id)
 end
 def PBSpecies.getCount
-return 891
+return 892
 end
 def PBSpecies.maxValue
 return 891

@@ -34,3 +34,9 @@ Name=SelectiveOverwrite
 InternalName=YANMEGA
 Type1=FIRE
 Type2=FAIRY
+[4]
+Name=DoesntExist
+InternalName=DOESNTEXIST
+Type1=FIRE
+Type2=FAIRY
+Pokedex=This pokemon does not exist and thus will be ignored if ignoreNewPokemon is enabled in mod_settings.ini
