@@ -8,9 +8,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-namespace ModLoader
+namespace ModManager
 {
-    public partial class ModLoader : Form
+    public partial class ModManager : Form
     {
         readonly List<Mod> modList = new List<Mod>();
         readonly BindingList<Mod> boundList;
@@ -23,7 +23,7 @@ namespace ModLoader
         
         private bool Updating { get; set; }
 
-        public ModLoader()
+        public ModManager()
         {
             InitializeComponent();
             labelDescription.MaximumSize = new Size(tableLayoutPanel2.Width, labelDescription.MaximumSize.Height);
@@ -89,7 +89,7 @@ namespace ModLoader
 
                 if (mod.ModName != modname)
                 {
-                    MessageBox.Show($"Folder name {modname} and mod name {mod.ModName} in ini do not match", "Modloader");
+                    MessageBox.Show($"Folder name {modname} and mod name {mod.ModName} in ini do not match", "ModManager");
                     continue;
                 }
 
@@ -134,7 +134,7 @@ namespace ModLoader
                 var mod = modList.FirstOrDefault(x=>x.ModName == modname);
                 if (mod == null)
                 {
-                    MessageBox.Show($"The mod {mod} is missing.", "Modloader");
+                    MessageBox.Show($"The mod {mod} is missing.", "ModManager");
                     continue;
                 }
                 modsInFile.Add(mod);
@@ -233,12 +233,12 @@ namespace ModLoader
             if (checkBoxForceRecompile.Checked && File.Exists(MustCompileFile))
                 File.Delete(MustCompileFile);
 
-            MessageBox.Show($"{modList.Count(x => x.Enabled)} Mods are now enabled!", "Modloader");
+            MessageBox.Show($"{modList.Count(x => x.Enabled)} Mods are now enabled!", "ModManager");
         }
 
         private void buttonResetDefaults_Click(object sender, EventArgs e)
         {
-            var result = MessageBox.Show("Are you sure you want to restore the default load order?", "Modloader", MessageBoxButtons.YesNo);
+            var result = MessageBox.Show("Are you sure you want to restore the default load order?", "ModManager", MessageBoxButtons.YesNo);
             if (result == DialogResult.No) return;
 
             var selected = SelectedMod;
@@ -247,7 +247,7 @@ namespace ModLoader
 
             UpdateUI();
 
-            MessageBox.Show("Restored defaults, however, changes are not yet saved", "ModLoader");
+            MessageBox.Show("Restored defaults, however, changes are not yet saved", "ModManager");
         }
 
         void UpdateUI()

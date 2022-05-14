@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace ModLoader
+namespace ModManager
 {
     internal static class Program
     {
@@ -12,7 +12,7 @@ namespace ModLoader
         static void Main()
         {
             Application.EnableVisualStyles();
-            Application.Run(new ModLoader());
+            Application.Run(new ModManager());
         }
     }
 }

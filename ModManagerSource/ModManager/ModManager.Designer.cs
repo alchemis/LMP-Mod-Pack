@@ -1,8 +1,8 @@
 ﻿using System.Windows.Forms;
 
-namespace ModLoader
+namespace ModManager
 {
-    partial class ModLoader
+    partial class ModManager
     {
         /// <summary>
         ///  Required designer variable.
@@ -215,16 +215,16 @@ namespace ModLoader
             this.buttonResetDefaults.UseVisualStyleBackColor = true;
             this.buttonResetDefaults.Click += new System.EventHandler(this.buttonResetDefaults_Click);
             // 
-            // ModLoader
+            // ModManager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(404, 381);
             this.Controls.Add(this.tableLayoutPanel1);
             this.MinimumSize = new System.Drawing.Size(420, 420);
-            this.Name = "ModLoader";
+            this.Name = "ModManager";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "ModLoader";
+            this.Text = "ModManager";
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();

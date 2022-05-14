@@ -13,7 +13,7 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  binariesLocation: '$(Build.SourcesDirectory)/ModLoaderSource/ModLoader/bin/Release/'
+  binariesLocation: '$(Build.SourcesDirectory)/ModManagerSource/ModManager/bin/Release/'
   releaseVersionName: 'release-v$(Build.BuildNumber)-$(Build.SourceBranchName)'
   windowsBinariesArchiveName: '$(releaseVersionName)-winx86x64.zip'
 
@@ -52,3 +52,4 @@ steps:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
+

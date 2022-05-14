@@ -1,0 +1,6 @@
+F:\Documents\LMP-Mod-Pack\ModLoaderSource\ModLoader\obj\Release\ModLoader.csproj.AssemblyReference.cache
+F:\Documents\LMP-Mod-Pack\ModLoaderSource\ModLoader\obj\Release\ModLoader.ModLoader.resources
+F:\Documents\LMP-Mod-Pack\ModLoaderSource\ModLoader\obj\Release\ModLoader.csproj.GenerateResource.cache
+F:\Documents\LMP-Mod-Pack\ModLoaderSource\ModLoader\obj\Release\ModLoader.csproj.CoreCompileInputs.cache
+F:\Documents\LMP-Mod-Pack\ModLoaderSource\ModLoader\bin\Release\ModLoader.exe
+F:\Documents\LMP-Mod-Pack\ModLoaderSource\ModLoader\obj\Release\ModLoader.exe

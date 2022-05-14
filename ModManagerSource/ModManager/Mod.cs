@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ModLoader
+namespace ModManager
 {
     internal class Mod : IComparable<Mod>
     {
