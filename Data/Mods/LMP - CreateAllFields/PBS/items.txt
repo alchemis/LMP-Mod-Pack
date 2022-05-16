@@ -1,0 +1,24 @@
+1,TMF01,TMF01,4,1000,"The user superheats the field, increasing the power of fire moves.",3,0,0,HEATEDTERRAIN
+2,TMF02,TMF02,4,1000,"The calls the might of the gods, increasing the power of normal moves.",3,0,0,HOLYTERRAIN
+3,TMF03,TMF03,4,1000,"The user starts a performance, increasing the power of fighting moves.",3,0,0,PERFORMANCE
+4,TMF04,TMF04,4,1000,"The user creates a chess arena, increasing the power of psychic moves.",3,0,0,CHECKMATE
+5,TMF05,TMF05,4,1000,"The user corrupts the field, increasing the power of poison moves.",3,0,0,CORRUPT
+6,TMF05,TMF06,4,1000,"The user spews corrosive mist, increasing the power of poison moves.",3,0,0,POISONMIST
+7,TMF07,TMF07,4,1000,"The user creates a desert, increasing the power of certain moves.",3,0,0,DESERTTERRAIN
+8,TMF08,TMF08,4,1000,"The user freezes the field, increasing the power of ice moves.",3,0,0,ICYTERRAIN
+9,TMF09,TMF09,4,1000,"The user scatters stones around, increasing the power of rock moves.",3,0,0,ROCKYTERRAIN
+10,TMF10,TMF10,4,1000,"The user grows a forest, increasing the power of bug and grass moves.",3,0,0,FORESTTERRAIN
+11,TMF11,TMF11,4,1000,"The user builds a factory, increasing the power of steel and electric moves.",3,0,0,AUTOMATE
+12,TMF12,TMF12,4,1000,"The user lays waste to the field, increasing the power of poison moves.",3,0,0,LAYWASTE
+13,TMF13,TMF13,4,1000,"The user scatters ashes around, increasing the power of fighting and psychic moves.",3,0,0,ASHENTERRAIN
+14,TMF14,TMF14,4,1000,"The user floods the field, increasing the power of water moves.",3,0,0,FLOOD
+15,TMF15,TMF15,4,1000,"The user digs a cave, increasing the power of rock moves.",3,0,0,TUNNEL
+16,TMF16,TMF16,4,1000,"The user floods the field with tainted water, increasing the power of poison moves.",3,0,0,MURKYWATER
+17,TMF17,TMF17,4,1000,"The user climbs a mountain, increasing the power of flying and rock moves.",3,0,0,SUMMIT
+18,TMF18,TMF18,4,1000,"The user creates a mirror maze, increasing the power the beam and light-based moves.",3,0,0,MIRRORMAZE
+19,TMF19,TMF19,4,1000,"The user makes a fairy tale real, increasing the power of steel and fairy moves.",3,0,0,FAIRYTALE
+20,TMF21,TMF22,4,1000,"The user retreats to their lair, increasing the power of dragon moves.",3,0,0,DRAGONSLAIR
+
+
+
+

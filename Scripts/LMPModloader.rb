@@ -17,7 +17,7 @@ def getModLoadOrder
 			}
 
 	else 
-		raise _INTL("LMPModloader: Load order not found! Run the ModLoaderGUI first")
+		raise _INTL("LMPModloader: Load order not found! Run the Mod Manager first")
 	end
 
 end
@@ -29,7 +29,7 @@ end
 def getModSettings
 	$ModList.each { |mod|
 		$ModSettings[mod] = Hash[]
-		raise _INTL("#{mod}: Mod in load order but #{mod}/mod_settings.ini not found! You may need to rebuild the load order from the Mod Loader GUI if you deleted mods.") if !File.exists?("Data/Mods/#{mod}/mod_settings.ini")
+		raise _INTL("#{mod}: Mod in load order but #{mod}/mod_settings.ini not found! You may need to rebuild the load order from the Mod Manager if you deleted mods.") if !File.exists?("Data/Mods/#{mod}/mod_settings.ini")
 		File.open("Data/Mods/#{mod}/mod_settings.ini", "r") { |file_handle|
 		  file_handle.each_line { |line|
 			next if line[0,1] == "#"

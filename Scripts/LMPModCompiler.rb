@@ -807,7 +807,7 @@ def pbCompileModMachines
   sections=$cache.tm_data
   mods = $ModList
   mods.each{ |mod| 
-	  next if !($ModSettings[mod]["ModPBS"].include?("tms"))
+	  next if !($ModSettings[mod]["ModPBS"].include?("tm"))
 	  force_overwrite = true if $ModSettings[mod]["forceOverwriteAbilities"] == "true"
 	  path = "Data/Mods/#{mod}/PBS/tm.txt"
 	  
@@ -1312,6 +1312,10 @@ def pbCompileModPokemonData(overwrite=true)
 		  }
 		  movelist=[]
 		  evolist=[]
+		  puts thesemoves.inspect
+		  puts theseevos.inspect
+		  test_id = "TACKLE"
+		  puts PBMoves::test_id
 		  for i in 0...thesemoves.length/2
 			movelist.push([thesemoves[i*2],thesemoves[i*2+1],i])
 		  end
@@ -1320,6 +1324,8 @@ def pbCompileModPokemonData(overwrite=true)
 		  for i in 0...theseevos.length/3
 			evolist.push([theseevos[i*3],theseevos[i*3+1],theseevos[i*3+2]])
 		  end
+		  puts evolist.inspect
+		  puts movelist.inspect
 		  moves[dexdata[:ID]]=movelist if lastsection.keys.include?("Moves") && dexdata[:ID] != 0
 		  evolutions[dexdata[:ID]]=evolist if lastsection.keys.include?("Evolutions") && dexdata[:ID] != 0
 		  dexdata[:BaseStats] = basestatarray if lastsection.keys.include?("BaseStats") && dexdata[:ID] != 0

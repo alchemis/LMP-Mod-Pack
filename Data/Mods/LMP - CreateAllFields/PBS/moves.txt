@@ -11,7 +11,7 @@
 11,AUTOMATE,Automate,610,0,STEEL,Status,0,10,0,20,0,,"The user builds a factory, increasing the power of steel and electric moves."
 12,LAYWASTE,Lay Waste,611,0,POISON,Status,0,10,0,20,0,,"The user lays waste to the field, increasing the power of poison moves."
 13,ASHENTERRAIN,Ashen Terrain,612,0,FIGHTING,Status,0,10,0,20,0,,"The user scatters ashes around, increasing the power of fighting and psychic moves."
-14,FLOOD,Flood,613,0,WATER,Status,0,10,0,20,0,,"The floods the field, increasing the power of water moves."
+14,FLOOD,Flood,613,0,WATER,Status,0,10,0,20,0,,"The user floods the field, increasing the power of water moves."
 15,TUNNEL,Tunnel,614,0,ROCK,Status,0,10,0,20,0,,"The user digs a cave, increasing the power of rock moves."
 16,MURKYWATER,Murky Water,615,0,WATER,Status,0,10,0,20,0,,"The user floods the field with tainted water, increasing the power of poison moves."
 17,SUMMIT,Summit,616,0,ROCK,Status,0,10,0,20,0,,"The user climbs a mountain, increasing the power of flying and rock moves."
