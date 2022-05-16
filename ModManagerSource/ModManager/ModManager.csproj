@@ -54,10 +54,10 @@
     <DebugType>embedded</DebugType>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>5A72A53D48785E45BB398B40FF0230F42109D113</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>7B33FBDC96FA4CDB7C74F37059A7AC4AD4E955B0</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>ModLoader_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>LMPModManager.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>false</GenerateManifests>
@@ -77,6 +77,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>LMPModManager.pfx</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>true</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
