@@ -11,6 +11,7 @@ pool:
 
 variables:
   solution: '**/*.sln'
+  password: 'LMPModManager123'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   binariesLocation: '$(Build.SourcesDirectory)/ModManagerSource/ModManager/bin/Release/'
@@ -27,15 +28,28 @@ steps:
 - task: DownloadSecureFile@1
   name: certificate
   inputs:
-    secureFile: 'LMPModLoader.pfx'
+    secureFile: 'LMPModManager.pfx'
 
-- script: |
-    echo Installing $(certificate.secureFilePath) to the trusted CA directory...
-    dir $(Agent.TempDirectory)
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      Write-Host "Start adding the PFX file to the certificate store."
+
+      $pfxpath = '$(certificate.secureFilePath)'
+      $password = '$(password)'
+      
+      Add-Type -AssemblyName System.Security
+      $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
+      $cert.Import($pfxpath, $password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]"PersistKeySet")
+      $store = new-object system.security.cryptography.X509Certificates.X509Store -argumentlist "MY", CurrentUser
+      $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
+      $store.Add($cert)
+      $store.Close()
 - task: CopyFiles@2
   inputs:
     SourceFolder: '$(Agent.TempDirectory)'
-    Contents: LMPModLoader.pfx
+    Contents: LMPModManager.pfx
     TargetFolder: '$(Build.SourcesDirectory)/ModManagerSource/ModManager'
 
 
