@@ -36,3 +36,5 @@ ModLoaderSource/ModManager/obj/*
 ModLoaderSource/.vs/*
 *.pfx
 *.user
+ModManagerSource/.vs/
+ModManagerSource/ModManager/obj/
