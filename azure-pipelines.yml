@@ -19,9 +19,14 @@ variables:
   windowsBinariesArchiveName: '$(releaseVersionName)-winx86x64.zip'
 
 steps:
-- task: CmdLine@2
+- task: PowerShell@2
+  env:
+    SN_INSTALL_PFX: $(snInstallPfx.secureFilePath)
+    MYCERTIFICATE_PFX: $(certificate.secureFilePath)
+    MYCERTIFICATE_PFX_PASSWORD: $(password)
   inputs:
-    script: 'echo $(LMP.password)'
+    targetType: 'inline'
+    script: 'echo "$($ENV:MYCERTIFICATE_PFX_PASSWORD)"'
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
