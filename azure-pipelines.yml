@@ -46,11 +46,11 @@ steps:
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: |
-      **
-      !ModManagerSource/**
-      !.git/**
+      **\**
+      !ModManagerSource\**
+      !.git\**
       !.gitignore
-      !.md
+      !azure-pipelines.yml
     TargetFolder: '$(binariesLocation)'
 - task: ArchiveFiles@2
   inputs:
