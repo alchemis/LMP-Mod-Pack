@@ -19,6 +19,9 @@ variables:
   windowsBinariesArchiveName: '$(releaseVersionName)-winx86x64.zip'
 
 steps:
+- task: CmdLine@2
+  inputs:
+    script: 'echo $(LMP.password)'
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
@@ -35,9 +38,7 @@ steps:
   name: snInstallPfx
   inputs:
     secureFile: SnInstallPfx.exe
-- task: CmdLine@2
-  inputs:
-    script: 'echo $(password)'
+
 - task: PowerShell@2
   env:
     SN_INSTALL_PFX: $(snInstallPfx.secureFilePath)
