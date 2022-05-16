@@ -2,6 +2,7 @@ Audio/*
 Graphics/*
 Fonts/*
 PBS/*
+.vscode/*
 *.exe
 Game.ini
 intl.dat
@@ -24,6 +25,10 @@ Data/Mods/AMB*
 Data/Mods/SWM*
 Data/Mods/PB*
 Data/Mods/PBMoves.rb
+Data/Mods/PBItems.rb
+Data/Mods/PBAbilities.rb
+Data/Mods/PBSpecies.rb
+
 Data/Mods/*.dat
 Data/Mods/*.ini
 !Data/!script_order.csv
