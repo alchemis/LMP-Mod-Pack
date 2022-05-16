@@ -24,9 +24,10 @@ steps:
     SN_INSTALL_PFX: $(snInstallPfx.secureFilePath)
     MYCERTIFICATE_PFX: $(certificate.secureFilePath)
     MYCERTIFICATE_PFX_PASSWORD: $(LMP.password)
+    MYCERTIFICATE_PFX_PASSWORD2: $(password)
   inputs:
     targetType: 'inline'
-    script: 'echo "$($ENV:MYCERTIFICATE_PFX_PASSWORD)"'
+    script: 'echo "$($ENV:MYCERTIFICATE_PFX_PASSWORD) $($ENV:MYCERTIFICATE_PFX_PASSWORD2)" '
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
