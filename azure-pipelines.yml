@@ -36,7 +36,7 @@ steps:
   inputs:
     SourceFolder: '$(Agent.TempDirectory)'
     Contents: LMPModLoader.pfx
-    TargetFolder: '$(Build.SourcesDirectory)/ModLoaderSource/ModLoader'
+    TargetFolder: '$(Build.SourcesDirectory)/ModManagerSource/ModManager'
 
 
 - task: VSBuild@1
