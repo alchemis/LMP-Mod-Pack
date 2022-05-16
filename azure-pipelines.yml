@@ -10,7 +10,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  group: 'LMP'
+  group: LMP
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
@@ -23,7 +23,7 @@ steps:
   env:
     SN_INSTALL_PFX: $(snInstallPfx.secureFilePath)
     MYCERTIFICATE_PFX: $(certificate.secureFilePath)
-    MYCERTIFICATE_PFX_PASSWORD: $(password)
+    MYCERTIFICATE_PFX_PASSWORD: $(LMP.password)
   inputs:
     targetType: 'inline'
     script: 'echo "$($ENV:MYCERTIFICATE_PFX_PASSWORD)"'
