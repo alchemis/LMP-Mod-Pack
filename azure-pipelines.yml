@@ -50,6 +50,7 @@ steps:
       !ModManagerSource\**
       !.git\**
       !.gitignore
+      !azure-pipelines.yml
     TargetFolder: '$(binariesLocation)'
 - task: ArchiveFiles@2
   inputs:
