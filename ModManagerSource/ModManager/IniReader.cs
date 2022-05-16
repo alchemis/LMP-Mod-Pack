@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-
+// comment to trigger azure pipelines
 namespace ModManager
 {
     public static class IniReader
