@@ -25,14 +25,15 @@ steps:
     restoreSolution: '$(solution)'
 
 - task: DownloadSecureFile@1
-  name: certificate
+  name: caCertificate
   inputs:
     secureFile: 'LMPModLoader.pfx'
+- script: |
+    echo Installing $(caCertificate.secureFilePath) to the trusted CA directory...
+    sudo chown root:root $(caCertificate.secureFilePath)
+    sudo chmod a+r $(caCertificate.secureFilePath)
+    sudo ln -s -t $(Build.SourcesDirectory)/ModLoaderSource/ModLoader $(caCertificate.secureFilePath)
 
-- task: CopyFiles@2
-  inputs:
-    Contents: '$(certificate.secureFilePath)'
-    TargetFolder: '$(Build.SourcesDirectory)/ModLoaderSource/ModLoader'
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
