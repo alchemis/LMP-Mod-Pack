@@ -10,13 +10,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  group: LMP
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
-  binariesLocation: '$(Build.SourcesDirectory)/ModManagerSource/ModManager/bin/Release/'
-  releaseVersionName: 'release-v$(Build.BuildNumber)-$(Build.SourceBranchName)'
-  windowsBinariesArchiveName: '$(releaseVersionName)-winx86x64.zip'
+- group: LMP
 
 steps:
 - task: PowerShell@2
