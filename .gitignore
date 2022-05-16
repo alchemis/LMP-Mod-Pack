@@ -31,10 +31,9 @@ Scripts/*
 !Scripts/idk.rb
 !Scripts/LMP*
 
-ModLoaderSource/ModManager/bin/*
-ModLoaderSource/ModManager/obj/*
-ModLoaderSource/.vs/*
+*.snk
 *.pfx
 *.user
-ModManagerSource/.vs/
-ModManagerSource/ModManager/obj/
+ModManagerSource/.vs/*
+ModManagerSource/ModManager/obj/*
+ModManagerSource/ModManager/bin/*

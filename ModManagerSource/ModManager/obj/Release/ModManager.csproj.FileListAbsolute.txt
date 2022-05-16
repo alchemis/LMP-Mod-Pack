@@ -1,4 +1,0 @@
-F:\Documents\LMP-Mod-Pack\ModLoaderSource\ModLoader\obj\Release\ModManager.csproj.AssemblyReference.cache
-F:\Documents\LMP-Mod-Pack\ModLoaderSource\ModLoader\obj\Release\ModManager.csproj.CoreCompileInputs.cache
-F:\Documents\LMP-Mod-Pack\ModLoaderSource\ModLoader\bin\Release\ModManager.exe
-F:\Documents\LMP-Mod-Pack\ModLoaderSource\ModLoader\obj\Release\ModManager.exe

@@ -76,7 +76,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>LMPModManager.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>LMPModManager.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -101,7 +101,7 @@
     <Compile Include="Mod.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="LMPModManager.pfx" />
+    <None Include="LMPModManager.snk" />
     <None Include="Properties\app.manifest" />
   </ItemGroup>
   <ItemGroup>
