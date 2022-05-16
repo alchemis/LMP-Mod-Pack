@@ -46,10 +46,10 @@ steps:
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: |
-      !ModManagerSource/*
-      !.git/*
+      **\**
+      !ModManagerSource\**
+      !.git\**
       !.gitignore
-      **
     TargetFolder: '$(binariesLocation)'
 - task: ArchiveFiles@2
   inputs:
