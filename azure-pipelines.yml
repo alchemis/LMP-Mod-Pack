@@ -26,11 +26,7 @@ steps:
     secureFile: 'LMPModManager.pfx'
 
 
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: '$(Agent.TempDirectory)'
-    Contents: LMPModManager.pfx
-    TargetFolder: '$(Build.SourcesDirectory)/ModManagerSource/ModManager'
+
 
 
 - task: VSBuild@1
@@ -46,6 +42,13 @@ steps:
     timeServer: 'http://timestamp.digicert.com'
     hashingAlgorithm: 'SHA256'
     description: 'A Modmanager for pokemon games'
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: |
+      **
+      !ModManagerSource
+    TargetFolder: '$(binariesLocation)'
 - task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: '$(binariesLocation)'
