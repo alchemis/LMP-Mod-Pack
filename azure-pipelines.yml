@@ -13,15 +13,7 @@ variables:
 - group: LMP
 
 steps:
-- task: PowerShell@2
-  env:
-    SN_INSTALL_PFX: $(snInstallPfx.secureFilePath)
-    MYCERTIFICATE_PFX: $(certificate.secureFilePath)
-    MYCERTIFICATE_PFX_PASSWORD: $(LMP.password)
-    MYCERTIFICATE_PFX_PASSWORD2: $(password)
-  inputs:
-    targetType: 'inline'
-    script: 'echo "$($ENV:MYCERTIFICATE_PFX_PASSWORD) $($ENV:MYCERTIFICATE_PFX_PASSWORD2)" '
+
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
@@ -33,20 +25,7 @@ steps:
   inputs:
     secureFile: 'LMPModManager.pfx'
 
-- task: DownloadSecureFile@1
-  displayName: Download sni
-  name: snInstallPfx
-  inputs:
-    secureFile: SnInstallPfx.exe
 
-- task: PowerShell@2
-  env:
-    SN_INSTALL_PFX: $(snInstallPfx.secureFilePath)
-    MYCERTIFICATE_PFX: $(certificate.secureFilePath)
-    MYCERTIFICATE_PFX_PASSWORD: $(password)
-  inputs:
-    targetType: 'inline'
-    script: '&"$($ENV:SN_INSTALL_PFX)" "$($ENV:MYCERTIFICATE_PFX)" "$($ENV:MYCERTIFICATE_PFX_PASSWORD)"'
 - task: CopyFiles@2
   inputs:
     SourceFolder: '$(Agent.TempDirectory)'
@@ -59,7 +38,14 @@ steps:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-
+- task: codesigning@2
+  inputs:
+    secureFileId: 'LMPModManager.pfx'
+    signCertPassword: '$(password)'
+    files: '$(binariesLocation)/*.exe'
+    timeServer: 'http://timestamp.digicert.com'
+    hashingAlgorithm: 'SHA256'
+    description: 'A Modmanager for pokemon games'
 - task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: '$(binariesLocation)'
