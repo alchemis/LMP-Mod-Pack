@@ -59,6 +59,10 @@ steps:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+    msbuildArgs: '
+      /p:PackageCertificateKeyFile="$(certificate.secureFilePath)"
+      /p:PackageCertificatePassword="$(password)"
+      ' 
 
 - task: ArchiveFiles@2
   inputs:
