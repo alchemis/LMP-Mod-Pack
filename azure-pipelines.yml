@@ -10,6 +10,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
+  group: 'LMP'
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
@@ -27,13 +28,25 @@ steps:
 - task: DownloadSecureFile@1
   name: certificate
   inputs:
-    secureFile: 'LMPModManager.snk'
+    secureFile: 'LMPModManager.pfx'
 
-
+- task: DownloadSecureFile@1
+  displayName: Download sni
+  name: snInstallPfx
+  inputs:
+    secureFile: SnInstallPfx.exe
+- task: PowerShell@2
+  env:
+    SN_INSTALL_PFX: $(snInstallPfx.secureFilePath)
+    MYCERTIFICATE_PFX: $(certificate.secureFilePath)
+    MYCERTIFICATE_PFX_PASSWORD: $(password)
+  inputs:
+    targetType: 'inline'
+    script: '&"$($ENV:SN_INSTALL_PFX)" "$($ENV:MYCERTIFICATE_PFX)" "$($ENV:MYCERTIFICATE_PFX_PASSWORD)"'
 - task: CopyFiles@2
   inputs:
     SourceFolder: '$(Agent.TempDirectory)'
-    Contents: LMPModManager.snk
+    Contents: LMPModManager.pfx
     TargetFolder: '$(Build.SourcesDirectory)/ModManagerSource/ModManager'
 
 
