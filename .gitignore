@@ -2,6 +2,7 @@ Audio/*
 Graphics/*
 Fonts/*
 PBS/*
+.vscode/*
 *.exe
 Game.ini
 intl.dat
@@ -10,9 +11,11 @@ mkxp.json
 Readme.txt
 version
 zlib1.dll
+*.rxproj
 rebornmap.png
 *.lnk
 *.rxdata
+RGSS104E.dll
 *.dat
 *.zip
 x64-msvcrt-ruby300.dll
@@ -24,6 +27,10 @@ Data/Mods/AMB*
 Data/Mods/SWM*
 Data/Mods/PB*
 Data/Mods/PBMoves.rb
+Data/Mods/PBItems.rb
+Data/Mods/PBAbilities.rb
+Data/Mods/PBSpecies.rb
+
 Data/Mods/*.dat
 Data/Mods/*.ini
 !Data/!script_order.csv

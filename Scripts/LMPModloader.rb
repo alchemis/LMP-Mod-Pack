@@ -1,5 +1,6 @@
-$ModList = []
-$ModSettings = Hash[]
+$ModList = [] #format: array of Mod names sorted by load order
+$ModSettings = Hash[] # format: Mod => hash of settings
+$ModMaps = Hash[] # format: id => path to something formatted MapXXXXX.rxdata
 $ListOfModPokemonByParent = Hash[] if !defined?($ListOfModPokemonByParent)
 
 
@@ -17,7 +18,7 @@ def getModLoadOrder
 			}
 
 	else 
-		raise _INTL("LMPModloader: Load order not found! Run the ModLoaderGUI first")
+		raise _INTL("LMPModloader: Load order not found! Run the Mod Manager first")
 	end
 
 end
@@ -26,10 +27,16 @@ def is_integer_in_disguise?(str)
 	return str.to_i.to_s == str
 end
 
+def getModMaps
+	if File.exists?("Data/Mods/Maps/ModMaps.dat")
+		$ModMaps = load_data("Data/Mods/Maps/ModMaps.dat")
+	end
+end
+
 def getModSettings
 	$ModList.each { |mod|
 		$ModSettings[mod] = Hash[]
-		raise _INTL("#{mod}: Mod in load order but #{mod}/mod_settings.ini not found! You may need to rebuild the load order from the Mod Loader GUI if you deleted mods.") if !File.exists?("Data/Mods/#{mod}/mod_settings.ini")
+		raise _INTL("#{mod}: Mod in load order but #{mod}/mod_settings.ini not found! You may need to rebuild the load order from the Mod Manager if you deleted mods.") if !File.exists?("Data/Mods/#{mod}/mod_settings.ini")
 		File.open("Data/Mods/#{mod}/mod_settings.ini", "r") { |file_handle|
 		  file_handle.each_line { |line|
 			next if line[0,1] == "#"
@@ -48,7 +55,6 @@ def getModSettings
 	}
 	#puts $ModSettings
 end
-
 
 def mustCompileMods?
 	if File.exists?("Data/Mods/mustcompile.ini")
@@ -71,10 +77,12 @@ def loadMods
 	pbCompileAllModData(true) if mustCompileMods? 
 	puts "Loading mods...."
 	puts "load order is: " + $ModList.to_s
+	getModMaps
 	cacheModMoves
 	cacheModDex
 	cacheModItems
 	cacheModMetadata
+	cacheModMapInfos
 	MessageTypes.loadMessageFile("Data/Mods/messages.dat")
 	#load mod scripts from mod subfolders as defined in their modsettings.ini
 	$ModList.each{ | mod |
@@ -96,6 +104,27 @@ def loadMods
 	# $cache.RXsystem           = load_data("Data/System.rxdata") if !$cache.RXsystem
 end
 
+def $cache.map_load(mapid,ignoreModdedMaps=false)
+	self.cachedmaps = [] if !self.cachedmaps
+	puts $ModMaps
+	if $ModMaps.keys.include?(mapid) && !ignoreModdedMaps
+		if !self.cachedmaps[mapid]
+			puts "loading modded map",mapid
+			self.cachedmaps[mapid] = load_data($ModMaps[mapid])
+		end
+	end
+	puts "ignoring modded maps for this load..." if ignoreModdedMaps
+	if !self.cachedmaps[mapid]
+		puts "loading map",mapid
+		self.cachedmaps[mapid] = load_data(sprintf("Data/Map%03d.rxdata", mapid))
+	end
+	return self.cachedmaps[mapid]
+end
+
+def $cache.flushmaps
+	self.cachedmaps = []
+	self.mapinfos = nil
+end
 
 def cacheModDex
 	pbCompileModPokemonData if !File.exists?("Data/Mods/dexdata.dat")
@@ -136,8 +165,9 @@ def cacheFields
 	$cache.FENotes            = load_data("Data/fieldnotes.dat") if !$cache.FENotes
 end
 
-def cacheMapInfos
-	$cache.mapinfos           = load_data("Data/MapInfos.rxdata") if !$cache.mapinfos
+def cacheModMapInfos
+	pbCompileMaps if !File.exists?("Data/Mods/Maps/MapInfos.rxdata")
+	$cache.mapinfos           = load_data("Data/Mods/Maps/MapInfos.rxdata")
 end
 
 def cacheModMetadata
