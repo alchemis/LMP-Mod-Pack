@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-
+//comment
 namespace ModManager
 {
     public static class IniReader

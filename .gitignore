@@ -11,9 +11,11 @@ mkxp.json
 Readme.txt
 version
 zlib1.dll
+*.rxproj
 rebornmap.png
 *.lnk
 *.rxdata
+RGSS104E.dll
 *.dat
 *.zip
 x64-msvcrt-ruby300.dll
