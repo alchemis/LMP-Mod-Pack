@@ -1,6 +1,7 @@
 $ListOfModPokemonByParent = Hash[]
 $ModPBSToLoad = Hash[] if !defined?($ModPBSToLoad)
 
+
 #This file is extremely hacky, it's based on Compiler.rb from Pokemon Reborn scripts, but some things had to be edited very heavily.
 #It would be kind of useless to mark down which things are modified as most things are.
 
@@ -11,7 +12,8 @@ $ModPBSToLoad = Hash[] if !defined?($ModPBSToLoad)
 
 
 #Done PBS files: moves, pokemon, abilities, tm, items
-#TODO: trainers, metadata, encounters other pbs that are necessary
+#TODO: metadata, other pbs that are necessary
+#TODO: finish maps
 #TODO: fix graphics system to be universal and better
 
 ## my edits to this file are not optimal and not very readable, awful code warning: HERE BE DRAGONS ##
@@ -559,246 +561,238 @@ def pbCompileModAbilities()
   pbAddModScript(code,"PBAbilities")
 end
 
-# def pbCompileModTrainers
-  # # Trainer types
-  # records=moduleToHash(PBTrainers)
-  # trainernames=getAllPokemonMessages(MessageTypes::TrainerTypes)
-  # count=PBTrainers.count
-  # maxValue=PBTrainers.maxValue
-  # mods.each{ |mod| 
-	  # next if !($ModSettings[mod]["ModPBS"].include?("trainertypes"))
-	  # pbCompilerEachPreppedLine("Data/Mods/" + mod + "/PBS/trainertypes.txt"){|line,lineno|
-		 # record=pbGetCsvRecord(line,lineno,[0,"unsUSSSeU", # ID can be 0
-			# nil,nil,nil,nil,nil,nil,nil,{
-			# ""=>2,"Male"=>0,"M"=>0,"0"=>0,"Female"=>1,"F"=>1,"1"=>1,"Mixed"=>2,"X"=>2,"2"=>2
-			# },nil]
-		 # )
-		 # if record[3] && (record[3]<0 || record[3]>255)
-		   # raise _INTL("Bad money amount (must be from 0 through 255)\n{1}",FileLineData.linereport)
-		 # end
-		 # record[3]=30 if !record[3]
-		 # if record[8] && (record[8]<0 || record[8]>255)
-		   # raise _INTL("Bad skill value (must be from 0 through 255)\n{1}",FileLineData.linereport)
-		 # end
-		 # record[8]=record[3] if !record[8]
-		 # trainernames[record[0]]=record[2]
-		 # if records[record[0]]
-		   # raise _INTL("Two trainer types ({1} and {2}) have the same ID ({3}), which is not allowed.\n{4}",
-			  # records[record[0]][1],record[1],record[0],FileLineData.linereport)
-		 # end
-		 # records[record[0]]=record
-		 # maxValue=[maxValue,record[0]].max
-	  # }
-	# }
-  # count=records.compact.length
-  # MessageTypes.setMessages(MessageTypes::TrainerTypes,trainernames)
-  # code="class PBTrainers\n"
-  # for rec in records
-    # next if !rec
-    # code+="#{rec[1]}=#{rec[0]}\n"
-  # end
-  # code+="\ndef self.getName(id)\nreturn pbGetMessage(MessageTypes::TrainerTypes,id)\nend"
-  # code+="\ndef self.getCount\nreturn #{count}\nend"
-  # code+="\ndef self.maxValue\nreturn #{maxValue}\nend\nend"
-  # eval(code)
-  # pbAddScript(code,"PBTrainers")
-  # File.open("Data/trainertypes.dat","wb"){|f|
-     # Marshal.dump(records,f)
-  # }
-  # # Individual trainers
-  # mods.each{ |mod| 
-	  # next if !($ModSettings[mod]["ModPBS"].include?("trainers"))
-	  # lines=[]
-	  # linenos=[]
-	  # lineno=1
-	  # File.open("PBS/trainers.txt","rb"){|f|
-		 # FileLineData.file="PBS/trainers.txt"
-		 # f.each_line {|line|
-			# if lineno==1 && line[0]==0xEF && line[1]==0xBB && line[2]==0xBF
-			  # line=line[3,line.length-3]
-			# end
-			# line=prepline(line)
-			# if line!=""
-			  # lines.push(line)
-			  # linenos.push(lineno)
-			# end
-			# lineno+=1
-		 # }
-	  # }
-	  # trainers=Array.new(maxValue)
-	  # for i in 0..trainers.length
-		# trainers[i] = []
-	  # end
-	  # trainernames.clear
-	  # i=0; loop do break unless i<lines.length
-		# FileLineData.setLine(lines[i],linenos[i])
-		# trainername=parseTrainer(lines[i])
-		# FileLineData.setLine(lines[i+1],linenos[i+1])
-		# nameline=strsplit(lines[i+1],/\s*,\s*/)
-		# name=nameline[0]
-		# raise _INTL("Trainer name too long\n{1}",FileLineData.linereport) if name.length>=0x10000
-		# trainernames.push(name)
-		# partyid=0
-		# if nameline[1] && nameline[1]!=""
-		  # raise _INTL("Expected a number for the trainer battle ID\n{1}",FileLineData.linereport) if !nameline[1][/^\d+$/]
-		  # partyid=nameline[1].to_i
-		# end
-		# FileLineData.setLine(lines[i+2],linenos[i+2])
-		# items=strsplit(lines[i+2],/\s*,\s*/)
-		# items[0].gsub!(/^\s+/,"")   # Number of Pokémon
-		# raise _INTL("Expected a number for the number of Pokémon\n{1}",FileLineData.linereport) if !items[0][/^\d+$/]
-		# numpoke=items[0].to_i
-		# realitems=[]
-		# for j in 1...items.length   # Items held by Trainer
-		  # realitems.push(parseItem(items[j])) if items[j] && items[j]!=""
-		# end
-		# pkmn=[]
-		# for j in 0...numpoke
-		  # FileLineData.setLine(lines[i+j+3],linenos[i+j+3])
-		  # poke=strsplit(lines[i+j+3],/\s*,\s*/)
-		  # begin
-			# # Species
-			# poke[TPSPECIES]=parseSpecies(poke[TPSPECIES])
-		  # rescue
-			# raise _INTL("Expected a species name: {1}\n{2}",poke[0],FileLineData.linereport)
-		  # end
-		  # # Level
-		  # poke[TPLEVEL]=poke[TPLEVEL].to_i
-		  # raise _INTL("Bad level: {1} (must be from 1-{2})\n{3}",poke[TPLEVEL],
-			# PBExperience::MAXLEVEL,FileLineData.linereport) if poke[TPLEVEL]<=0 || poke[TPLEVEL]>PBExperience::MAXLEVEL
-		  # # Held item
-		  # if !poke[TPITEM] || poke[TPITEM]==""
-			# poke[TPITEM]=TPDEFAULTS[TPITEM]
-		  # else
-			# poke[TPITEM]=parseItem(poke[TPITEM])
-		  # end
-		  # # Moves
-		  # moves=[]
-		  # for j in [TPMOVE1,TPMOVE2,TPMOVE3,TPMOVE4]
-			# moves.push(parseMove(poke[j])) if poke[j] && poke[j]!=""
-		  # end
-		  # for j in 0...4
-			# index=[TPMOVE1,TPMOVE2,TPMOVE3,TPMOVE4][j]
-			# if moves[j] && moves[j]!=0
-			  # poke[index]=moves[j]
-			# else
-			  # poke[index]=TPDEFAULTS[index]
-			# end
-		  # end
-		  # # Ability
-		  # if !poke[TPABILITY] || poke[TPABILITY]==""
-			# poke[TPABILITY]=TPDEFAULTS[TPABILITY]
-		  # else
-			# poke[TPABILITY]=poke[TPABILITY].to_i
-			# raise _INTL("Bad abilityflag: {1} (must be 0 or 1 or 2-5)\n{2}",poke[TPABILITY],FileLineData.linereport) if poke[TPABILITY]<0 || poke[TPABILITY]>5
-		  # end
-		  # # Gender
-		  # if !poke[TPGENDER] || poke[TPGENDER]==""
-			# poke[TPGENDER]=TPDEFAULTS[TPGENDER]
-		  # else
-			# if poke[TPGENDER]=="M"
-			  # poke[TPGENDER]=0
-			# elsif poke[TPGENDER]=="F"
-			  # poke[TPGENDER]=1
-			# elsif poke[TPGENDER]=="U"
-			  # poke[TPGENDER]=2
-			# else
-			  # poke[TPGENDER]=poke[TPGENDER].to_i
-			  # raise _INTL("Bad genderflag: {1} (must be M or F or U, or 0 or 1 or 2)\n{2}",poke[TPGENDER],FileLineData.linereport) if poke[TPGENDER]<0 || poke[TPGENDER]>2
-			# end
-		  # end
-		  # # Form
-		  # if !poke[TPFORM] || poke[TPFORM]==""
-			# poke[TPFORM]=TPDEFAULTS[TPFORM]
-		  # else
-			# poke[TPFORM]=poke[TPFORM].to_i
-			# raise _INTL("Bad form: {1} (must be 0 or greater)\n{2}",poke[TPFORM],FileLineData.linereport) if poke[TPFORM]<0
-		  # end
-		  # # Shiny
-		  # if !poke[TPSHINY] || poke[TPSHINY]==""
-			# poke[TPSHINY]=TPDEFAULTS[TPSHINY]
-		  # elsif poke[TPSHINY]=="shiny"
-			# poke[TPSHINY]=true
-		  # else
-			# poke[TPSHINY]=csvBoolean!(poke[TPSHINY].clone)
-		  # end
-		  # # Nature
-		  # if !poke[TPNATURE] || poke[TPNATURE]==""
-			# poke[TPNATURE]=TPDEFAULTS[TPNATURE]
-		  # else
-			# poke[TPNATURE]=parseNature(poke[TPNATURE])
-		  # end
-		  # # IVs
-		  # if !poke[TPIV] || poke[TPIV]==""
-			# poke[TPIV]=TPDEFAULTS[TPIV]
-		  # else
-			# poke[TPIV]=poke[TPIV].to_i
-			# raise _INTL("Bad IV: {1} (must be from 0-31 (32 special case))\n{2}",poke[TPIV],FileLineData.linereport) if poke[TPIV]<0 || poke[TPIV]>32
-		  # end
-		  # # Happiness
-		  # if !poke[TPHAPPINESS] || poke[TPHAPPINESS]==""
-			# poke[TPHAPPINESS]=TPDEFAULTS[TPHAPPINESS]
-		  # else
-			# poke[TPHAPPINESS]=poke[TPHAPPINESS].to_i
-			# raise _INTL("Bad happiness: {1} (must be from 0-255)\n{2}",poke[TPHAPPINESS],FileLineData.linereport) if poke[TPHAPPINESS]<0 || poke[TPHAPPINESS]>255
-		  # end
-		  # # Nickname
-		  # if !poke[TPNAME] || poke[TPNAME]==""
-			# poke[TPNAME]=TPDEFAULTS[TPNAME]
-		  # else
-			# poke[TPNAME]=poke[TPNAME].to_s
-			# raise _INTL("Bad nickname: {1} (must be 1-20 characters)\n{2}",poke[TPNAME],FileLineData.linereport) if (poke[TPNAME].to_s).length>20
-		  # end
-		  # # Shadow
-		  # if !poke[TPSHADOW] || poke[TPSHADOW]==""
-			# poke[TPSHADOW]=TPDEFAULTS[TPSHADOW]
-		  # else
-			# poke[TPSHADOW]=csvBoolean!(poke[TPSHADOW].clone)
-		  # end
-		  # # Ball
-		  # if !poke[TPBALL] || poke[TPBALL]==""
-			# poke[TPBALL]=TPDEFAULTS[TPBALL]
-		  # else
-			# poke[TPBALL]=poke[TPBALL].to_i
-			# raise _INTL("Bad form: {1} (must be 0 or greater)\n{2}",poke[TPBALL],FileLineData.linereport) if poke[TPBALL]<0
-		  # end
-		  # for value in [TPHPEV,TPATKEV,TPDEFEV,TPSPEEV,TPSPAEV,TPSPDEV]
-			# if !poke[value] || poke[value]==""
-			  # poke[value]=TPDEFAULTS[value]
-			# else
-			  # poke[value]=poke[value].to_i
-			# end
-		  # end
-		  # pkmn.push(poke)
-		# end
-		# i+=3+numpoke
-		# MessageTypes.setMessagesAsHash(MessageTypes::TrainerNames,trainernames)
-		# trainers[trainername].push([name,realitems,pkmn,partyid])
-	  # end
-  # fulltrainerdata = Array.new(maxValue)
-  # # build hashes for each trainer class
-  # for i in 0...trainers.length
-    # namearray=[]
-    # classhash = {}
-    # trainerlist = trainers[i]
-    # for trainer in trainerlist #make a list of the names in each class
-      # namearray.push(trainer[0])
-    # end
-    # namearray.uniq!
-    # for name in namearray
-      # namehash = {}
-      # for trainer in trainerlist
-        # next if trainer[0] != name
-        # namehash[trainer[3]] = [trainer[2],trainer[1]] #we don't want this to be an array since some IDs are >1000
-      # end
-      # classhash[name] = namehash
-    # end
-    # fulltrainerdata[i] = classhash
-  # end
-  # save_data(fulltrainerdata,"Data/trainers.dat")
-  # $cache.trainers = fulltrainerdata
-# end
+def dump_and_get_hash(object)
+    #useful to compare two objects that are different instances of the same class
+    # dump_and_get_hash(object) == dump_and_get_hash(object.clone).hash # true, whereas normally it would return false unless those objects have ==() defined
+    # ! slow for small objects !
+    return Marshal.dump(object).hash
+end
 
+
+
+def checkMapSizes(map1,map2)
+    return false if map1::data::xsize != map2::data::xsize 
+    return false if map1::data::zsize != map2::data::zsize 
+    return false if map1::data::ysize != map2::data::ysize 
+    return true
+end
+
+def mergeMapTiles(modded_map,destination_map)
+    #replaces tiles in map 2 with tiles in map 1 (if they are different)
+    return false if !checkMapSizes(modded_map,destination_map)
+    (0..modded_map.data.xsize-1).each{ |x|
+    	(0..modded_map.data.ysize-1).each{ |y|
+        	(0..modded_map.data.zsize-1).each{ |z|
+				tile = modded_map.data[x,y,z]
+				tile2 = destination_map.data[x,y,z]
+				if tile != tile2
+					puts "Replaced tile at #{[x,y,z]}"
+					destination_map.data[x,y,z] = tile
+				end
+     	   }
+ 	   }
+ 	}
+end
+
+def mergeMapTiles_ignore_vanilla_tiles(modded_map,destination_map,vanilla_map)
+    #replaces tiles in destination_map with tiles in modded_map, if those tiles are NOT in vanilla_map
+    return false if !checkMapSizes(modded_map,destination_map)
+    (0..modded_map.data.xsize-1).each{ |x|
+    	(0..modded_map.data.ysize-1).each{ |y|
+        	(0..modded_map.data.zsize-1).each{ |z|
+				tile = modded_map.data[x,y,z]
+				if (tile != destination_map.data[x,y,z] && tile != vanilla_map.data[x,y,z])
+					#puts "Replaced tile at #{[x,y,z]} with #{tile} because it wasnt equal to vanilla_data (#{vanilla_map.data[x,y,z]}) or the previously modded map (#{destination_map.data[x,y,z]})"
+					destination_map.data[x,y,z] = tile
+				end
+     	   }
+ 	   }
+ 	}
+end
+
+def mergeMapEvents(map1,map2)
+    #replaces events in map 2 with events in map 1 (if they are different)
+    merge_list = map2.events
+    return false if !checkMapSizes(map1,map2)
+    map1.events.each { |event|
+        #puts map2.events[event[0]]
+
+        if map2.events[event[0]] == nil
+            #found an event in the modded map whose id doesn't exist in the original map
+            merge_list[event[0]] = event[1]
+        elsif dump_and_get_hash(event[1]) != dump_and_get_hash(map2.events[event[0]])
+            #found two events that are different but share the same id
+            #check if they are also in the same position
+            puts "Found 2 events with id #{event[0]}"
+            if (event[1].x == map2.events[event[0]].x && event[1].y == map2.events[event[0]].y)
+                #if they are, overwrite
+                puts "They also have the same position, overwriting at pos #{event[1].x},#{event[1].y}"
+                merge_list[event[0]] = event[1]
+            else
+                #if they aren't, assign the event a new id and add it
+                new_id = map2.events.keys.max + 1
+                puts "they dont share the same position, assigning a new id  #{new_id}"
+                event[1].id == new_id
+                merge_list[new_id] = event[1]
+            end
+        end
+    }
+    map1.events.merge(merge_list)
+    map1.events = map1.events.sort.to_h #doesnt work because events is array of subarrays, fix tomorrow
+end
+
+def load_map_rxdata(data_file)
+    data = nil
+    File.open( data_file, "r+" ) do |input_file|
+      data = Marshal.load( input_file)
+    end
+  
+    return data
+end
+
+def save_map_rxdata(data_file, data)
+    File.open( data_file, "w+" ) do |output_file|
+      Marshal.dump( data, output_file )
+    end
+  end
+
+def compileModMaps
+
+	mapinfos = $cache.mapinfos
+	mods = $ModList
+
+	mods.each{ |mod| 
+		next if $ModSettings[mod]["Maps"] == nil
+		maps_to_load = $ModSettings[mod]["Maps"] if $ModSettings[mod]["Maps"].class == Array
+		maps_to_load = [$ModSettings[mod]["Maps"]] if $ModSettings[mod]["Maps"].class == String
+		loaded_maps = []
+
+		prefix_for_mod_maps = mods.find_index(mod) + 1 #we use this to avoid id conflicts if several mods add new maps
+		maps_to_fix_references = Hash[]
+
+		if File.exists?("Data/Mods/#{mod}/Maps/MapInfos.rxdata")
+			mod_mapinfos = load_map_rxdata("Data/Mods/#{mod}/Maps/MapInfos.rxdata")
+		else 
+			raise _INTL("{1}: has maps but MapInfos.rxdata not found!",mod)
+			next
+		end
+
+		maps_to_load.each{|mapfilename|
+			map_path = "Data/Mods/#{mod}/Maps/#{mapfilename}.rxdata"
+			if File.exists?(map_path)
+				map = load_map_rxdata(map_path)
+			else 
+				raise _INTL("{1}: Map {2} is defined in mod_settings.txt but the rxdata file is missing!",mod,mapname)
+				next
+			end
+			$cache.cacheMapInfos
+			map_id = mapfilename
+			map_id = map_id.delete("^0-9").to_i
+			new_map = false
+			new_mapinfos = $cache.mapinfos
+			#determine if we're adding a new map or overwriting
+
+			if $ModMaps.keys.include?(map_id)
+				puts "map is a mod-overwrite"
+				#map is already modded, merge, but ignore tiles that are from the vanilla map
+				#this is done this way so that if you add tiles, and another mod's version of that map doesn't have those tiles, 
+				#but doesn't have any tiles that would conflict with it
+				#you dont get your tiles erased
+
+				vanilla_map = load_map_rxdata("Data/#{mapfilename}.rxdata")
+
+				cached_mapinfos = load_map_rxdata("Data/Mods/Maps/MapInfos.rxdata")
+				mod_mapinfo = mod_mapinfos[map_id]
+
+				
+				cached_map = load_map_rxdata(sprintf("Data/Mods/Maps/Map%05d.rxdata", map_id))
+				
+				new_mapinfos[map_id] = mod_mapinfo
+				 
+				mergeMapTiles_ignore_vanilla_tiles(map,cached_map,vanilla_map)
+				mergeMapEvents(map,cached_map)
+
+				map_to_save = cached_map
+
+			elsif $cache.mapinfos.keys.include?(map_id)
+				#it's a map already in the game, but not a mod map.
+				puts "map #{map_id} is an overwrite map"
+				
+				cached_mapinfo = $cache.mapinfos[map_id]
+				cached_map = $cache.map_load(map_id,true)
+				mod_mapinfo = mod_mapinfos[map_id]
+				new_mapinfos[map_id] = mod_mapinfo
+
+				if cached_mapinfo.name != mod_mapinfo.name
+					#if they have different names, assume this is a new map that got shuffled around and assign a new id to it
+					new_map = true
+				else
+					#same id and name as a map already in the game that is NOT a mod map, we can safely merge and call it a day
+					mergeMapTiles(map,cached_map)
+					mergeMapEvents(map,cached_map)
+					map_to_save = cached_map
+				end
+
+				#$ModMaps[map_id] = map_path
+			else
+				new_map = true
+			end
+
+			if new_map
+				puts "map #{map_id} is a new map"
+				old_id = map_id
+				new_id = (prefix_for_mod_maps.to_s + sprintf("%03d", map_id)).to_i
+				new_id = sprintf("%05d", new_id).to_i
+				map_id = new_id
+				puts "setting id to #{new_id}"
+				maps_to_fix_references[old_id] = new_id
+				mod_mapinfo = mod_mapinfos[map_id]
+				new_mapinfos[map_id] = mod_mapinfo
+				map_to_save = map
+				
+			end
+
+
+			#remember to update the cache here pls
+
+			new_map_path = sprintf("Data/Mods/Maps/Map%05d.rxdata", map_id)
+			$ModMaps[map_id] = new_map_path
+			$cache.mapinfos = new_mapinfos
+			$cache.cachedmaps[map_id] = map_to_save
+			save_map_rxdata(new_map_path,map_to_save)
+			save_map_rxdata("Data/Mods/Maps/MapInfos.rxdata",new_mapinfos)
+			loaded_maps.append(new_map_path)
+		}
+
+		#we're gonna have to load every map again to fix transfer events.. we'd have to do this for each kind of reference we find that is broken so i hope there aren't too many
+		maps_to_fix_references.each{ |old_id, new_id|
+			loaded_maps.each{|map_path|
+				puts "fixing references to map #{old_id} (now map #{new_id}): currently checking map #{map_path}"
+				map = load_map_rxdata(map_path)
+				map.events.each{|id,event|
+					event.pages.each{|page|
+						page.list.each{|command|
+							if command.code == 201
+								if command.parameters[1] == old_id
+									command.parameters[1] = new_id 
+									puts "replaced a reference"
+								end
+								puts "found a reference in map #{map_path}, it points to map #{command.parameters[1]}"
+							end
+						}
+					}
+				}
+				save_map_rxdata(map_path,map)
+				$cache.cachedmaps[new_id]
+			}
+		}
+
+	}
+	#after loading all the mods, save a list of each mod and it's path
+	save_map_rxdata("Data/Mods/Maps/ModMaps.dat",$ModMaps)
+	#flush the map cache to prevent accessing a vanilla map accidentally
+	$cache.cachedmaps = []
+end
 
 def pbCompileModMachines
   lineno=1
@@ -1312,10 +1306,6 @@ def pbCompileModPokemonData(overwrite=true)
 		  }
 		  movelist=[]
 		  evolist=[]
-		  puts thesemoves.inspect
-		  puts theseevos.inspect
-		  test_id = "TACKLE"
-		  puts PBMoves::test_id
 		  for i in 0...thesemoves.length/2
 			movelist.push([thesemoves[i*2],thesemoves[i*2+1],i])
 		  end
@@ -1461,7 +1451,8 @@ def pbCompileAllModData(mustcompile)
     # # Depends on PBSpecies, PBMoves
     puts "Compiling mod machine data"
     pbCompileModMachines
-	
+	puts "Compiling mod maps..."
+	compileModMaps
     # # Depends on PBSpecies, PBItems, PBMoves
     # yield(_INTL("Compiling Trainer data"))
     # #pbCompileModTrainers
