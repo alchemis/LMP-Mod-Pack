@@ -14,7 +14,8 @@ zlib1.dll
 *.rxproj
 rebornmap.png
 *.lnk
-*.rxdata
+DataBackup/*
+Data/*.rxdata
 RGSS104E.dll
 *.dat
 *.zip
