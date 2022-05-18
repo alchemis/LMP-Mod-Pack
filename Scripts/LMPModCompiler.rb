@@ -13,10 +13,10 @@ $ModPBSToLoad = Hash[] if !defined?($ModPBSToLoad)
 
 #Done PBS files: moves, pokemon, abilities, tm, items
 #TODO: metadata, other pbs that are necessary
-#TODO: finish maps
+#TODO: finish maps done!
 #TODO: fix graphics system to be universal and better
 
-## my edits to this file are not optimal and not very readable, awful code warning: HERE BE DRAGONS ##
+## ugly code warning ##
 
 
 def hasModGraphics?(id)
