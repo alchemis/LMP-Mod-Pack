@@ -21,9 +21,12 @@ def createModHandler #we put this code inside of a def so that the variables sta
     # $ModSettings = Hash[] # format: str Mod => hash of settings
     # $ModMaps = Hash[] # format: int id => path to something formatted MapXXXXX.rxdata
     # $ListOfModPokemonByParent a hash containing [species ID => Hash[:parent => (string) name of the mod that added it, :id => (int) id, :overwrite => (bool) whether this pokemon overwrote another]
+    # PBSpecies::INTERNALNAME will return the ID of a pokemon depending on the internal name, or nil if it doesnt exist.
+    # PBItems, PBAbilities and PBMoves all do the same thing
+    # These can be used to check whether a specific thing is loaded before overwriting it
     # do NOT assign anything to these variables in here
 
-    def load_handler.load_mod? 
+    def load_handler.load_mod? #this is called when trying to load anything
         return is_loaded_before?("LMP - ExampleMod",@name) 
         #is_loaded_before? checks if a mod is loaded before another mod, in case our mod specifically depends on another mod
         #@name is the name given when creating the ModLoadHandler
@@ -32,27 +35,27 @@ def createModHandler #we put this code inside of a def so that the variables sta
 
     #the defs below this point aren't necessary to declare unless you are overwriting them, but this is left here as an example.
 
-    def load_handler.load_move?(move)
+    def load_handler.load_move?(move) #this is called when trying to load a move
         return true
     end
 
-    def load_handler.load_ability?(move)
+    def load_handler.load_ability?(ability) #this is called when trying to load an ability
         return true
     end
 
-    def load_handler.load_species?(species)
+    def load_handler.load_species?(species) #this is called when trying to load a pokemon species
         return true
     end
 
-    def load_handler.load_item?(item) 
+    def load_handler.load_item?(item) #this is called when trying to load an item
         return true
     end
 
-    def load_handler.load_encounters?(map_id)
+    def load_handler.load_encounters?(map_id) #this is called when trying to load encounters for the specified map
         return true
     end
 
-    def load_handler.load_map?(map_id)
+    def load_handler.load_map?(map_id) #this is called when trying to load a map
         return true
     end
 

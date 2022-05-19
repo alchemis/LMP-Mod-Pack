@@ -31,7 +31,7 @@ class ModLoadHandler #note: mods dont need to have a ModLoadHandler defined if t
 		return true
 	end
 
-	def load_ability?(move)
+	def load_ability?(ability)
 		return true
 	end
 
