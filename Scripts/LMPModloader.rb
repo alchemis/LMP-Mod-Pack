@@ -1,7 +1,62 @@
-$ModList = [] #format: array of Mod names sorted by load order
-$ModSettings = Hash[] # format: Mod => hash of settings
-$ModMaps = Hash[] # format: id => path to something formatted MapXXXXX.rxdata
+$ModList = [] #format: array of str Mod names sorted by load order
+$ModSettings = Hash[] # format: str Mod => hash of settings
+$ModMaps = Hash[] # format: int id => path to something formatted MapXXXXX.rxdata
 $ListOfModPokemonByParent = Hash[] if !defined?($ListOfModPokemonByParent)
+$ModLoadHandlers = Hash[] #format: str mod_name => ModLoadHandler object
+
+$ModDebug = false #used to control debug messages and whether to always force a recompile, can only be changed manually here
+
+def is_loaded_before?(mod,mod2) #checks if mod is loaded before mod2, to check whether you're in the right spot in the load order
+	return false if !($ModList.include?(mod)) || !($ModList.include?(mod2))
+	return $ModList.find_index(mod) < $ModList.find_index(mod2)
+end
+
+class ModLoadHandler #note: mods dont need to have a ModLoadHandler defined if they dont need it, in which case it always default to true
+
+	#make an instance of the class and overwrite the methods for mod custom load handlers
+	#each method must return a boolean when passed a string (or int, for maps and events) containing a specific thing in the mod files, graphics excepted
+	#internal names are always used when avaliable
+	#this will probably be updated to use symbols when PBS files are refactored into hashes.
+
+
+	def initialize(name)
+		@name = name 
+	end
+
+	def load_mod? 
+		return true
+	end
+
+	def load_move?(move)
+		return true
+	end
+
+	def load_ability?(move)
+		return true
+	end
+
+	def load_species?(species)
+		return true
+	end
+
+	def load_item?(item) 
+		return true
+	end
+
+	def load_encounters?(map_id)
+		return true
+	end
+
+	def load_map?(map_id)
+		return true
+	end
+
+	def load_event?(map_id, event_id)
+		return true
+	end
+	
+end
+
 
 
 #gets the load order from load_order.ini, the
@@ -21,6 +76,12 @@ def getModLoadOrder
 		raise _INTL("LMPModloader: Load order not found! Run the Mod Manager first")
 	end
 
+end
+
+def runModLoadHandlers
+	$ModList.each{ | mod |
+		load File.expand_path("Data/Mods/#{mod}/before_load.rb") if safeExists?("Data/Mods/#{mod}/before_load.rb")
+	}
 end
 
 def is_integer_in_disguise?(str)
@@ -53,10 +114,11 @@ def getModSettings
 		  }
 		}
 	}
-	#puts $ModSettings
+	#puts $ModSettings if $ModDebug
 end
 
 def mustCompileMods?
+	return true if $ModDebug
 	if File.exists?("Data/Mods/mustcompile.ini")
 		compilefile= File.open("Data/Mods/mustcompile.ini") 
 		size = File.size?(compilefile)
@@ -73,6 +135,7 @@ end
 def loadMods
 	getModLoadOrder
 	getModSettings
+	runModLoadHandlers
 	puts "Compile?: " + mustCompileMods?.to_s
 	pbCompileAllModData(true) if mustCompileMods? 
 	puts "Loading mods...."
@@ -86,7 +149,9 @@ def loadMods
 	MessageTypes.loadMessageFile("Data/Mods/messages.dat")
 	#load mod scripts from mod subfolders as defined in their modsettings.ini
 	$ModList.each{ | mod |
-		Dir["./Data/Mods/#{mod}/*.rb"].each {|file| load File.expand_path(file) } if $ModSettings[mod]["hasScripts"] == "true"
+		Dir["./Data/Mods/#{mod}/*.rb"].each {|file|
+			load File.expand_path(file) if !(file.end_with?("before_load.rb"))
+			} if $ModSettings[mod]["hasScripts"] == "true"
 	}
 	
 	#load non-LMPModloader mods
@@ -106,14 +171,13 @@ end
 
 def $cache.map_load(mapid,ignoreModdedMaps=false)
 	self.cachedmaps = [] if !self.cachedmaps
-	puts $ModMaps
 	if $ModMaps.keys.include?(mapid) && !ignoreModdedMaps
 		if !self.cachedmaps[mapid]
 			puts "loading modded map",mapid
 			self.cachedmaps[mapid] = load_data($ModMaps[mapid])
 		end
 	end
-	puts "ignoring modded maps for this load..." if ignoreModdedMaps
+	puts "ignoring modded maps for this load..." if ignoreModdedMaps && $ModDebug
 	if !self.cachedmaps[mapid]
 		puts "loading map",mapid
 		self.cachedmaps[mapid] = load_data(sprintf("Data/Map%03d.rxdata", mapid))

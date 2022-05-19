@@ -1,4 +1,5 @@
 Audio/*
+node_modules/*
 Graphics/*
 Fonts/*
 PBS/*
