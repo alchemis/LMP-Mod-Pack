@@ -18,15 +18,24 @@ How to install:
  - **LMP - ExampleMod:** Using ModdedPBSLoader and ModdedPokemonGraphicsLoader, implements a few pokemon as an example on how to make a mod using this framework. (This mod is intended for developers, see code)
  - **LMP - ExampleSelectiveOverwriteMod:** Showcases the selectiveOverwrite setting, to overwrite only some Pokemon data, for example, only edit moves, or overwrite mod pokemon if they exist.
 
+**Features:**
+ - Load PBS files from each mod folder, and select how and what to overwrite. (for a list of which files are supported, see mod_settings.ini in examplemod)
+ - Load pokemon graphics from each mod folder. (current implementation is a bit.. wonky)
+ - Load maps from each mod folder, and only overwrite events and tiles that need to be overwritten. (basically you can have multiple versions of the same map and it'll all kinda just magically work.)
+ - Mods can selectively load their content based on their own conditions, this is used to enforce compatibility or only load certain content if another mod is installed
+ - Custom mod settings avaliable in script
+ - Load mod scripts in a specific order
+ - For details, see ExampleMod and ExampleSelectiveOverwrite
+
 **TO-DO:**
- - Handle all pbs files
- - Handle maps and events :eyes:
- - Implement ExtendedLearnsets
- - Change CreateAllFields into ExtraMoves
+ - Handle connections pbs file, maybe also types pbs
+ - Handle maps and events ✔️ done!
+ - Re-do graphics system
+ - Figure out exactly how the trainer stuff works
+
 
 # ModLoader
 
-**Badge coming soon!**
 
 [![Build Status](https://dev.azure.com/lyraLMP/LMP-Modloader/_apis/build/status/alchemis.LMP-Mod-Pack?branchName=main)](https://dev.azure.com/lyraLMP/LMP-Modloader/_build/latest?definitionId=1&branchName=main)
 
