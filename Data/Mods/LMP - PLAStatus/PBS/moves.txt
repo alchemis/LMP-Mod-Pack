@@ -1,0 +1,6 @@
+243,ICEBEAM,Ice Beam,00C,90,ICE,Special,100,10,30,00,0,be,"The target is struck with an icy-cold beam of energy. This may also leave the target frostbitten."
+245,ICEPUNCH,Ice Punch,00C,75,ICE,Physical,100,15,30,00,0,abej,"The target is punched with an icy fist. This may also leave the target frostbitten."
+253,POWDERSNOW,Powder Snow,00C,40,ICE,Special,100,25,30,04,0,be,"The user attacks with a chilling gust of powdery snow. This may also frostbite the opposing Pokémon."
+579,FREEZEDRY,Freeze-Dry,00C,70,ICE,Special,100,20,30,00,0,bf,"The user rapidly cools the target. It may frostbite the target and is supereffective on Water-types."
+242,BLIZZARD,Blizzard,00D,110,ICE,Special,70,5,30,04,0,be,"A howling blizzard is summoned to strike opposing Pokémon. This may also frostbite the targets."
+248,ICEFANG,Ice Fang,00E,65,ICE,Physical,95,15,30,00,0,abef,"The user bites with cold-infused fangs. This may also make the target flinch or leave it frostbitten."
