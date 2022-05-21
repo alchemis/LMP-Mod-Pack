@@ -141,10 +141,10 @@ def writeIni(path,hash)
 				raise _INTL("#{path}: has a property defined before a header, invalid ini syntax.") if !current_header
 				line = line.gsub(/\s*=\s*/,"=")
 		    	line = line.split("=",-1)
-				if hash[current_header].keys.include?(line[0])
-                    puts hash[current_header][line[0]].inspect
+				#puts hash.inspect
+				#puts "current header: #{current_header} current key: #{line[0]} current value: #{line[1]} trying to write: #{hash[current_header][line[0]]}"
+				if hash[current_header].keys.include?(line[0].to_s)
                     if hash[current_header][line[0]].class == Array
-                        puts "array"
                         line[1] = hash[current_header][line[0]]
                         line[1] = line[1].join(",") 
                     elsif hash[current_header][line[0]].class == Integer
@@ -160,7 +160,7 @@ def writeIni(path,hash)
 
 		}
 	}
-    File.open(path+"2", "w") { |file_handle|
+    File.open(path, "w") { |file_handle|
         file_handle.write(string)
     }
 end
@@ -180,6 +180,7 @@ def getModLoaderSettings
 	modloader_settings_path = "Data/Mods/Modloader/modloader_settings.ini"
 	if File.exists?(modloader_settings_path)
 		$ModloaderSettings = readIni(modloader_settings_path)
+		$ModDebug = true if $ModloaderSettings["settings"]["debug"] == "true"
 	else
 		raise _INTL("Data/Mods/Modloader/modloader_settings.ini not found!!")
 	end
@@ -194,8 +195,8 @@ end
 
 
 def doneCompiling
-	$ModloaderSettings["settings"]["recompile"] == "false"
-	writeIni("Data/Mods/Modloader/modloader_settings.ini",hash)
+	$ModloaderSettings["settings"]["recompile"] = "false"
+	writeIni("Data/Mods/Modloader/modloader_settings.ini",$ModloaderSettings)
 end
 
 def loadMods
@@ -244,7 +245,7 @@ def $cache.map_load(mapid,ignoreModdedMaps=false)
 			self.cachedmaps[mapid] = load_data($ModMaps[mapid])
 		end
 	end
-	puts "ignoring modded maps for this load..." if ignoreModdedMaps && $ModDebug
+	#puts "ignoring modded maps for this load..." if ignoreModdedMaps && $ModDebug
 	if !self.cachedmaps[mapid]
 		puts "loading map",mapid
 		self.cachedmaps[mapid] = load_data(sprintf("Data/Map%03d.rxdata", mapid))

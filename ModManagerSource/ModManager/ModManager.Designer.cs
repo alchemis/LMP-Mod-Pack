@@ -38,38 +38,39 @@ namespace ModManager
             this.buttonMoveUp = new System.Windows.Forms.Button();
             this.buttonMoveDown = new System.Windows.Forms.Button();
             this.checkBoxModEnabled = new System.Windows.Forms.CheckBox();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.labelDescription = new System.Windows.Forms.Label();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.dgwModSettings = new System.Windows.Forms.DataGridView();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.dgwModAdvSettings = new System.Windows.Forms.DataGridView();
             this.checkBoxForceRecompile = new System.Windows.Forms.CheckBox();
             this.buttonSave = new System.Windows.Forms.Button();
             this.buttonResetDefaults = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.forceRecompileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.loadModToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.forceRecompileToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.debugOptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.debugMessagesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.forceRecompileToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.dangerousThingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.uninstallModloaderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cleanUpSavesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.debugOptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.dangerousThingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.dgwModAdvSettings = new System.Windows.Forms.DataGridView();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.labelDescription = new System.Windows.Forms.Label();
-            this.dgwModSettings = new System.Windows.Forms.DataGridView();
+            this.loadModToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.resetLoadOrderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBoxMod.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
+            this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgwModSettings)).BeginInit();
             this.tabPage3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgwModAdvSettings)).BeginInit();
-            this.tabPage1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgwModSettings)).BeginInit();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -192,6 +193,93 @@ namespace ModManager
             this.checkBoxModEnabled.UseVisualStyleBackColor = true;
             this.checkBoxModEnabled.CheckedChanged += new System.EventHandler(this.checkBoxModEnabled_CheckedChanged);
             // 
+            // tabControl1
+            // 
+            this.tableLayoutPanel2.SetColumnSpan(this.tabControl1, 3);
+            this.tabControl1.Controls.Add(this.tabPage1);
+            this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl1.Location = new System.Drawing.Point(3, 3);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(220, 196);
+            this.tabControl1.TabIndex = 4;
+            // 
+            // tabPage1
+            // 
+            this.tabPage1.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPage1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.tabPage1.Controls.Add(this.labelDescription);
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(212, 170);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "Description";
+            // 
+            // labelDescription
+            // 
+            this.labelDescription.BackColor = System.Drawing.SystemColors.Control;
+            this.labelDescription.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.labelDescription.Location = new System.Drawing.Point(3, 3);
+            this.labelDescription.Name = "labelDescription";
+            this.labelDescription.Size = new System.Drawing.Size(206, 164);
+            this.labelDescription.TabIndex = 1;
+            this.labelDescription.Text = "Mod description here...";
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPage2.Controls.Add(this.dgwModSettings);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(212, 170);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "Settings";
+            // 
+            // dgwModSettings
+            // 
+            this.dgwModSettings.AllowUserToAddRows = false;
+            this.dgwModSettings.AllowUserToDeleteRows = false;
+            this.dgwModSettings.BackgroundColor = System.Drawing.SystemColors.ActiveCaption;
+            this.dgwModSettings.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgwModSettings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgwModSettings.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgwModSettings.Location = new System.Drawing.Point(3, 3);
+            this.dgwModSettings.MultiSelect = false;
+            this.dgwModSettings.Name = "dgwModSettings";
+            this.dgwModSettings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this.dgwModSettings.Size = new System.Drawing.Size(206, 164);
+            this.dgwModSettings.TabIndex = 1;
+            // 
+            // tabPage3
+            // 
+            this.tabPage3.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPage3.Controls.Add(this.dgwModAdvSettings);
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(212, 170);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Advanced settings";
+            // 
+            // dgwModAdvSettings
+            // 
+            this.dgwModAdvSettings.AllowUserToAddRows = false;
+            this.dgwModAdvSettings.AllowUserToDeleteRows = false;
+            this.dgwModAdvSettings.BackgroundColor = System.Drawing.SystemColors.ActiveCaption;
+            this.dgwModAdvSettings.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgwModAdvSettings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgwModAdvSettings.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgwModAdvSettings.Location = new System.Drawing.Point(3, 3);
+            this.dgwModAdvSettings.MultiSelect = false;
+            this.dgwModAdvSettings.Name = "dgwModAdvSettings";
+            this.dgwModAdvSettings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this.dgwModAdvSettings.Size = new System.Drawing.Size(206, 164);
+            this.dgwModAdvSettings.TabIndex = 0;
+            // 
             // checkBoxForceRecompile
             // 
             this.checkBoxForceRecompile.Anchor = System.Windows.Forms.AnchorStyles.Right;
@@ -259,18 +347,25 @@ namespace ModManager
             this.toolStripSeparator1,
             this.dangerousThingsToolStripMenuItem,
             this.uninstallModloaderToolStripMenuItem,
-            this.cleanUpSavesToolStripMenuItem});
+            this.cleanUpSavesToolStripMenuItem,
+            this.resetLoadOrderToolStripMenuItem});
             this.forceRecompileToolStripMenuItem.Name = "forceRecompileToolStripMenuItem";
             this.forceRecompileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.forceRecompileToolStripMenuItem.Text = "Modloader settings";
             this.forceRecompileToolStripMenuItem.Click += new System.EventHandler(this.forceRecompileToolStripMenuItem_Click);
             // 
-            // loadModToolStripMenuItem
+            // debugOptionsToolStripMenuItem
             // 
-            this.loadModToolStripMenuItem.Name = "loadModToolStripMenuItem";
-            this.loadModToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.loadModToolStripMenuItem.Text = "Add mod";
-            this.loadModToolStripMenuItem.Click += new System.EventHandler(this.loadModToolStripMenuItem_Click);
+            this.debugOptionsToolStripMenuItem.Enabled = false;
+            this.debugOptionsToolStripMenuItem.Name = "debugOptionsToolStripMenuItem";
+            this.debugOptionsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.debugOptionsToolStripMenuItem.Text = "Debug options";
+            // 
+            // debugMessagesToolStripMenuItem
+            // 
+            this.debugMessagesToolStripMenuItem.Name = "debugMessagesToolStripMenuItem";
+            this.debugMessagesToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.debugMessagesToolStripMenuItem.Text = "Debug messages";
             // 
             // forceRecompileToolStripMenuItem1
             // 
@@ -278,11 +373,17 @@ namespace ModManager
             this.forceRecompileToolStripMenuItem1.Size = new System.Drawing.Size(181, 22);
             this.forceRecompileToolStripMenuItem1.Text = "Force recompile";
             // 
-            // debugMessagesToolStripMenuItem
+            // toolStripSeparator1
             // 
-            this.debugMessagesToolStripMenuItem.Name = "debugMessagesToolStripMenuItem";
-            this.debugMessagesToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-            this.debugMessagesToolStripMenuItem.Text = "Debug messages";
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(178, 6);
+            // 
+            // dangerousThingsToolStripMenuItem
+            // 
+            this.dangerousThingsToolStripMenuItem.Enabled = false;
+            this.dangerousThingsToolStripMenuItem.Name = "dangerousThingsToolStripMenuItem";
+            this.dangerousThingsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.dangerousThingsToolStripMenuItem.Text = "Dangerous things";
             // 
             // uninstallModloaderToolStripMenuItem
             // 
@@ -297,111 +398,18 @@ namespace ModManager
             this.cleanUpSavesToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
             this.cleanUpSavesToolStripMenuItem.Text = "Clean up saves";
             // 
-            // toolStripSeparator1
+            // loadModToolStripMenuItem
             // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(178, 6);
+            this.loadModToolStripMenuItem.Name = "loadModToolStripMenuItem";
+            this.loadModToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadModToolStripMenuItem.Text = "Add mod";
+            this.loadModToolStripMenuItem.Click += new System.EventHandler(this.loadModToolStripMenuItem_Click);
             // 
-            // debugOptionsToolStripMenuItem
+            // resetLoadOrderToolStripMenuItem
             // 
-            this.debugOptionsToolStripMenuItem.Enabled = false;
-            this.debugOptionsToolStripMenuItem.Name = "debugOptionsToolStripMenuItem";
-            this.debugOptionsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-            this.debugOptionsToolStripMenuItem.Text = "Debug options";
-            // 
-            // dangerousThingsToolStripMenuItem
-            // 
-            this.dangerousThingsToolStripMenuItem.Enabled = false;
-            this.dangerousThingsToolStripMenuItem.Name = "dangerousThingsToolStripMenuItem";
-            this.dangerousThingsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-            this.dangerousThingsToolStripMenuItem.Text = "Dangerous things";
-            // 
-            // tabControl1
-            // 
-            this.tableLayoutPanel2.SetColumnSpan(this.tabControl1, 3);
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Controls.Add(this.tabPage3);
-            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(3, 3);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(220, 196);
-            this.tabControl1.TabIndex = 4;
-            // 
-            // tabPage2
-            // 
-            this.tabPage2.BackColor = System.Drawing.SystemColors.Control;
-            this.tabPage2.Controls.Add(this.dgwModSettings);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(212, 170);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Settings";
-            // 
-            // tabPage3
-            // 
-            this.tabPage3.BackColor = System.Drawing.SystemColors.Control;
-            this.tabPage3.Controls.Add(this.dgwModAdvSettings);
-            this.tabPage3.Location = new System.Drawing.Point(4, 22);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(212, 170);
-            this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "Advanced settings";
-            // 
-            // dgwModAdvSettings
-            // 
-            this.dgwModAdvSettings.AllowUserToAddRows = false;
-            this.dgwModAdvSettings.AllowUserToDeleteRows = false;
-            this.dgwModAdvSettings.BackgroundColor = System.Drawing.SystemColors.ActiveCaption;
-            this.dgwModAdvSettings.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.dgwModAdvSettings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgwModAdvSettings.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgwModAdvSettings.Location = new System.Drawing.Point(3, 3);
-            this.dgwModAdvSettings.MultiSelect = false;
-            this.dgwModAdvSettings.Name = "dgwModAdvSettings";
-            this.dgwModAdvSettings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dgwModAdvSettings.Size = new System.Drawing.Size(206, 164);
-            this.dgwModAdvSettings.TabIndex = 0;
-            // 
-            // tabPage1
-            // 
-            this.tabPage1.BackColor = System.Drawing.SystemColors.Control;
-            this.tabPage1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.tabPage1.Controls.Add(this.labelDescription);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(212, 170);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Description";
-            // 
-            // labelDescription
-            // 
-            this.labelDescription.BackColor = System.Drawing.SystemColors.Control;
-            this.labelDescription.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.labelDescription.Location = new System.Drawing.Point(3, 3);
-            this.labelDescription.Name = "labelDescription";
-            this.labelDescription.Size = new System.Drawing.Size(206, 164);
-            this.labelDescription.TabIndex = 1;
-            this.labelDescription.Text = "Mod description here...";
-            // 
-            // dgwModSettings
-            // 
-            this.dgwModSettings.AllowUserToAddRows = false;
-            this.dgwModSettings.AllowUserToDeleteRows = false;
-            this.dgwModSettings.BackgroundColor = System.Drawing.SystemColors.ActiveCaption;
-            this.dgwModSettings.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.dgwModSettings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgwModSettings.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgwModSettings.Location = new System.Drawing.Point(3, 3);
-            this.dgwModSettings.MultiSelect = false;
-            this.dgwModSettings.Name = "dgwModSettings";
-            this.dgwModSettings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dgwModSettings.Size = new System.Drawing.Size(206, 164);
-            this.dgwModSettings.TabIndex = 1;
+            this.resetLoadOrderToolStripMenuItem.Name = "resetLoadOrderToolStripMenuItem";
+            this.resetLoadOrderToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.resetLoadOrderToolStripMenuItem.Text = "Reset load order";
             // 
             // ModManager
             // 
@@ -423,14 +431,14 @@ namespace ModManager
             this.groupBoxMod.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
             this.tabControl1.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgwModSettings)).EndInit();
             this.tabPage3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgwModAdvSettings)).EndInit();
-            this.tabPage1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgwModSettings)).EndInit();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -467,5 +475,6 @@ namespace ModManager
         private TabPage tabPage1;
         private Label labelDescription;
         private DataGridView dgwModSettings;
+        private ToolStripMenuItem resetLoadOrderToolStripMenuItem;
     }
 }

@@ -225,22 +225,23 @@ def pbCompileModItems
 		next if !($ModSettings[mod]["ModPBS"].include?("items"))
 		$ModLoadHandlers[mod] = ModLoadHandler.new(mod) if $ModLoadHandlers[mod] == nil
 		next if !($ModLoadHandlers[mod].load_mod?)
+		overwriting = false
 		pbCompilerEachCommentedLine("Data/Mods/#{mod}/PBS/items.txt"){|line,lineno|
 			
 			linerecord=pbGetCsvRecord(line,lineno,[0,"vnsuusuuUN"])
 			next if !($ModLoadHandlers[mod].load_item?(linerecord[1]))
 			record=[]
 			if constants.keys.include?(linerecord[1])
-				puts "Item Already exists, overwriting #{linerecord[1]}" if $ModDebug
+				overwriting = true
 				record[ITEMID] = constants[linerecord[1]] 
 				record[0] = constants[linerecord[1]] 
 			else
-				puts "Item doesn't exist adding #{linerecord[1]}" if $ModDebug
+				overwrite = false
 				record[ITEMID] = maxValue + 1
 				constants[linerecord[1]] = maxValue + 1
 				record[0] = maxValue + 1
 			end
-			
+			puts "#{mod}: Added Item with id #{linerecord[0]} and internalname #{linerecord[1]} Overwrite? " + overwriting.to_s if $ModDebug
 			record[ITEMNAME] = linerecord[2]
 			itemnames[record[0]]=linerecord[2]
 			record[ITEMPOCKET] = linerecord[3]
@@ -514,7 +515,7 @@ def pbCompileModMoves
 			else
 			records[record[1]] = record[0]
 			end
-			puts "Added Move with id #{record[0]} and internalname #{record[1]} Overwrite? " + overwriting.to_s if $ModDebug
+			puts "#{mod}: Added Move with id #{record[0]} and internalname #{record[1]} Overwrite? " + overwriting.to_s if $ModDebug
 		}
 	}
 	File.open("Data/Mods/Modloader/moves.dat","wb"){|file|
@@ -560,7 +561,7 @@ def pbCompileModAbilities()
 			
 			records.delete(records.key(records[0]))
 			records[record[1]] = record[0]
-			puts "Added Ability with id " + record[0].to_s + " Overwrite? " + overwriting.to_s if $ModDebug
+			puts "#{mod}: Added Ability with id " + record[0].to_s + " Overwrite? " + overwriting.to_s if $ModDebug
 		}
 	}
 	MessageTypes.setMessages(MessageTypes::Abilities,movenames)
@@ -591,20 +592,20 @@ def checkMapSizes(map1,map2)
 end
 
 def mergeMapTiles(modded_map,destination_map)
-		#replaces tiles in map 2 with tiles in map 1 (if they are different)
-		return false if !checkMapSizes(modded_map,destination_map)
-		(0..modded_map.data.xsize-1).each{ |x|
-			(0..modded_map.data.ysize-1).each{ |y|
-					(0..modded_map.data.zsize-1).each{ |z|
+	#replaces tiles in map 2 with tiles in map 1 (if they are different)
+	return false if !checkMapSizes(modded_map,destination_map)
+	(0..modded_map.data.xsize-1).each{ |x|
+		(0..modded_map.data.ysize-1).each{ |y|
+			(0..modded_map.data.zsize-1).each{ |z|
 				tile = modded_map.data[x,y,z]
 				tile2 = destination_map.data[x,y,z]
 				if tile != tile2
-					puts "Replaced tile at #{[x,y,z]}" if $ModDebug
+					#puts "Replaced tile at #{[x,y,z]}" if $ModDebug
 					destination_map.data[x,y,z] = tile
 				end
-				}
- 		}
- 	}
+			}
+		}
+	}
 end
 
 def mergeMapTiles_ignore_vanilla_tiles(modded_map,destination_map,vanilla_map)
@@ -644,7 +645,7 @@ def mergeMapEvents(map1,map2)
 						else
 								#if they aren't, assign the event a new id and add it
 								new_id = map2.events.keys.max + 1
-								#puts "they dont share the same position, assigning a new id	#{new_id}" if $ModDebug
+								puts "they dont share the same position, assigning a new id	#{new_id}" if $ModDebug
 								event[1].id == new_id
 								merge_list[new_id] = event[1]
 						end
@@ -693,15 +694,17 @@ def compileModMaps
 		end
 
 		maps_to_load.each{|mapfilename|
+			
 			map_id = mapfilename
 			map_id = map_id.delete("^0-9").to_i
-
+			puts "\n"
+			puts "#{mod}: processing map #{map_id}" if $ModDebug
 			next if !($ModLoadHandlers[mod].load_map?(map_id))
 			map_path = "Data/Mods/#{mod}/Maps/#{mapfilename}.rxdata"
 			if File.exists?(map_path)
 				map = load_map_rxdata(map_path)
 			else 
-				raise _INTL("{1}: Map {2} is defined in mod_settings.txt but the rxdata file is missing!",mod,mapname)
+				raise _INTL("{1}: Map {2} is defined in mod_settings.txt but the rxdata file is missing!",mod,map_id)
 				next
 			end
 			$cache.cacheMapInfos
@@ -711,7 +714,7 @@ def compileModMaps
 			#determine if we're adding a new map or overwriting
 
 			if $ModMaps.keys.include?(map_id)
-				#puts "map is a mod-overwrite" if $ModDebug
+				puts "map is a mod-overwrite" if $ModDebug
 				#map is already modded, merge, but ignore tiles that are from the vanilla map
 				#this is done this way so that if you add tiles, and another mod's version of that map doesn't have those tiles, 
 				#but doesn't have any tiles that would conflict with it
@@ -793,9 +796,9 @@ def compileModMaps
 							if command.code == 201
 								if command.parameters[1] == old_id
 									command.parameters[1] = new_id 
-									puts "replaced a reference" if $ModDebug
+									puts "replaced a reference in map #{map_path}, #{old_id} => #{new_id}" if $ModDebug
 								end
-								puts "found a reference in map #{map_path}, it points to map #{command.parameters[1]}" if $ModDebug
+								#puts "found a reference in map #{map_path}, it points to map #{command.parameters[1]}" if $ModDebug
 							end
 						}
 					}
@@ -838,7 +841,7 @@ def pbCompileModMachines
 				if line[/^\s*\[\s*(.*)\s*\]\s*$/]
 					next if !($ModLoadHandlers[mod].load_move?($~[1])) #maybe? test it out later, pretty sure this should be the an internal id
 					sectionname=parseMove($~[1])
-					#puts " processing tms for move #{sectionname}" if $ModDebug
+					puts " processing tms for move #{sectionname}" if $ModDebug
 					
 					sections[sectionname] = [] if (sections[sectionname].nil?)
 					havesection=true
@@ -1332,6 +1335,8 @@ def pbCompileModPokemonData(overwrite=true)
 			}
 			movelist=[]
 			evolist=[]
+			puts "thesemoves format test"
+			puts thesemoves
 			for i in 0...thesemoves.length/2
 			movelist.push([thesemoves[i*2],thesemoves[i*2+1],i])
 			end
@@ -1350,7 +1355,7 @@ def pbCompileModPokemonData(overwrite=true)
 			if dexdata[:ID] != 0
 				puts "#{mod}: Added pokemon with id " + dexdata[:ID].to_s + " and speciesname " + speciesnames[dexdata[:ID]].to_s + " Overwrite? " + overwrite.to_s + " selectiveOverwrite? " + selectiveOverwrite.to_s
 			else 
-				puts "#{mod}: Ignored pokemon #{currentmap}, Reason: ignoreNewPokemon is set to true in mod_settings.ini or ModLoadHandler said to do it"
+				puts "#{mod}: Ignored pokemon #{currentmap}, ignoreNewPokemon is set to #{ignoreNewPokemon} (from mod_settings.ini), ModloadHandler response: #{$ModLoadHandlers[mod].load_species?(currentmap)}"
 			end
 		}
 		
@@ -1475,8 +1480,8 @@ def pbCompileAllModData(mustcompile)
 		# # Depends on PBSpecies, PBMoves
 		puts "Compiling mod machine data"
 		pbCompileModMachines
-	puts "Compiling mod maps..."
-	compileModMaps
+		puts "Compiling mod maps..."
+		compileModMaps
 		# # Depends on PBSpecies, PBItems, PBMoves
 		# yield(_INTL("Compiling Trainer data"))
 		# #pbCompileModTrainers
