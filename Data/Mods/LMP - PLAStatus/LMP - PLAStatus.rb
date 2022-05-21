@@ -1719,7 +1719,7 @@ class PokeBattle_Move
         finaldamagemult=pbModifyDamage(finaldamagemult,attacker,opponent)
         damage=(damage*finaldamagemult*1.0/0x1000).round
         opponent.damagestate.calcdamage=damage
-        puts "damage dealt: #{damage}, finaldamagemult: #{finaldamagemult}, "
+        #puts "damage dealt: #{damage}, finaldamagemult: #{finaldamagemult}, "
         return damage
       end
 end
@@ -1732,8 +1732,8 @@ class PokeBattle_Battle
     msg = msg.gsub(/frozen solid/, 'frostbitten')
     msg = msg.gsub(/fell asleep/, 'became drowsy')
     msg = msg.gsub(/went to sleep/, 'became drowsy')
-    puts "printing battle msg"
-    puts msg.inspect
+    #puts "printing battle msg"
+    #puts msg.inspect
     @scene.pbDisplayMessage(msg)
   end
 

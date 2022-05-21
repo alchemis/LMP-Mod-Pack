@@ -89,8 +89,8 @@ def is_integer_in_disguise?(str)
 end
 
 def getModMaps
-	if File.exists?("Data/Mods/Maps/ModMaps.dat")
-		$ModMaps = load_data("Data/Mods/Maps/ModMaps.dat")
+	if File.exists?("Data/Mods/Modloader/Maps/ModMaps.dat")
+		$ModMaps = load_data("Data/Mods/Modloader/Maps/ModMaps.dat")
 	end
 end
 
@@ -146,7 +146,7 @@ def loadMods
 	cacheModItems
 	cacheModMetadata
 	cacheModMapInfos
-	MessageTypes.loadMessageFile("Data/Mods/messages.dat")
+	MessageTypes.loadMessageFile("Data/Mods/Modloader/messages.dat")
 	#load mod scripts from mod subfolders as defined in their modsettings.ini
 	$ModList.each{ | mod |
 		Dir["./Data/Mods/#{mod}/*.rb"].each {|file|
@@ -191,27 +191,27 @@ def $cache.flushmaps
 end
 
 def cacheModDex
-	pbCompileModPokemonData if !File.exists?("Data/Mods/dexdata.dat")
-	$ListOfModPokemonByParent = load_data("Data/Mods/graphicpaths.dat")
-	$cache.pkmn_dex           = load_data("Data/Mods/dexdata.dat")
-	$cache.pkmn_metrics       = load_data("Data/Mods/metrics.dat")
-	$cache.pkmn_moves         = load_data("Data/Mods/attacksRS.dat")
-	$cache.pkmn_egg           = load_data("Data/Mods/eggEmerald.dat")
-	$cache.pkmn_evo           = load_data("Data/Mods/evolutions.dat")
+	pbCompileModPokemonData if !File.exists?("Data/Mods/Modloader/dexdata.dat")
+	$ListOfModPokemonByParent = load_data("Data/Mods/Modloader/graphicpaths.dat")
+	$cache.pkmn_dex           = load_data("Data/Mods/Modloader/dexdata.dat")
+	$cache.pkmn_metrics       = load_data("Data/Mods/Modloader/metrics.dat")
+	$cache.pkmn_moves         = load_data("Data/Mods/Modloader/attacksRS.dat")
+	$cache.pkmn_egg           = load_data("Data/Mods/Modloader/eggEmerald.dat")
+	$cache.pkmn_evo           = load_data("Data/Mods/Modloader/evolutions.dat")
 end
 
 def cacheModMoves
-	pbCompileModMoves if !File.exists?("Data/Mods/moves.dat")
-	$cache.pkmn_move          = load_data("Data/Mods/moves.dat")
-	$cache.tm_data            = load_data("Data/Mods/tm.dat")
+	pbCompileModMoves if !File.exists?("Data/Mods/Modloader/moves.dat")
+	$cache.pkmn_move          = load_data("Data/Mods/Modloader/moves.dat")
+	$cache.tm_data            = load_data("Data/Mods/Modloader/tm.dat")
 	#Not Implemented
-	#$cache.move2anim          = load_data("Data/Mods/move2anim.dat")
+	#$cache.move2anim          = load_data("Data/Mods/Modloader/move2anim.dat")
 	
 end
 
 def cacheModItems
-	pbCompileModItems if !File.exists?("Data/Mods/items.dat")
-	$cache.items           = load_data("Data/Mods/items.dat")
+	pbCompileModItems if !File.exists?("Data/Mods/Modloader/items.dat")
+	$cache.items           = load_data("Data/Mods/Modloader/items.dat")
 end
 
 def cacheTrainers
@@ -230,14 +230,14 @@ def cacheFields
 end
 
 def cacheModMapInfos
-	pbCompileMaps if !File.exists?("Data/Mods/Maps/MapInfos.rxdata")
-	$cache.mapinfos           = load_data("Data/Mods/Maps/MapInfos.rxdata")
+	pbCompileMaps if !File.exists?("Data/Mods/Modloader/Maps/MapInfos.rxdata")
+	$cache.mapinfos           = load_data("Data/Mods/Modloader/Maps/MapInfos.rxdata")
 end
 
 def cacheModMetadata
 	#Comments are not implemented/needed yet
 	#$cache.regions            = load_data("Data/regionals.dat") if !$cache.regions
-	$cache.encounters         = load_data("Data/Mods/encounters.dat") if !$cache.encounters
+	$cache.encounters         = load_data("Data/Mods/Modloader/encounters.dat") if !$cache.encounters
 	#$cache.metadata           = load_data("Data/metadata.dat") if !$cache.metadata
 	#$cache.map_conns          = load_data("Data/connections.dat") if !$cache.map_conns
 	#$cache.town_map           = load_data("Data/townmap.dat") if !$cache.town_map

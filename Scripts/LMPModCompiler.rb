@@ -259,7 +259,7 @@ def pbCompileModItems
 			records[record[ITEMID]] = record
 		}
 	}
-	File.open("Data/Mods/items.dat","wb"){|file|
+	File.open("Data/Mods/Modloader/items.dat","wb"){|file|
 		Marshal.dump(records,file)
 	}
 	$cache.items = records
@@ -432,7 +432,7 @@ def pbCompileModEncounters
 		end
 	}
 	$cache.encounters = encounters
-	save_data(encounters,"Data/Mods/encounters.dat")
+	save_data(encounters,"Data/Mods/Modloader/encounters.dat")
 end
 
 def pbCompileModMoves
@@ -517,7 +517,7 @@ def pbCompileModMoves
 			puts "Added Move with id #{record[0]} and internalname #{record[1]} Overwrite? " + overwriting.to_s if $ModDebug
 		}
 	}
-	File.open("Data/Mods/moves.dat","wb"){|file|
+	File.open("Data/Mods/Modloader/moves.dat","wb"){|file|
 		Marshal.dump(movedata,file)
 	}
 	$cache.pkmn_move = movedata
@@ -719,11 +719,11 @@ def compileModMaps
 
 				vanilla_map = load_map_rxdata("Data/#{mapfilename}.rxdata")
 
-				cached_mapinfos = load_map_rxdata("Data/Mods/Maps/MapInfos.rxdata")
+				cached_mapinfos = load_map_rxdata("Data/Mods/Modloader/Maps/MapInfos.rxdata")
 				mod_mapinfo = mod_mapinfos[map_id]
 
 				
-				cached_map = load_map_rxdata(sprintf("Data/Mods/Maps/Map%05d.rxdata", map_id))
+				cached_map = load_map_rxdata(sprintf("Data/Mods/Modloader/Maps/Map%05d.rxdata", map_id))
 				
 				new_mapinfos[map_id] = mod_mapinfo
 				
@@ -773,12 +773,12 @@ def compileModMaps
 
 			#remember to update the cache here pls
 
-			new_map_path = sprintf("Data/Mods/Maps/Map%05d.rxdata", map_id)
+			new_map_path = sprintf("Data/Mods/Modloader/Maps/Map%05d.rxdata", map_id)
 			$ModMaps[map_id] = new_map_path
 			$cache.mapinfos = new_mapinfos
 			$cache.cachedmaps[map_id] = map_to_save
 			save_map_rxdata(new_map_path,map_to_save)
-			save_map_rxdata("Data/Mods/Maps/MapInfos.rxdata",new_mapinfos)
+			save_map_rxdata("Data/Mods/Modloader/Maps/MapInfos.rxdata",new_mapinfos)
 			loaded_maps.append(new_map_path)
 		}
 
@@ -807,7 +807,7 @@ def compileModMaps
 
 	}
 	#after loading all the mods, save a list of each mod and it's path
-	save_map_rxdata("Data/Mods/Maps/ModMaps.dat",$ModMaps)
+	save_map_rxdata("Data/Mods/Modloader/Maps/ModMaps.dat",$ModMaps)
 	#flush the map cache to prevent accessing a vanilla map accidentally
 	$cache.cachedmaps = []
 end
@@ -878,7 +878,7 @@ def pbCompileModMachines
 		f.close
 		end
 	}
-	save_data(sections,"Data/Mods/tm.dat")
+	save_data(sections,"Data/Mods/Modloader/tm.dat")
 end
 
 
@@ -1401,27 +1401,27 @@ def pbCompileModPokemonData(overwrite=true)
 	$cache.pkmn_egg = eggmoves
 	$cache.pkmn_evo = evolutions
 	
-	File.open("Data/Mods/graphicpaths.dat","wb"){|f|
+	File.open("Data/Mods/Modloader/graphicpaths.dat","wb"){|f|
 		Marshal.dump($ListOfModPokemonByParent,f)
 	}	
-	File.open("Data/Mods/evolutions.dat","wb"){|f|
+	File.open("Data/Mods/Modloader/evolutions.dat","wb"){|f|
 		Marshal.dump(evolutions,f)
 	}
-	save_data(metrics,"Data/Mods/metrics.dat")
-	File.open("Data/Mods/regionals.dat","wb"){|f|
+	save_data(metrics,"Data/Mods/Modloader/metrics.dat")
+	File.open("Data/Mods/Modloader/regionals.dat","wb"){|f|
 		Marshal.dump(regionals,f)
 	}
-	File.open("Data/Mods/dexdata.dat","wb"){|f|
+	File.open("Data/Mods/Modloader/dexdata.dat","wb"){|f|
 		Marshal.dump(dexdatas,f)
 	}
-	File.open("Data/Mods/eggEmerald.dat","wb"){|f|
+	File.open("Data/Mods/Modloader/eggEmerald.dat","wb"){|f|
 		Marshal.dump(eggmoves,f)
 	}
 	MessageTypes.setMessages(MessageTypes::Species,speciesnames)
 	MessageTypes.setMessages(MessageTypes::Kinds,kinds)
 	MessageTypes.setMessages(MessageTypes::Entries,entries)
 	MessageTypes.setMessages(MessageTypes::FormNames,formnames)
-	File.open("Data/Mods/attacksRS.dat","wb"){|f|
+	File.open("Data/Mods/Modloader/attacksRS.dat","wb"){|f|
 		Marshal.dump(moves,f)
 	}
 	
@@ -1435,7 +1435,7 @@ def pbCompileModPokemonData(overwrite=true)
 end
 
 def saveModMessages(filename=nil)
-	filename="Data/Mods/messages.dat" if !filename
+	filename="Data/Mods/Modloader/messages.dat" if !filename
 	messages = MessageTypes.messages
 	
 	File.open(filename,"wb"){|f|
@@ -1512,7 +1512,7 @@ def pbCompileAllModData(mustcompile)
 	#CP_Profiler.print
 	#pbSetTextMessages
 	#pbCombineScripts
-	MessageTypes.saveMessages("Data/Mods/messages.dat")
+	MessageTypes.saveMessages("Data/Mods/Modloader/messages.dat")
 	if !$INEDITOR && LANGUAGES.length>=2
 		pbLoadMessages("Data/"+LANGUAGES[$idk[:settings].language][1])
 	end

@@ -20,14 +20,23 @@ namespace ModManager
         private string LoadOrderFile => Path.Combine(BasePath, "Data/Mods/load_order.ini");
         private string MustCompileFile => Path.Combine(BasePath, "Data/Mods/mustcompile.ini");
         private Mod SelectedMod => listBox1.SelectedItem as Mod;
-        
-        private bool Updating { get; set; }
 
+        private bool Updating { get; set; }
+        public class ModSetting
+        {
+            public string Name { get; set; }
+            public string Value { get; set; }
+        }
         public ModManager()
         {
+        
             InitializeComponent();
             labelDescription.MaximumSize = new Size(tableLayoutPanel2.Width, labelDescription.MaximumSize.Height);
-            while(!Directory.Exists("./Data/Mods/") && !Directory.Exists(ModsDirectory))
+            List<ModSetting> owo = new List<ModSetting>();
+            owo.Add(new ModSetting { Name = "owo", Value = "iwi" });
+            owo.Add(new ModSetting { Name = "iwi", Value = "iwi" });
+            dgwModAdvSettings.DataSource = owo;
+            while (!Directory.Exists("./Data/Mods/") && !Directory.Exists(ModsDirectory))
             {
                 var diag = new FolderBrowserDialog();
                 diag.SelectedPath = Environment.CurrentDirectory;
@@ -263,6 +272,26 @@ namespace ModManager
             listBox1.SelectedItem = selected;
 
             Updating = false;
+        }
+
+        private void loadModToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void uninstallModloaderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void forceRecompileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
