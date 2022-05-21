@@ -1,10 +1,11 @@
 $ModList = [] #format: array of str Mod names sorted by load order
 $ModSettings = Hash[] # format: str Mod => hash of settings
+$CustomModSettings = Hash[] # format: str Mod => hash of settings
 $ModMaps = Hash[] # format: int id => path to something formatted MapXXXXX.rxdata
 $ListOfModPokemonByParent = Hash[] if !defined?($ListOfModPokemonByParent)
 $ModLoadHandlers = Hash[] #format: str mod_name => ModLoadHandler object
-
-$ModDebug = false #used to control debug messages and whether to always force a recompile, can only be changed manually here
+$ModloaderSettings = Hash[] # format: section => Hash of str key => value
+$ModDebug = false #used to control debug messages and whether to always force a recompile
 
 def is_loaded_before?(mod,mod2) #checks if mod is loaded before mod2, to check whether you're in the right spot in the load order
 	return false if !($ModList.include?(mod)) || !($ModList.include?(mod2))
@@ -58,24 +59,15 @@ class ModLoadHandler #note: mods dont need to have a ModLoadHandler defined if t
 end
 
 
-
 #gets the load order from load_order.ini, the
 def getModLoadOrder
-	if File.exists?("Data/Mods/load_order.ini")
-			File.open("Data/Mods/load_order.ini", "r") { |file_handle|
-			  file_handle.each_line { |line|
-				line=line.chomp
-				next if line[0,1] == "#"
-				next if line == ""
-				next if line[0,1] == "!"
-				$ModList.append(line)
-			  }
-			}
-
-	else 
-		raise _INTL("LMPModloader: Load order not found! Run the Mod Manager first")
-	end
-
+	list = []
+	hash = $ModloaderSettings["loadOrder"]
+	hash = hash.sort_by { |key, value| key }
+	hash.each{|k,v|
+		list.append(v)
+	}
+	$ModList = list
 end
 
 def runModLoadHandlers
@@ -94,49 +86,124 @@ def getModMaps
 	end
 end
 
-def getModSettings
-	$ModList.each { |mod|
-		$ModSettings[mod] = Hash[]
-		raise _INTL("#{mod}: Mod in load order but #{mod}/mod_settings.ini not found! You may need to rebuild the load order from the Mod Manager if you deleted mods.") if !File.exists?("Data/Mods/#{mod}/mod_settings.ini")
-		File.open("Data/Mods/#{mod}/mod_settings.ini", "r") { |file_handle|
+def readIni(path)
+	headerDetector = /\[(.*)\]/
+	hash = Hash[] # Header => Hash
+	File.open(path, "r") { |file_handle|
+          current_header = ""
 		  file_handle.each_line { |line|
-			next if line[0,1] == "#"
+			next if line[0,1] == "#" 
 			line=line.chomp
 			next if line == ""
-		    line = line.split("=",-1)
+			if line.match(headerDetector)
+				current_header = $1
+				hash[current_header] = Hash[]
+                next
+			end
+			if line.include?("=")
+				line = line.gsub(/\s*=\s*/,"=")
+				raise _INTL("#{path}: has a property defined before a header, invalid ini syntax.") if !current_header
+		    	line = line.split("=",-1)
+			end
 			if line[1].include?(",")
 				line[1] = line[1].split(",",-1)
 			elsif is_integer_in_disguise?(line[1])
 				line[1] = line[1].to_i
 			end
-			$ModSettings[mod][line[0]] = line[1]
+			hash[current_header][line[0]] = line[1]
 			
 		  }
+	}
+	return hash
+end
+
+def writeIni(path,hash)
+	headerDetector = /\[(.*)\]/
+	string = ""
+    current_header = ""
+	File.open(path, "r") { |file_handle|
+		file_handle.each_line{|line|
+			if line[0,1] == "#" 
+				string += line
+				next
+			end
+			line = line.chomp
+			if line.match(headerDetector)
+				current_header = $1
+				string += line + "\n"
+				next
+			end
+            if line == ""
+                string += line + "\n"
+				next
+            end
+			if line.include?("=")
+				raise _INTL("#{path}: has a property defined before a header, invalid ini syntax.") if !current_header
+				line = line.gsub(/\s*=\s*/,"=")
+		    	line = line.split("=",-1)
+				if hash[current_header].keys.include?(line[0])
+                    puts hash[current_header][line[0]].inspect
+                    if hash[current_header][line[0]].class == Array
+                        puts "array"
+                        line[1] = hash[current_header][line[0]]
+                        line[1] = line[1].join(",") 
+                    elsif hash[current_header][line[0]].class == Integer
+                        line[1] = hash[current_header][line[0]].to_s
+                    else
+                        line[1] = hash[current_header][line[0]] 
+                    end
+                    
+				end
+				line = line.join("=")
+				string += line + "\n"
+			end
+
 		}
 	}
+    File.open(path+"2", "w") { |file_handle|
+        file_handle.write(string)
+    }
+end
+
+def getModSettings
+	$ModList.each{|mod|
+		raise _INTL("#{mod}: Mod in load order but #{mod}/mod_settings.ini not found! You may need to rebuild the load order from the Mod Manager if you deleted mods.") if !File.exists?("Data/Mods/#{mod}/mod_settings.ini")
+		all_settings = readIni("Data/Mods/#{mod}/mod_settings.ini")
+		$ModSettings[mod] = all_settings["settings"]
+		$CustomModSettings[mod] = all_settings["custom_settings"]
+	}
+
 	#puts $ModSettings if $ModDebug
+end
+
+def getModLoaderSettings
+	modloader_settings_path = "Data/Mods/Modloader/modloader_settings.ini"
+	if File.exists?(modloader_settings_path)
+		$ModloaderSettings = readIni(modloader_settings_path)
+	else
+		raise _INTL("Data/Mods/Modloader/modloader_settings.ini not found!!")
+	end
 end
 
 def mustCompileMods?
 	return true if $ModDebug
-	if File.exists?("Data/Mods/mustcompile.ini")
-		compilefile= File.open("Data/Mods/mustcompile.ini") 
-		size = File.size?(compilefile)
-		if size
-			return false if (size > 0)
-			return true
-		else
-			return true
-		end
-	else return true
-	end
+	return $ModloaderSettings["settings"]["recompile"] == "true"
+end
+
+
+
+
+def doneCompiling
+	$ModloaderSettings["settings"]["recompile"] == "false"
+	writeIni("Data/Mods/Modloader/modloader_settings.ini",hash)
 end
 
 def loadMods
+	getModLoaderSettings
 	getModLoadOrder
 	getModSettings
 	runModLoadHandlers
-	puts "Compile?: " + mustCompileMods?.to_s
+	puts "Compile mods?: " + mustCompileMods?.to_s
 	pbCompileAllModData(true) if mustCompileMods? 
 	puts "Loading mods...."
 	puts "load order is: " + $ModList.to_s

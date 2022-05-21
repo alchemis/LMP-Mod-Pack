@@ -1520,9 +1520,7 @@ def pbCompileAllModData(mustcompile)
 	#print totalcompilertime
 end
 
-def doneCompiling
-	File.open("Data/Mods/mustcompile.ini", "w") { |f| f.write "done" }
-end
+
 
 # def quickCompile
 	# msgwindow=Kernel.pbCreateMessageWindow;pbCompileAllData(true) {|msg| Kernel.pbMessageDisplay(msgwindow,msg,false) }
