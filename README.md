@@ -1,5 +1,8 @@
 # Welcome to LMP Mod Pack
 This is a mod pack for **Pokémon Reborn.**
+
+[![](https://img.shields.io/badge/Latest%20Release-Download-brightgreen)](https://github.com/alchemis/LMP-Mod-Pack/releases/latest)
+
 How to install:
 
  - Download the latest release and extract it into a working installation of Reborn.
