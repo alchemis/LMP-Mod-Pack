@@ -1335,8 +1335,6 @@ def pbCompileModPokemonData(overwrite=true)
 			}
 			movelist=[]
 			evolist=[]
-			puts "thesemoves format test"
-			puts thesemoves
 			for i in 0...thesemoves.length/2
 			movelist.push([thesemoves[i*2],thesemoves[i*2+1],i])
 			end

@@ -23,7 +23,7 @@ namespace ModManager
 
             string lastHeader = string.Empty;
 
-            // Se seleccionan las lineas del ini que tienen texto
+            // Select ini lines which have text
             //var usefulLines = lines.Select(x => x.Trim()).Where(x => x.Length > 0).ToArray();
 
             for (int i = 0; i < lines.Length; i++)
@@ -36,17 +36,18 @@ namespace ModManager
 
                 if (string.IsNullOrWhiteSpace(curatedLine)) continue;
 
-                // Busqueda de headers, y lo mantiene en memoria hasta encontrar otro
+                // Looks for a header and keeps it in memory until finding another
                 if (headerDetector.IsMatch(curatedLine))
                 {
                     lastHeader = headerDetector.Replace(curatedLine, "$1");
+
                 }
-                // Si no es header, me fijo si tiene un =, que define que es una propiedad
+                // If not a header, check if it has an =
                 else if (curatedLine.Contains('='))
                 {
-                    // Divido la linea por el = y quito los espacios en blanco
-                    // De la izquierda del = es el nombre de la propiedad
-                    // De la derecha del = es el valor de la propiedad
+                    // Split the line by = and remove whitespace
+                    // On the left there's the key
+                    // On the right there's the property
                     var propertyName = curatedLine.Split('=')[0].Trim();
                     var propertyValue = curatedLine.Split('=')[1].Trim();
 
@@ -59,13 +60,13 @@ namespace ModManager
                         throw new FormatException($"la propiedad esta vacía en linea: {i}");
                     }
 
-                    // Guardo el header, el nombre de la propiedad y su valor (se crean automaticamente los
-                    // headers y propiedades si en la coleccion no existen)
-                    iniResult[lastHeader, propertyName] = propertyValue;
+                    // Save the header, property and value (headers and properties
+                    // that dont exist are automatically created)
+                    iniResult.Set(lastHeader,propertyName,propertyValue);
                 }
                 else
                 {
-                    throw new FormatException($"La linea {i} del archivo {filePath} no contiene un simbolo = que delimite el nombre de la propiedad y su valor.\nLinea: {curatedLine}");
+                    throw new FormatException($"line {i} of file {filePath} does not contain an = to split the value and the key .\nLine: {curatedLine}");
                 }
             }
 

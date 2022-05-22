@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -13,34 +14,33 @@ namespace ModManager
     public partial class ModManager : Form
     {
         readonly List<Mod> modList = new List<Mod>();
+        readonly List<Mod> loadOrder = new List<Mod>();
+        readonly List<Mod> disabledMods = new List<Mod>();
         readonly BindingList<Mod> boundList;
 
         private string BasePath { get; set; } = "";
         private string ModsDirectory => Path.Combine(BasePath, "Data/Mods");
-        private string LoadOrderFile => Path.Combine(BasePath, "Data/Mods/load_order.ini");
-        private string MustCompileFile => Path.Combine(BasePath, "Data/Mods/mustcompile.ini");
-        private Mod SelectedMod => listBox1.SelectedItem as Mod;
+        private string SettingsFile => Path.Combine(BasePath, "Data/Mods/Modloader/modloader_settings.json");
+        private ModManagerSettings Settings;
+        private BindingList<Mod> boundListDisabled;
 
+        private Mod SelectedEnabledMod => enabledListBox.SelectedItem as Mod;
+        private Mod SelectedDisabledMod => disabledListBox.SelectedItem as Mod;
         private bool Updating { get; set; }
-        public class ModSetting
-        {
-            public string Name { get; set; }
-            public string Value { get; set; }
-        }
+
         public ModManager()
         {
         
             InitializeComponent();
             labelDescription.MaximumSize = new Size(tableLayoutPanel2.Width, labelDescription.MaximumSize.Height);
-            List<ModSetting> owo = new List<ModSetting>();
-            owo.Add(new ModSetting { Name = "owo", Value = "iwi" });
-            owo.Add(new ModSetting { Name = "iwi", Value = "iwi" });
-            dgwModAdvSettings.DataSource = owo;
+            
+
+            
             while (!Directory.Exists("./Data/Mods/") && !Directory.Exists(ModsDirectory))
             {
                 var diag = new FolderBrowserDialog();
                 diag.SelectedPath = Environment.CurrentDirectory;
-                diag.Description = "Select the root folder for Pokemon Reborn, or move the mod loader's executable where the game is.";
+                diag.Description = "Select the root folder for Pokemon Reborn, or move the mod loader's executable to where the game is.";
                 var result = diag.ShowDialog();
                 if (result == DialogResult.OK)
                 {
@@ -51,27 +51,27 @@ namespace ModManager
                     Environment.Exit(1);
                 }
             }
-
+            Settings = GetModManagerSettings(SettingsFile);
             FindMods();
 
-            boundList = new BindingList<Mod>(modList);
-
-            listBox1.DataSource = boundList;
-            
-            if (File.Exists(LoadOrderFile))
+            if (File.Exists(SettingsFile))
             {
-                ReadLoadOrderFromFile();
-                SortByLoadOrder();
+                GetLoadOrder();
             }
             else
             {
                 SortByDefaultOrder();
             }
-
+            boundList = new BindingList<Mod>(loadOrder);
+            enabledListBox.DataSource = boundList;
+            boundListDisabled = new BindingList<Mod>(disabledMods);
+            disabledListBox.DataSource = boundListDisabled;
             UpdateUI();
         }
 
-        void FindMods()
+
+
+        async void FindMods()
         {
             modList.Clear();
 
@@ -81,21 +81,21 @@ namespace ModManager
             {
                 string modname = new DirectoryInfo(modIniFile).Parent.Name;
 
-                var customIni = IniReader.Read(modIniFile);
+                var customIni = await IniReader.Read(modIniFile);
 
                 Mod mod = new Mod
                 {
                     PathToIni = modIniFile,
-                    ModName = customIni.AsString("ModName"),
-                    ModDesc = customIni.AsString("ModDesc"),
-                    ModPBS = customIni.AsString("ModPBS").Split(',').ToList(),
-                    DefaultLoadOrder = customIni.AsInt("defaultLoadOrder"),
-                    Enabled = customIni.AsBool("enabled"),
-                    ForceOverwriteAbilities = customIni.AsBool("forceOverwriteAbilities"),
-                    HasScripts = customIni.AsBool("hasscripts"),
-                    LoadOrder = modList.Count
+                    ModName = customIni.AsString("settings", "ModName"),
+                    ModDesc = customIni.AsString("settings", "ModDesc"),
+                    ModPBS = customIni.AsString("settings", "ModPBS"),
+                    DefaultLoadOrder = customIni.AsInt("settings", "defaultLoadOrder"),
+                    ForceOverwriteTMs = customIni.AsString("settings", "forceOverwriteTMs"),
+                    selectiveOverwrite = customIni.AsString("settings", "selectiveOverwrite"),
+                    ignoreNewPokemon = customIni.AsString("settings", "ignoreNewPokemon"),
+                    hasScripts = customIni.AsString("settings","hasScripts"),
                 };
-
+                Console.WriteLine(customIni.AsString("settings", "ModName"));
                 if (mod.ModName != modname)
                 {
                     MessageBox.Show($"Folder name {modname} and mod name {mod.ModName} in ini do not match", "ModManager");
@@ -106,119 +106,88 @@ namespace ModManager
             }
         }
 
+        void GetLoadOrder()
+        {
+
+            var modOrder = Settings.loadOrder;
+            List<Mod> temp = new List<Mod>();
+            foreach (string modname in modOrder.ToArray())
+            {
+                var mod = modList.FirstOrDefault(x => x.ModName == modname);
+                if(mod == null) continue;
+                temp.Add(mod);
+            }
+            loadOrder.Clear();
+            loadOrder.AddRange(temp);
+            disabledMods.Clear();
+            disabledMods.AddRange(modList.Where(x => !loadOrder.Contains(x)));
+        }
+
         /// <summary>
         /// Should call <see cref="UpdateUI"/> after this.
         /// </summary>
         void SortByDefaultOrder()
         {
-            modList.Sort((a,b) => a.DefaultLoadOrder.CompareTo(b.DefaultLoadOrder));
-            foreach(var group in modList.GroupBy(x=>x.DefaultLoadOrder))
+            loadOrder.Sort((a,b) => a.DefaultLoadOrder.CompareTo(b.DefaultLoadOrder));
+            foreach(var group in loadOrder.GroupBy(x=>x.DefaultLoadOrder))
             {
                 int count = group.Count();
                 if (count <= 1) continue;
-                var lowestIndex = group.Min(x => modList.IndexOf(x));
+                var lowestIndex = group.Min(x => loadOrder.IndexOf(x));
 
-                modList.Sort(lowestIndex, count, Comparer<Mod>.Default);
-            }
-            modList.ForEach((x) => x.LoadOrder = modList.IndexOf(x));
+                loadOrder.Sort(lowestIndex, count, Comparer<Mod>.Default);
+            }    
+
         }
-
-        /// <summary>
-        /// Should call <see cref="UpdateUI"/> after this.
-        /// </summary>
-        void ReadLoadOrderFromFile()
+        private ModManagerSettings GetModManagerSettings(string path)
         {
-            SortByDefaultOrder();
-            List<Mod> modsInFile = new List<Mod>();
-            var lines = File.ReadAllLines(LoadOrderFile);
-            for(int i = 0; i < lines.Length; i++)
-            {
-                var modname = lines[i].Trim();
-                if (string.IsNullOrEmpty(modname)) continue;
-
-                bool isEnabled = modname[0] != '!';
-
-                if (!isEnabled) modname = new string(modname.Skip(1).ToArray());
-
-                var mod = modList.FirstOrDefault(x=>x.ModName == modname);
-                if (mod == null)
-                {
-                    MessageBox.Show($"The mod {mod} is missing.", "ModManager");
-                    continue;
-                }
-                modsInFile.Add(mod);
-                mod.LoadOrder = i;
-                mod.Enabled = isEnabled;
-            }        
+            string jsonString = File.ReadAllText(path);
+            ModManagerSettings settings = JsonConvert.DeserializeObject<ModManagerSettings>(jsonString);
+            return settings;
         }
+ 
 
-        void SortByLoadOrder()
-        {
-            modList.Sort((a, b) => a.LoadOrder.CompareTo(b.LoadOrder));
-        }
+
+
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (SelectedMod == null) return;
-            labelDescription.Text = SelectedMod.ModDesc;
-            groupBoxMod.Text = $"Mod: {SelectedMod.ModName}";
-            checkBoxModEnabled.Checked = SelectedMod.Enabled;
-            UpdateUI();
+            var list = (ListBox)sender;
+            var selecteditem = (Mod)list.SelectedItem;
+            if (selecteditem == null) return;
+            if (boundListDisabled == null) return;
+            if (list == enabledListBox) disabledListBox.SelectedIndex = -1;
+            else enabledListBox.SelectedIndex = -1;
+            UpdateUI(selecteditem);
         }
+
 
         private void Form1_SizeChanged(object sender, EventArgs e)
         {
             labelDescription.MaximumSize = new Size(tableLayoutPanel2.Width,labelDescription.MaximumSize.Height);
         }
 
-        private void checkBoxModEnabled_CheckedChanged(object sender, EventArgs e)
-        {
-            if (SelectedMod == null) return;
-            SelectedMod.Enabled = checkBoxModEnabled.Checked;
-            UpdateUI();
-        }
 
-        private void listBox1_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Space|| e.KeyCode == Keys.Enter)
-            {
-                if (SelectedMod == null) return;
-                SelectedMod.Enabled = !SelectedMod.Enabled;
-                checkBoxModEnabled.Checked = SelectedMod.Enabled;
-                UpdateUI();
-            }
-        }
+
+
 
         private void buttonMoveUp_Click(object sender, EventArgs e)
         {
-            if (SelectedMod == null) return;
-            var selected = SelectedMod;
-
-            var previous = modList.FirstOrDefault(x => x.LoadOrder == selected.LoadOrder - 1);
-            if (previous == null) return;
-            var temp = previous.LoadOrder;
-            previous.LoadOrder = SelectedMod.LoadOrder;
-            SelectedMod.LoadOrder = temp;
-            modList.Sort((a, b) => a.LoadOrder.CompareTo(b.LoadOrder));
-            boundList.ResetBindings();
-            listBox1.SelectedItem = selected;
-
+            if (SelectedEnabledMod == null) return;
+            var selected = SelectedEnabledMod;
+            var index = loadOrder.IndexOf(selected);
+            if(index == 0) return;
+            (loadOrder[index], loadOrder[index-1]) = (loadOrder[index-1], loadOrder[index]);
             UpdateUI();
         }
 
         private void buttonMoveDown_Click(object sender, EventArgs e)
         {
-            if (SelectedMod == null) return;
-            var selected = SelectedMod;
-            var next = modList.FirstOrDefault(x => x.LoadOrder == selected.LoadOrder + 1);
-            if (next == null) return;
-            var temp = next.LoadOrder;
-            next.LoadOrder = SelectedMod.LoadOrder;
-            SelectedMod.LoadOrder = temp;
-            modList.Sort((a, b) => a.LoadOrder.CompareTo(b.LoadOrder));
-            boundList.ResetBindings();
-            listBox1.SelectedItem = selected;
-
+            if (SelectedEnabledMod == null) return;
+            var selected = SelectedEnabledMod;
+            var index = loadOrder.IndexOf(selected);
+            if (index == loadOrder.Count -1) return;
+            (loadOrder[index], loadOrder[index + 1]) = (loadOrder[index + 1], loadOrder[index]);
             UpdateUI();
         }
 
@@ -230,68 +199,97 @@ namespace ModManager
 
         private void SaveLoadOrderToDisk()
         {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < modList.Count; i++)
+            List<string> new_load_order = new List<string>();
+            foreach (var mod in loadOrder)
             {
-                var mod = modList[i];
-                if (!mod.Enabled) sb.Append('!');
-                sb.AppendLine(mod.ModName);
+                new_load_order.Add(mod.ModName);
             }
-            File.WriteAllText(LoadOrderFile, sb.ToString());
-
-            if (checkBoxForceRecompile.Checked && File.Exists(MustCompileFile))
-                File.Delete(MustCompileFile);
-
-            MessageBox.Show($"{modList.Count(x => x.Enabled)} Mods are now enabled!", "ModManager");
+            Settings.loadOrder = new_load_order;
+            File.WriteAllText(SettingsFile, JsonConvert.SerializeObject(Settings,Formatting.Indented));
+            MessageBox.Show($"{loadOrder.Count} Mods are now enabled!", "ModManager");
         }
 
-        private void buttonResetDefaults_Click(object sender, EventArgs e)
+        private void ResetDefaults_Click(object sender, EventArgs e)
         {
             var result = MessageBox.Show("Are you sure you want to restore the default load order?", "ModManager", MessageBoxButtons.YesNo);
             if (result == DialogResult.No) return;
 
-            var selected = SelectedMod;
+            var selected = SelectedEnabledMod;
             SortByDefaultOrder();
-            listBox1.SelectedItem = selected;
+            enabledListBox.SelectedItem = selected;
 
             UpdateUI();
 
             MessageBox.Show("Restored defaults, however, changes are not yet saved", "ModManager");
         }
 
-        void UpdateUI()
+        void UpdateUI(Mod selectedmod = null)
         {
             if (Updating) return;
 
             Updating = true;
-            var selected = SelectedMod;
-            boundList.ResetBindings();
-            checkBoxModEnabled.Checked = SelectedMod.Enabled;
-            labelDescription.Text = SelectedMod.ModDesc;
-            groupBoxMod.Text = $"Mod: {SelectedMod.ModName}";
-            listBox1.SelectedItem = selected;
+            var selected = SelectedEnabledMod;
 
+            var selecteddisabled = SelectedDisabledMod;
+            boundList.ResetBindings();
+            boundListDisabled.ResetBindings();
+
+            if (Settings.settings.recompile == "true") {
+                forceRecompileToolStripMenuItem.Checked = true;
+                    }
+            if (Settings.settings.debug == "true")
+            {
+                debugMessagesToolStripMenuItem.Checked = true;
+            }
+            enabledListBox.SelectedItem = selected;
+            disabledListBox.SelectedItem = selecteddisabled;
+            if (selectedmod == null)
+            {
+                labelDescription.Text = SelectedEnabledMod?.ModDesc ?? "";
+                groupBoxMod.Text = $"Mod: {SelectedEnabledMod?.ModName ?? ""}";
+            }
+            else
+            {
+                labelDescription.Text = selectedmod.ModDesc;
+                groupBoxMod.Text = selectedmod.ModName;
+                List<Mod> list = new List<Mod>();
+                list.Add(selectedmod);
+                dgwModAdvSettings.DataSource = list;
+            }
             Updating = false;
         }
 
-        private void loadModToolStripMenuItem_Click(object sender, EventArgs e)
+        private void clickedCheckableToolStripMenuItem(object sender, EventArgs e)
         {
-
+            var menuItem = sender as ToolStripMenuItem;
+            menuItem.Checked = !menuItem.Checked;
+            if ((string)menuItem.Tag == "debug")
+            {
+                Settings.settings.debug = menuItem.Checked.ToString();
+            }
+            else if ((string)menuItem.Tag == "recompile")
+            {
+                Settings.settings.recompile = menuItem.Checked.ToString();
+            }
+            
         }
 
-        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        private void buttonEnable_Click(object sender, EventArgs e)
         {
-
+            var selected = SelectedDisabledMod;
+            if (selected == null) return;
+            disabledMods.Remove(selected);
+            loadOrder.Add(selected);
+            UpdateUI();
         }
 
-        private void uninstallModloaderToolStripMenuItem_Click(object sender, EventArgs e)
+        private void buttonDisable_Click(object sender, EventArgs e)
         {
-
-        }
-
-        private void forceRecompileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
+            var selected = SelectedEnabledMod;
+            if (selected == null) return;
+            loadOrder.Remove(selected);
+            disabledMods.Add(selected);
+            UpdateUI();
         }
     }
 }

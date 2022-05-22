@@ -1,3 +1,9 @@
+#Load dependencies, we use json for the Modloader settings
+#$LOAD_PATH.append(Dir.pwd)
+$LOAD_PATH.append("#{$LOAD_PATH[0]}\\Data\\Mods\\lib") 
+
+require 'json'
+
 $ModList = [] #format: array of str Mod names sorted by load order
 $ModSettings = Hash[] # format: str Mod => hash of settings
 $CustomModSettings = Hash[] # format: str Mod => hash of settings
@@ -58,16 +64,17 @@ class ModLoadHandler #note: mods dont need to have a ModLoadHandler defined if t
 	
 end
 
+def saveModLoaderSettingsJson
+	hash = $ModloaderSettings
+	json = JSON.pretty_generate(hash)
+	File.open("Data/Mods/Modloader/modloader_settings.json","w") do |f|
+		f.write(json)
+	end
+end
 
 #gets the load order from load_order.ini, the
 def getModLoadOrder
-	list = []
-	hash = $ModloaderSettings["loadOrder"]
-	hash = hash.sort_by { |key, value| key }
-	hash.each{|k,v|
-		list.append(v)
-	}
-	$ModList = list
+	$ModList = $ModloaderSettings["loadOrder"]
 end
 
 def runModLoadHandlers
@@ -177,9 +184,10 @@ def getModSettings
 end
 
 def getModLoaderSettings
-	modloader_settings_path = "Data/Mods/Modloader/modloader_settings.ini"
+	modloader_settings_path = "Data/Mods/Modloader/modloader_settings.json"
 	if File.exists?(modloader_settings_path)
-		$ModloaderSettings = readIni(modloader_settings_path)
+		File.read(modloader_settings_path)
+		$ModloaderSettings = JSON.parse(File.read(modloader_settings_path))
 		$ModDebug = true if $ModloaderSettings["settings"]["debug"] == "true"
 	else
 		raise _INTL("Data/Mods/Modloader/modloader_settings.ini not found!!")
@@ -196,7 +204,7 @@ end
 
 def doneCompiling
 	$ModloaderSettings["settings"]["recompile"] = "false"
-	writeIni("Data/Mods/Modloader/modloader_settings.ini",$ModloaderSettings)
+	saveModLoaderSettingsJson
 end
 
 def loadMods

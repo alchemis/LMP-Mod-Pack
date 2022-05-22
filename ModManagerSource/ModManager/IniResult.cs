@@ -44,6 +44,7 @@ namespace ModManager
             var val = Get(header, property);
             if (val == null) val = new IniProperty { Header = h, PropertyName = p };
             val.Value = value;
+            Values.Add(val);
         }
 
         public IniProperty Get(string header, string property)

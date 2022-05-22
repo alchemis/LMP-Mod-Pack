@@ -1,0 +1,10 @@
+{
+  "settings": {
+    "recompile": "false",
+    "debug": "false"
+  },
+  "loadOrder": [
+    "LMP - ExampleMod",
+    "LMP - ExampleSelectiveOverwriteMod"
+  ]
+}
