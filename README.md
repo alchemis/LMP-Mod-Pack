@@ -22,7 +22,6 @@ How to install:
  - Load PBS files from each mod folder, and select how and what to overwrite. (for a list of which files are supported, see mod_settings.ini in examplemod)
  - Load pokemon graphics from each mod folder. (current implementation is a bit.. wonky)
  - Load maps from each mod folder, and only overwrite events and tiles that need to be overwritten. (basically you can have multiple versions of the same map and it'll all kinda just magically work.)
- - Mods can selectively load their content based on their own conditions, this is used to enforce compatibility or only load certain content if another mod is installed
  - Custom mod settings avaliable in script
  - Load mod scripts in a specific order
  - For details, see ExampleMod and ExampleSelectiveOverwrite
