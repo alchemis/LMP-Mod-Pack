@@ -50,7 +50,10 @@ steps:
       !ModManagerSource\**
       !.git\**
       !.gitignore
-      !azure-pipelines.yml
+      !azure-pipelines-continuous-integration.yml
+      !azure-pipelines-pull-request-validation.yml
+      !Newtonsoft.Json.xml
+      !ModManager.exe.config
     TargetFolder: '$(binariesLocation)'
 - task: ArchiveFiles@2
   inputs:
