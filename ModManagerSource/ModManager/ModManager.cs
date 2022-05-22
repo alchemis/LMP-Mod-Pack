@@ -216,6 +216,7 @@ namespace ModManager
             {
                 IniWriter.Write(mod.PathToIni, mod.ini_result);
             }
+            Settings.settings.recompile = "true";
             Settings.loadOrder = new_load_order;
             File.WriteAllText(SettingsFile, JsonConvert.SerializeObject(Settings,Formatting.Indented));
 
@@ -276,7 +277,9 @@ namespace ModManager
                 dgwModSettings.Columns["header"].Visible = false;
                 dgwModAdvSettings.Columns["header"].Visible = false;
                 dgwModAdvSettings.Columns["PropertyName"].ReadOnly = true;
+                dgwModAdvSettings.Columns["PropertyName"].HeaderText = "Setting";
                 dgwModSettings.Columns["PropertyName"].ReadOnly = true;
+                dgwModSettings.Columns["PropertyName"].HeaderText = "Setting";
             }
             Updating = false;
         }

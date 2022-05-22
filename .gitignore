@@ -47,4 +47,7 @@ Scripts/*
 ModManagerSource/.vs/*
 ModManagerSource/ModManager/obj/*
 ModManagerSource/ModManager/bin/*
-
+Newtonsoft.Json.xml
+Newtonsoft.Json.dll
+ModManager.exe.config
+ModManager.exe
