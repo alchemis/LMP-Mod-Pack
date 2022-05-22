@@ -30,6 +30,7 @@ namespace ModManager
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -46,22 +47,25 @@ namespace ModManager
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.labelDescription = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.labelNoSettings = new System.Windows.Forms.Label();
             this.dgwModSettings = new System.Windows.Forms.DataGridView();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.dgwModAdvSettings = new System.Windows.Forms.DataGridView();
             this.buttonSave = new System.Windows.Forms.Button();
+            this.buttonRun = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.loadModToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.actionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.modloaderSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.forceRecompileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.debugMessagesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resetLoadOrderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.dangerousThingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cleanUpSavesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.uninstallModloaderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.modloaderSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.debugMessagesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.forceRecompileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -93,7 +97,7 @@ namespace ModManager
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(404, 357);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(504, 457);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // tableLayoutPanel3
@@ -118,7 +122,7 @@ namespace ModManager
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(136, 351);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(164, 451);
             this.tableLayoutPanel3.TabIndex = 0;
             // 
             // groupBox1
@@ -128,7 +132,7 @@ namespace ModManager
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(130, 155);
+            this.groupBox1.Size = new System.Drawing.Size(158, 205);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Load Order";
@@ -139,7 +143,7 @@ namespace ModManager
             this.enabledListBox.FormattingEnabled = true;
             this.enabledListBox.Location = new System.Drawing.Point(3, 16);
             this.enabledListBox.Name = "enabledListBox";
-            this.enabledListBox.Size = new System.Drawing.Size(124, 136);
+            this.enabledListBox.Size = new System.Drawing.Size(152, 186);
             this.enabledListBox.TabIndex = 1;
             this.enabledListBox.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
@@ -148,9 +152,9 @@ namespace ModManager
             this.tableLayoutPanel3.SetColumnSpan(this.groupBox2, 2);
             this.groupBox2.Controls.Add(this.disabledListBox);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox2.Location = new System.Drawing.Point(3, 193);
+            this.groupBox2.Location = new System.Drawing.Point(3, 243);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(130, 155);
+            this.groupBox2.Size = new System.Drawing.Size(158, 205);
             this.groupBox2.TabIndex = 2;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Disabled Mods";
@@ -161,15 +165,16 @@ namespace ModManager
             this.disabledListBox.FormattingEnabled = true;
             this.disabledListBox.Location = new System.Drawing.Point(3, 16);
             this.disabledListBox.Name = "disabledListBox";
-            this.disabledListBox.Size = new System.Drawing.Size(124, 136);
+            this.disabledListBox.Size = new System.Drawing.Size(152, 186);
             this.disabledListBox.TabIndex = 2;
             this.disabledListBox.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
             // buttonEnable
             // 
-            this.buttonEnable.Location = new System.Drawing.Point(3, 164);
+            this.buttonEnable.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.buttonEnable.Location = new System.Drawing.Point(21, 214);
             this.buttonEnable.Name = "buttonEnable";
-            this.buttonEnable.Size = new System.Drawing.Size(62, 23);
+            this.buttonEnable.Size = new System.Drawing.Size(58, 23);
             this.buttonEnable.TabIndex = 3;
             this.buttonEnable.Text = "▲";
             this.buttonEnable.UseVisualStyleBackColor = true;
@@ -177,9 +182,10 @@ namespace ModManager
             // 
             // buttonDisable
             // 
-            this.buttonDisable.Location = new System.Drawing.Point(71, 164);
+            this.buttonDisable.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.buttonDisable.Location = new System.Drawing.Point(85, 214);
             this.buttonDisable.Name = "buttonDisable";
-            this.buttonDisable.Size = new System.Drawing.Size(62, 23);
+            this.buttonDisable.Size = new System.Drawing.Size(58, 23);
             this.buttonDisable.TabIndex = 4;
             this.buttonDisable.Text = "▼";
             this.buttonDisable.UseVisualStyleBackColor = true;
@@ -192,11 +198,11 @@ namespace ModManager
             this.tableLayoutPanel1.SetColumnSpan(this.groupBoxMod, 2);
             this.groupBoxMod.Controls.Add(this.tableLayoutPanel2);
             this.groupBoxMod.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBoxMod.Location = new System.Drawing.Point(145, 3);
+            this.groupBoxMod.Location = new System.Drawing.Point(173, 3);
             this.groupBoxMod.MinimumSize = new System.Drawing.Size(0, 250);
             this.groupBoxMod.Name = "groupBoxMod";
             this.tableLayoutPanel1.SetRowSpan(this.groupBoxMod, 4);
-            this.groupBoxMod.Size = new System.Drawing.Size(256, 351);
+            this.groupBoxMod.Size = new System.Drawing.Size(328, 451);
             this.groupBoxMod.TabIndex = 2;
             this.groupBoxMod.TabStop = false;
             this.groupBoxMod.Text = "Modname here...";
@@ -205,14 +211,16 @@ namespace ModManager
             // 
             this.tableLayoutPanel2.AutoSize = true;
             this.tableLayoutPanel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tableLayoutPanel2.ColumnCount = 3;
+            this.tableLayoutPanel2.ColumnCount = 4;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel2.Controls.Add(this.buttonMoveUp, 1, 2);
-            this.tableLayoutPanel2.Controls.Add(this.buttonMoveDown, 2, 2);
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel2.Controls.Add(this.buttonMoveUp, 2, 2);
+            this.tableLayoutPanel2.Controls.Add(this.buttonMoveDown, 3, 2);
             this.tableLayoutPanel2.Controls.Add(this.tabControl1, 0, 1);
-            this.tableLayoutPanel2.Controls.Add(this.buttonSave, 0, 2);
+            this.tableLayoutPanel2.Controls.Add(this.buttonSave, 1, 2);
+            this.tableLayoutPanel2.Controls.Add(this.buttonRun, 0, 2);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 16);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -220,7 +228,7 @@ namespace ModManager
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(250, 332);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(322, 432);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
             // buttonMoveUp
@@ -228,7 +236,7 @@ namespace ModManager
             this.buttonMoveUp.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.buttonMoveUp.AutoSize = true;
             this.buttonMoveUp.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.buttonMoveUp.Location = new System.Drawing.Point(105, 306);
+            this.buttonMoveUp.Location = new System.Drawing.Point(177, 406);
             this.buttonMoveUp.Name = "buttonMoveUp";
             this.buttonMoveUp.Size = new System.Drawing.Size(61, 23);
             this.buttonMoveUp.TabIndex = 1;
@@ -241,7 +249,7 @@ namespace ModManager
             this.buttonMoveDown.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.buttonMoveDown.AutoSize = true;
             this.buttonMoveDown.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.buttonMoveDown.Location = new System.Drawing.Point(172, 306);
+            this.buttonMoveDown.Location = new System.Drawing.Point(244, 406);
             this.buttonMoveDown.Name = "buttonMoveDown";
             this.buttonMoveDown.Size = new System.Drawing.Size(75, 23);
             this.buttonMoveDown.TabIndex = 2;
@@ -251,16 +259,18 @@ namespace ModManager
             // 
             // tabControl1
             // 
-            this.tableLayoutPanel2.SetColumnSpan(this.tabControl1, 3);
+            this.tableLayoutPanel2.SetColumnSpan(this.tabControl1, 4);
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(3, 3);
             this.tabControl1.Name = "tabControl1";
+            this.tabControl1.Padding = new System.Drawing.Point(0, 0);
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(244, 297);
+            this.tabControl1.Size = new System.Drawing.Size(316, 397);
             this.tabControl1.TabIndex = 4;
+            this.tabControl1.Selected += new System.Windows.Forms.TabControlEventHandler(this.advancedSettings_Click);
             // 
             // tabPage1
             // 
@@ -270,7 +280,7 @@ namespace ModManager
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(236, 271);
+            this.tabPage1.Size = new System.Drawing.Size(308, 371);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Description";
             // 
@@ -280,34 +290,46 @@ namespace ModManager
             this.labelDescription.Dock = System.Windows.Forms.DockStyle.Fill;
             this.labelDescription.Location = new System.Drawing.Point(3, 3);
             this.labelDescription.Name = "labelDescription";
-            this.labelDescription.Size = new System.Drawing.Size(230, 265);
+            this.labelDescription.Size = new System.Drawing.Size(302, 365);
             this.labelDescription.TabIndex = 1;
             this.labelDescription.Text = "Mod description here...";
             // 
             // tabPage2
             // 
             this.tabPage2.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPage2.Controls.Add(this.labelNoSettings);
             this.tabPage2.Controls.Add(this.dgwModSettings);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Margin = new System.Windows.Forms.Padding(0);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(212, 170);
+            this.tabPage2.Size = new System.Drawing.Size(308, 371);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Settings";
+            // 
+            // labelNoSettings
+            // 
+            this.labelNoSettings.AutoSize = true;
+            this.labelNoSettings.Location = new System.Drawing.Point(0, 11);
+            this.labelNoSettings.Name = "labelNoSettings";
+            this.labelNoSettings.Size = new System.Drawing.Size(188, 39);
+            this.labelNoSettings.TabIndex = 2;
+            this.labelNoSettings.Text = "Nothing but us chickens here :(\r\n\r\nThis mod has no configurable settings.";
+            this.labelNoSettings.Visible = false;
             // 
             // dgwModSettings
             // 
             this.dgwModSettings.AllowUserToAddRows = false;
             this.dgwModSettings.AllowUserToDeleteRows = false;
-            this.dgwModSettings.BackgroundColor = System.Drawing.SystemColors.ActiveCaption;
+            this.dgwModSettings.BackgroundColor = System.Drawing.SystemColors.Control;
             this.dgwModSettings.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.dgwModSettings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgwModSettings.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgwModSettings.Location = new System.Drawing.Point(3, 3);
+            this.dgwModSettings.Location = new System.Drawing.Point(0, 0);
+            this.dgwModSettings.Margin = new System.Windows.Forms.Padding(0);
             this.dgwModSettings.MultiSelect = false;
             this.dgwModSettings.Name = "dgwModSettings";
+            this.dgwModSettings.RowHeadersVisible = false;
             this.dgwModSettings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dgwModSettings.Size = new System.Drawing.Size(206, 164);
+            this.dgwModSettings.Size = new System.Drawing.Size(308, 371);
             this.dgwModSettings.TabIndex = 1;
             // 
             // tabPage3
@@ -315,9 +337,9 @@ namespace ModManager
             this.tabPage3.BackColor = System.Drawing.SystemColors.Control;
             this.tabPage3.Controls.Add(this.dgwModAdvSettings);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Margin = new System.Windows.Forms.Padding(0);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(236, 271);
+            this.tabPage3.Size = new System.Drawing.Size(308, 371);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Advanced settings";
             // 
@@ -325,27 +347,42 @@ namespace ModManager
             // 
             this.dgwModAdvSettings.AllowUserToAddRows = false;
             this.dgwModAdvSettings.AllowUserToDeleteRows = false;
-            this.dgwModAdvSettings.BackgroundColor = System.Drawing.SystemColors.ActiveCaption;
+            this.dgwModAdvSettings.BackgroundColor = System.Drawing.SystemColors.Control;
             this.dgwModAdvSettings.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgwModAdvSettings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgwModAdvSettings.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgwModAdvSettings.Location = new System.Drawing.Point(3, 3);
+            this.dgwModAdvSettings.Location = new System.Drawing.Point(0, 0);
+            this.dgwModAdvSettings.Margin = new System.Windows.Forms.Padding(0);
             this.dgwModAdvSettings.MultiSelect = false;
             this.dgwModAdvSettings.Name = "dgwModAdvSettings";
+            this.dgwModAdvSettings.RowHeadersVisible = false;
             this.dgwModAdvSettings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dgwModAdvSettings.Size = new System.Drawing.Size(230, 265);
+            this.dgwModAdvSettings.Size = new System.Drawing.Size(308, 371);
             this.dgwModAdvSettings.TabIndex = 0;
             // 
             // buttonSave
             // 
             this.buttonSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonSave.Location = new System.Drawing.Point(3, 307);
+            this.buttonSave.AutoSize = true;
+            this.buttonSave.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.buttonSave.Location = new System.Drawing.Point(129, 406);
             this.buttonSave.Name = "buttonSave";
-            this.buttonSave.Size = new System.Drawing.Size(96, 20);
+            this.buttonSave.Size = new System.Drawing.Size(42, 23);
             this.buttonSave.TabIndex = 3;
             this.buttonSave.Text = "Save";
             this.buttonSave.UseVisualStyleBackColor = true;
             this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
+            // 
+            // buttonRun
+            // 
+            this.buttonRun.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.buttonRun.Location = new System.Drawing.Point(3, 406);
+            this.buttonRun.Name = "buttonRun";
+            this.buttonRun.Size = new System.Drawing.Size(120, 23);
+            this.buttonRun.TabIndex = 5;
+            this.buttonRun.Text = "Save and Run Game";
+            this.buttonRun.UseVisualStyleBackColor = true;
+            this.buttonRun.Click += new System.EventHandler(this.buttonRun_Click);
             // 
             // menuStrip1
             // 
@@ -356,7 +393,7 @@ namespace ModManager
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(2, 0, 0, 0);
-            this.menuStrip1.Size = new System.Drawing.Size(404, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(504, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -371,7 +408,7 @@ namespace ModManager
             // loadModToolStripMenuItem
             // 
             this.loadModToolStripMenuItem.Name = "loadModToolStripMenuItem";
-            this.loadModToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadModToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.loadModToolStripMenuItem.Text = "Add mod";
             // 
             // actionsToolStripMenuItem
@@ -385,31 +422,6 @@ namespace ModManager
             this.actionsToolStripMenuItem.Name = "actionsToolStripMenuItem";
             this.actionsToolStripMenuItem.Size = new System.Drawing.Size(59, 24);
             this.actionsToolStripMenuItem.Text = "Actions";
-            // 
-            // modloaderSettingsToolStripMenuItem
-            // 
-            this.modloaderSettingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.debugMessagesToolStripMenuItem,
-            this.forceRecompileToolStripMenuItem});
-            this.modloaderSettingsToolStripMenuItem.Name = "modloaderSettingsToolStripMenuItem";
-            this.modloaderSettingsToolStripMenuItem.Size = new System.Drawing.Size(122, 24);
-            this.modloaderSettingsToolStripMenuItem.Text = "Modloader Settings";
-            // 
-            // forceRecompileToolStripMenuItem
-            // 
-            this.forceRecompileToolStripMenuItem.Name = "forceRecompileToolStripMenuItem";
-            this.forceRecompileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.forceRecompileToolStripMenuItem.Tag = "recompile";
-            this.forceRecompileToolStripMenuItem.Text = "Force recompile";
-            this.forceRecompileToolStripMenuItem.Click += new System.EventHandler(this.clickedCheckableToolStripMenuItem);
-            // 
-            // debugMessagesToolStripMenuItem
-            // 
-            this.debugMessagesToolStripMenuItem.Name = "debugMessagesToolStripMenuItem";
-            this.debugMessagesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.debugMessagesToolStripMenuItem.Tag = "debug";
-            this.debugMessagesToolStripMenuItem.Text = "Debug messages";
-            this.debugMessagesToolStripMenuItem.Click += new System.EventHandler(this.clickedCheckableToolStripMenuItem);
             // 
             // resetLoadOrderToolStripMenuItem
             // 
@@ -442,15 +454,45 @@ namespace ModManager
             this.uninstallModloaderToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
             this.uninstallModloaderToolStripMenuItem.Text = "Uninstall Modloader";
             // 
+            // modloaderSettingsToolStripMenuItem
+            // 
+            this.modloaderSettingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.debugMessagesToolStripMenuItem,
+            this.forceRecompileToolStripMenuItem});
+            this.modloaderSettingsToolStripMenuItem.Name = "modloaderSettingsToolStripMenuItem";
+            this.modloaderSettingsToolStripMenuItem.Size = new System.Drawing.Size(122, 24);
+            this.modloaderSettingsToolStripMenuItem.Text = "Modloader Settings";
+            // 
+            // debugMessagesToolStripMenuItem
+            // 
+            this.debugMessagesToolStripMenuItem.Name = "debugMessagesToolStripMenuItem";
+            this.debugMessagesToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.debugMessagesToolStripMenuItem.Tag = "debug";
+            this.debugMessagesToolStripMenuItem.Text = "Debug messages";
+            this.debugMessagesToolStripMenuItem.Click += new System.EventHandler(this.clickedCheckableToolStripMenuItem);
+            // 
+            // forceRecompileToolStripMenuItem
+            // 
+            this.forceRecompileToolStripMenuItem.Name = "forceRecompileToolStripMenuItem";
+            this.forceRecompileToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.forceRecompileToolStripMenuItem.Tag = "recompile";
+            this.forceRecompileToolStripMenuItem.Text = "Force recompile";
+            this.forceRecompileToolStripMenuItem.Click += new System.EventHandler(this.clickedCheckableToolStripMenuItem);
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
+            // 
             // ModManager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(404, 381);
+            this.ClientSize = new System.Drawing.Size(504, 481);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
-            this.MinimumSize = new System.Drawing.Size(420, 420);
+            this.MinimumSize = new System.Drawing.Size(520, 520);
             this.Name = "ModManager";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ModManager";
@@ -467,6 +509,7 @@ namespace ModManager
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
+            this.tabPage2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgwModSettings)).EndInit();
             this.tabPage3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgwModAdvSettings)).EndInit();
@@ -511,5 +554,8 @@ namespace ModManager
         private ToolStripMenuItem modloaderSettingsToolStripMenuItem;
         private ToolStripMenuItem debugMessagesToolStripMenuItem;
         private ToolStripMenuItem forceRecompileToolStripMenuItem;
+        private Button buttonRun;
+        private Label labelNoSettings;
+        private ContextMenuStrip contextMenuStrip1;
     }
 }

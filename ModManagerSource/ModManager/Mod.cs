@@ -21,7 +21,7 @@ namespace ModManager
             return ModName.CompareTo(other.ModName);
         }
 
-        public string PathToIni => ModSettingsList.FirstOrDefault(x=>x.Key == "pathtoini").Value;
+        public string PathToIni { get; set; }
         public string ModName => ModSettingsList.FirstOrDefault(x => x.Key == "modname").Value;
         public string ModDesc => ModSettingsList.FirstOrDefault(x => x.Key == "moddesc").Value;
 
@@ -46,7 +46,10 @@ namespace ModManager
         public string hasScripts => ModSettingsList.FirstOrDefault(x => x.Key == "hasscripts").Value;
 
 
-        public List<ModSetting> ModSettingsList { get; set; }
+        public List<ModSetting> ModSettingsList { get; set; } = new List<ModSetting>();
+        public List<ModSetting> CustomModSettingsList { get; set; } = new List<ModSetting>();
+
+        public IniResult ini_result { get; set; }
         /// <summary>
         /// The default order in which to load mods, 1=pre, 2=main, 3=post
         /// <para> Big content mods should generally use 0, small mods should use 1 and mods that mod other mods should use 2 </para>

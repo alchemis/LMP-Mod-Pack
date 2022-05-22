@@ -1,9 +1,10 @@
 {
   "settings": {
     "recompile": "false",
-    "debug": "false"
+    "debug": "true"
   },
   "loadOrder": [
+    "LMP - PLAStatus",
     "LMP - ExampleMod",
     "LMP - ExampleSelectiveOverwriteMod"
   ]

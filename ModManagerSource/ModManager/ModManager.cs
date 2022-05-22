@@ -8,6 +8,7 @@ using System.Text;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace ModManager
 {
@@ -27,6 +28,7 @@ namespace ModManager
         private Mod SelectedEnabledMod => enabledListBox.SelectedItem as Mod;
         private Mod SelectedDisabledMod => disabledListBox.SelectedItem as Mod;
         private bool Updating { get; set; }
+        private bool ClickedAdvanced { get; set; }= false;
 
         public ModManager()
         {
@@ -82,20 +84,24 @@ namespace ModManager
                 string modname = new DirectoryInfo(modIniFile).Parent.Name;
 
                 var customIni = await IniReader.Read(modIniFile);
-
-                Mod mod = new Mod
+                Mod mod = new Mod();
+                mod.PathToIni = modIniFile;
+                foreach (var x in customIni)
                 {
-                    PathToIni = modIniFile,
-                    ModName = customIni.AsString("settings", "ModName"),
-                    ModDesc = customIni.AsString("settings", "ModDesc"),
-                    ModPBS = customIni.AsString("settings", "ModPBS"),
-                    DefaultLoadOrder = customIni.AsInt("settings", "defaultLoadOrder"),
-                    ForceOverwriteTMs = customIni.AsString("settings", "forceOverwriteTMs"),
-                    selectiveOverwrite = customIni.AsString("settings", "selectiveOverwrite"),
-                    ignoreNewPokemon = customIni.AsString("settings", "ignoreNewPokemon"),
-                    hasScripts = customIni.AsString("settings","hasScripts"),
-                };
-                Console.WriteLine(customIni.AsString("settings", "ModName"));
+                    ModSetting setting = new ModSetting();
+                    setting.Key = x.PropertyName;
+                    setting.Value = x.Value;
+                    if (x.Header == "settings")
+                    {
+                        mod.ModSettingsList.Add(setting);
+                    }
+                    else if (x.Header == "custom_settings")
+                    {
+                        mod.CustomModSettingsList.Add(setting);
+                    }
+
+                }
+                mod.ini_result = customIni;
                 if (mod.ModName != modname)
                 {
                     MessageBox.Show($"Folder name {modname} and mod name {mod.ModName} in ini do not match", "ModManager");
@@ -204,8 +210,17 @@ namespace ModManager
             {
                 new_load_order.Add(mod.ModName);
             }
+
+            
+            foreach (var mod in modList)
+            {
+                IniWriter.Write(mod.PathToIni, mod.ini_result);
+            }
             Settings.loadOrder = new_load_order;
             File.WriteAllText(SettingsFile, JsonConvert.SerializeObject(Settings,Formatting.Indented));
+
+
+            
             MessageBox.Show($"{loadOrder.Count} Mods are now enabled!", "ModManager");
         }
 
@@ -252,9 +267,16 @@ namespace ModManager
             {
                 labelDescription.Text = selectedmod.ModDesc;
                 groupBoxMod.Text = selectedmod.ModName;
-                List<Mod> list = new List<Mod>();
-                list.Add(selectedmod);
-                dgwModAdvSettings.DataSource = list;
+                dgwModAdvSettings.DataSource = null;
+                dgwModSettings.DataSource = null;
+                dgwModAdvSettings.DataSource = selectedmod.ini_result.Where(x => x.Header=="settings").ToArray();
+                dgwModSettings.DataSource = selectedmod.ini_result.Where(x => x.Header == "custom_settings").ToArray();
+                dgwModSettings.Visible = dgwModSettings.Rows.Count > 0;
+                labelNoSettings.Visible = !(dgwModSettings.Rows.Count > 0);
+                dgwModSettings.Columns["header"].Visible = false;
+                dgwModAdvSettings.Columns["header"].Visible = false;
+                dgwModAdvSettings.Columns["PropertyName"].ReadOnly = true;
+                dgwModSettings.Columns["PropertyName"].ReadOnly = true;
             }
             Updating = false;
         }
@@ -265,11 +287,11 @@ namespace ModManager
             menuItem.Checked = !menuItem.Checked;
             if ((string)menuItem.Tag == "debug")
             {
-                Settings.settings.debug = menuItem.Checked.ToString();
+                Settings.settings.debug = menuItem.Checked.ToString().ToLower();
             }
             else if ((string)menuItem.Tag == "recompile")
             {
-                Settings.settings.recompile = menuItem.Checked.ToString();
+                Settings.settings.recompile = menuItem.Checked.ToString().ToLower();
             }
             
         }
@@ -290,6 +312,27 @@ namespace ModManager
             loadOrder.Remove(selected);
             disabledMods.Add(selected);
             UpdateUI();
+        }
+
+        private void buttonRun_Click(object sender, EventArgs e)
+        {
+            SaveLoadOrderToDisk();
+            if (Settings.settings.debug == "true")
+            {
+                Process.Start(Path.Combine(BasePath, "Game.exe"), "debug");
+            }
+            else Process.Start(Path.Combine(BasePath,"Game.exe"));
+
+        }
+
+        private void advancedSettings_Click(object sender, TabControlEventArgs e)
+        {
+            var source = (TabControl)sender;
+            if (!ClickedAdvanced && source.SelectedIndex == 2)
+            {
+                MessageBox.Show("Warning! These settings might break the mod. \n It is not recommended to change them.", "ModManager");
+                ClickedAdvanced = true;
+            }
         }
     }
 }

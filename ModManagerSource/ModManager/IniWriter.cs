@@ -13,11 +13,11 @@ namespace ModManager
     {
         private static readonly char[] CommentCharacters = new[] { '#', '\'', ';' };
 
-        public static void Write(string file, IniResult data, bool commentInsteadOfDelete = true)
+        public static void Write(string file_path, IniResult data, bool commentInsteadOfDelete = true)
         {
             string currentHeader = "";
 
-            var original = File.ReadAllLines(file);
+            var original = File.ReadAllLines(file_path);
 
             var lines = original.ToList();
 
@@ -30,9 +30,10 @@ namespace ModManager
             for (int i = 0; i < totalLines; i++)
             {
                 var line = lines[i].Trim();
-                var startingChar = line[0];
+                
 
                 if (string.IsNullOrEmpty(line)) continue;
+                var startingChar = line[0];
                 if (CommentCharacters.Contains(startingChar)) continue;
                 if (startingChar == '[')
                 {
@@ -106,7 +107,7 @@ namespace ModManager
                     }
                 }
             }
-            File.WriteAllLines(file, lines);
+            File.WriteAllLines(file_path, lines);
         }
     }
 }

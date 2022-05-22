@@ -102,6 +102,7 @@
     <Compile Include="IniProperty.cs" />
     <Compile Include="IniReader.cs" />
     <Compile Include="IniResult.cs" />
+    <Compile Include="IniWriter.cs" />
     <Compile Include="ModManager.cs">
       <SubType>Form</SubType>
     </Compile>
