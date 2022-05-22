@@ -1,4 +1,5 @@
 Audio/*
+node_modules/*
 Graphics/*
 Fonts/*
 PBS/*
@@ -46,3 +47,4 @@ Scripts/*
 ModManagerSource/.vs/*
 ModManagerSource/ModManager/obj/*
 ModManagerSource/ModManager/bin/*
+

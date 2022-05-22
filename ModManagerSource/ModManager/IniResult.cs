@@ -1,59 +1,139 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ModManager
 {
-    public class IniResult
+    public class IniResult : IEnumerable<IniProperty>
     {
-        public const string ForcedHeader = "LMP";
-        private readonly Dictionary<string, Dictionary<string, string>> Values;
-
+        private readonly List<IniProperty> Values;
 
         public IniResult()
         {
-            Values = new Dictionary<string, Dictionary<string, string>>();
+            Values = new List<IniProperty>();
         }
 
-        public string AsString(string property)
+        public bool ContainsHeader(string header)
         {
-            var lowerProperty = property.ToLower().Trim();
-            if (!Values[ForcedHeader].ContainsKey(lowerProperty)) return string.Empty;
-            return Values[ForcedHeader][lowerProperty];
+            return Values.Any(x => x.Header == header);
         }
 
-        public int AsInt(string property)
+        public bool ContainsProperty(string header, string property)
         {
+            var asd = Values.Where(x => x.Header == header).ToArray();
+            if (asd.Length == 0) return false;
+
+            return asd.Any(x => x.PropertyName == property);
+        }
+
+        public void RemoveHeader(string header)
+        {
+            Values.RemoveAll(x => x.Header == header.ToLower());
+        }
+
+        public void RemoveProperty(string header, string property)
+        {
+            Values.RemoveAll(x => x.Header == header.ToLower() && x.PropertyName == property.ToLower());
+        }
+
+        public void Set(string header, string property, string value)
+        {
+            string h = header.ToLower();
+            string p = property.ToLower();
+            var val = Get(header, property);
+            if (val == null) val = new IniProperty { Header = h, PropertyName = p };
+            val.Value = value;
+            Values.Add(val);
+        }
+
+        public IniProperty Get(string header, string property)
+        {
+            return Values.FirstOrDefault(x => x.Header == header && x.PropertyName == property);
+        }
+
+        public string AsString(string header, string property)
+        {
+            if (string.IsNullOrWhiteSpace(header) || string.IsNullOrWhiteSpace(property))
+                throw new ArgumentException($"La cabecera {header}, o la propiedad {property}, estan en blanco.");
+
+            var lowerHead = header.ToLower().Trim();
             var lowerProperty = property.ToLower().Trim();
-            if (!Values[ForcedHeader].ContainsKey(lowerProperty)) throw new FormatException($"Property {property} does not exists.");
-            if (!int.TryParse(Values[ForcedHeader][lowerProperty], out int result)) throw new FormatException($"The property {property} is not an int.\nValue {Values[ForcedHeader][lowerProperty]}");
+
+            var val = Get(lowerHead, lowerProperty);
+            return val?.Value ?? string.Empty;
+        }
+
+        public bool AsBool(string header, string property)
+        {
+            if (string.IsNullOrWhiteSpace(header) || string.IsNullOrWhiteSpace(property))
+                throw new ArgumentException($"La cabecera {header}, o la propiedad {property}, estan en blanco.");
+
+            var lowerHead = header.ToLower().Trim();
+            var lowerProperty = property.ToLower().Trim();
+
+            var val = Get(lowerHead, lowerProperty);
+
+            return Convert.ToBoolean(val.Value);
+        }
+
+        public int AsInt(string header, string property, int defaultvalue = 0)
+        {
+            if (string.IsNullOrWhiteSpace(header) || string.IsNullOrWhiteSpace(property))
+                throw new ArgumentException($"La cabecera {header}, o la propiedad {property}, estan en blanco.");
+
+            var lowerHead = header.ToLower().Trim();
+            var lowerProperty = property.ToLower().Trim();
+
+            var val = Get(lowerHead, lowerProperty);
+
+            if (val == null) return defaultvalue;
+            if (!int.TryParse(Get(lowerHead, lowerProperty).Value, out int result))
+            {
+                throw new FormatException($"El header {header} y propiedad {property} no tienen un valor convertible a int. Valor {Get(lowerHead, lowerProperty).Value}");
+            }
+            else
+            {
+                result = defaultvalue;
+            }
             return result;
         }
 
-        public bool AsBool(string property)
+        public List<string> AsList(string header, string property, char separator)
         {
+            if (string.IsNullOrWhiteSpace(header) || string.IsNullOrWhiteSpace(property))
+                throw new ArgumentException($"La cabecera {header}, o la propiedad {property}, estan en blanco.");
+
+            var lowerHead = header.ToLower().Trim();
             var lowerProperty = property.ToLower().Trim();
-            if (!Values[ForcedHeader].ContainsKey(lowerProperty)) return false;
-            if (!bool.TryParse(Values[ForcedHeader][lowerProperty], out bool result)) return false;
-            return result;
+
+            var val = Get(lowerHead, lowerProperty);
+
+            var list = new List<string>();
+            if (val == null) return list;
+
+            list.AddRange(Get(lowerHead, lowerProperty).Value.Split(separator));
+            return list;
         }
 
-        public string this[string property]
+        public string[] GetHeaders()
         {
-            get
-            {
-                var lowerProperty = property.ToLower().Trim();
-                if (!Values[ForcedHeader].ContainsKey(lowerProperty)) return string.Empty;
-                return Values[ForcedHeader][lowerProperty];
-            }
-            set
-            {
-                var lowerProperty = property.ToLower().Trim();
+            return Values.Select(x => x.Header).ToArray();
+        }
 
-                if (!Values.ContainsKey(ForcedHeader)) Values.Add(ForcedHeader, new Dictionary<string, string>());
-                var properties = Values[ForcedHeader];
-                if (!properties.ContainsKey(lowerProperty)) properties.Add(lowerProperty, "");
-                properties[lowerProperty] = value;
-            }
+        public string[] GetPropertyNames(string header)
+        {
+            return Values.Where(x => x.Header == header.ToLower()).Select(x => x.PropertyName).ToArray();
+        }
+
+        public IEnumerator<IniProperty> GetEnumerator()
+        {
+            return Values.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return Values.GetEnumerator();
         }
     }
 }
