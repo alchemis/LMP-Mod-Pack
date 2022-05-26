@@ -16,9 +16,9 @@ end
 #Make sure it exists
 #$amb_ModAdditionalOptions=[] if !defined?($amb_ModAdditionalOptions)
 
-if defined?($amb_ModAdditionalOptions)
+if defined?($amb_addOpt_Option)
 #Record the new option
-	$amb_ModAdditionalOptions["lmp_fasthatch"] = EnumOption.new(_INTL("Fast Hatch"),[_INTL("Off"),_INTL("On")],
+	$amb_addOpt_Option["Fast Hatch"] = EnumOption.new(_INTL("Fast Hatch"),[_INTL("Off"),_INTL("On")],
 																	proc { $idk[:settings].lmp_fasthatch },
 																	proc {|value|  $idk[:settings].lmp_fasthatch=value },
 																	"Skip hatching animation."
