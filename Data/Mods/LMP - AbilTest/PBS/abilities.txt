@@ -1,0 +1,3 @@
+1,DUMMYABILITY,Dummy Ability,"This is a dummy ability, it does nothing."
+2,DRIZZLE2,Drizzle2,"Summons rain for five turns when switching in, using custom code"
+3,NOTSPEEDBOOST,Speed Boost,"Raises this Pokémon's Speed stat every turn."

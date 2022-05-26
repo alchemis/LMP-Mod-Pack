@@ -1,4 +1,5 @@
 class PBAbilities
+STENCH=1
 DRIZZLE=2
 SPEEDBOOST=3
 BATTLEARMOR=4
@@ -256,17 +257,18 @@ STALWART=326
 STEAMENGINE=327
 STEELYSPIRIT=328
 WANDERINGSPIRIT=329
-EXAMPLEABILITY=330
-STENCH=331
+DUMMYABILITY=330
+DRIZZLE2=331
+NOTSPEEDBOOST=332
 
 def self.getName(id)
 return pbGetMessage(MessageTypes::Abilities,id)
 end
 def self.getCount
-return 259
+return 261
 end
 
 def self.maxValue
-return 331
+return 332
 end
 end

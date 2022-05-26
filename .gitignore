@@ -39,6 +39,8 @@ Data/Mods/*.ini
 !Data/!script_order.csv
 Scripts/*
 !Scripts/idk.rb
+!Scripts/PokeBattle_Battle.rb
+!Scripts/PokeBattle_Battler.rb
 !Scripts/LMP*
 
 *.snk
@@ -51,3 +53,4 @@ Newtonsoft.Json.xml
 Newtonsoft.Json.dll
 ModManager.exe.config
 ModManager.exe
+test.rb

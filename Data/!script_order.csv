@@ -157,6 +157,9 @@ PokeBattle_SafariZone
 PokeBattle_BattlePeer
 PokeBattle_BattleRecord
 PokeBattle_Clauses
+
+
+
 RandomizedChallenge
 RandomizerScene
 ================~blank
@@ -178,6 +181,7 @@ cass shit
 @
 Cache
 MultipleForms
+LMPModAbilHandler
 LMPModCompiler
 LMPModloader
 idk

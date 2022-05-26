@@ -1,6 +1,6 @@
 $ListOfModPokemonByParent = Hash[]
 $ModPBSToLoad = Hash[] if !defined?($ModPBSToLoad)
-
+$ModAbilities = Hash[] # internalName => AbilityEffect object
 
 #This file is extremely hacky, it's based on Compiler.rb from Pokemon Reborn scripts, but some things had to be edited very heavily.
 #It would be kind of useless to mark down which things are modified as most things are.
@@ -554,6 +554,7 @@ def pbCompileModAbilities()
 				overwriting = false
 			else
 				record[0] = records[record[1]]
+				overwriting = true
 			end
 			movenames[record[0]]=record[2]
 			movedescs[record[0]]=record[3]
@@ -561,6 +562,9 @@ def pbCompileModAbilities()
 			
 			records.delete(records.key(records[0]))
 			records[record[1]] = record[0]
+			if !overwriting #create an AbilityEffect object if the ability is being added
+				$ModAbilities[record[1]] = AbilityEffect.new(record[0],record[1])
+			end
 			puts "#{mod}: Added Ability with id " + record[0].to_s + " Overwrite? " + overwriting.to_s if $ModDebug
 		}
 	}

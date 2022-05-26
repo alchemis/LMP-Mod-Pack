@@ -216,6 +216,7 @@ def loadMods
 	pbCompileAllModData(true) if mustCompileMods? 
 	puts "Loading mods...."
 	puts "load order is: " + $ModList.to_s
+	puts "mod abilities: #{$ModAbilities.inspect}"
 	getModMaps
 	cacheModMoves
 	cacheModDex
