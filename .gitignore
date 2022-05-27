@@ -42,7 +42,8 @@ Scripts/*
 !Scripts/PokeBattle_Battle.rb
 !Scripts/PokeBattle_Battler.rb
 !Scripts/LMP*
-
+Data/Mods/Modloader/*.rxdata
+Data/Mods/Modloader/*.dat
 *.snk
 *.pfx
 *.user
@@ -58,3 +59,7 @@ test.rb
 Data/Mods/Modloader/Maps/MapInfos.rxdata
 
 Data/Mods/Modloader/Maps/Map00038.rxdata
+
+Data/Mods/Modloader/Maps/Map01903.rxdata
+
+Data/Mods/Modloader/Maps/Map02903.rxdata

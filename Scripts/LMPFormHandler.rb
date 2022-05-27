@@ -31,7 +31,7 @@ def PBStuff.reloadMegastones
         self::POKEMONTOMEGASTONE.default = []
 end
 
-def redef_without_warning(const, value)
-        self.class.send(:remove_const, const) if self.class.const_defined?(const)
-        self.class.const_set(const, value)
+def PBStuff.redef_without_warning(const, value)
+        self.send(:remove_const, const) if self.const_defined?(const)
+        self.const_set(const, value)
 end

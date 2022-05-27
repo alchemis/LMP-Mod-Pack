@@ -4,6 +4,7 @@
     "debug": "true"
   },
   "loadOrder": [
+    "LMP - CreateAllFields",
     "LMP - ExampleMod"
   ]
 }
