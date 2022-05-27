@@ -54,3 +54,7 @@ Newtonsoft.Json.dll
 ModManager.exe.config
 ModManager.exe
 test.rb
+
+Data/Mods/Modloader/Maps/MapInfos.rxdata
+
+Data/Mods/Modloader/Maps/Map00038.rxdata
