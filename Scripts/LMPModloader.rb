@@ -4,65 +4,20 @@ $LOAD_PATH.append("#{$LOAD_PATH[0]}\\Data\\Mods\\lib")
 
 require 'json'
 
-$ModList = [] #format: array of str Mod names sorted by load order
-$ModSettings = Hash[] # format: str Mod => hash of settings
-$CustomModSettings = Hash[] # format: str Mod => hash of settings
+$ModList = [] #format: array of Mod objects sorted by load order
 $ModMaps = Hash[] # format: int id => path to something formatted MapXXXXX.rxdata
 $ListOfModPokemonByParent = Hash[] if !defined?($ListOfModPokemonByParent)
-$ModLoadHandlers = Hash[] #format: str mod_name => ModLoadHandler object
 $ModloaderSettings = Hash[] # format: section => Hash of str key => value
 $ModDebug = false #used to control debug messages and whether to always force a recompile
 
-def is_loaded_before?(mod,mod2) #checks if mod is loaded before mod2, to check whether you're in the right spot in the load order
-	return false if !($ModList.include?(mod)) || !($ModList.include?(mod2))
-	return $ModList.find_index(mod) < $ModList.find_index(mod2)
+
+
+
+def is_loaded_before?(mod,mod2) #given the mod names, checks if mod is loaded before mod2, to check whether you're in the right spot in the load order
+	return false if $ModList.any?{|a| a.name == mod} || $ModList.any?{|a| a.name == mod2}
+	return $ModList.find_index {|item| item.name == mod} < $ModList.find_index {|item| item.name == mod2}
 end
 
-class ModLoadHandler #note: mods dont need to have a ModLoadHandler defined if they dont need it, in which case it always default to true
-
-	#make an instance of the class and overwrite the methods for mod custom load handlers
-	#each method must return a boolean when passed a string (or int, for maps and events) containing a specific thing in the mod files, graphics excepted
-	#internal names are always used when avaliable
-	#this will probably be updated to use symbols when PBS files are refactored into hashes.
-
-
-	def initialize(name)
-		@name = name 
-	end
-
-	def load_mod? 
-		return true
-	end
-
-	def load_move?(move)
-		return true
-	end
-
-	def load_ability?(ability)
-		return true
-	end
-
-	def load_species?(species)
-		return true
-	end
-
-	def load_item?(item) 
-		return true
-	end
-
-	def load_encounters?(map_id)
-		return true
-	end
-
-	def load_map?(map_id)
-		return true
-	end
-
-	def load_event?(map_id, event_id)
-		return true
-	end
-	
-end
 
 def saveModLoaderSettingsJson
 	hash = $ModloaderSettings
@@ -74,12 +29,16 @@ end
 
 #gets the load order from load_order.ini, the
 def getModLoadOrder
-	$ModList = $ModloaderSettings["loadOrder"]
+	index = 0
+	$ModloaderSettings["loadOrder"].each{|modName|
+		index += 1
+		$ModList.append(Mod.new(modName, index))
+	}
 end
 
 def runModLoadHandlers
-	$ModList.each{ | mod |
-		load File.expand_path("Data/Mods/#{mod}/before_load.rb") if safeExists?("Data/Mods/#{mod}/before_load.rb")
+	$ModList.each{ |mod|
+		load File.expand_path("#{mod.path}/before_load.rb") if safeExists?("#{mod.path}/before_load.rb")
 	}
 end
 
@@ -174,10 +133,10 @@ end
 
 def getModSettings
 	$ModList.each{|mod|
-		raise _INTL("#{mod}: Mod in load order but #{mod}/mod_settings.ini not found! You may need to rebuild the load order from the Mod Manager if you deleted mods.") if !File.exists?("Data/Mods/#{mod}/mod_settings.ini")
-		all_settings = readIni("Data/Mods/#{mod}/mod_settings.ini")
-		$ModSettings[mod] = all_settings["settings"]
-		$CustomModSettings[mod] = all_settings["custom_settings"]
+		raise _INTL("#{mod.name}: Mod in load order but #{mod.path}/mod_settings.ini not found! You may need to rebuild the load order from the Mod Manager if you deleted mods.") if !File.exists?("Data/Mods/#{mod}/mod_settings.ini")
+		all_settings = readIni("#{mod.path}/mod_settings.ini")
+		mod.settings = all_settings["settings"]
+		mod.custom_settings = all_settings["custom_settings"]
 	}
 
 	#puts $ModSettings if $ModDebug
@@ -199,7 +158,9 @@ def mustCompileMods?
 	return $ModloaderSettings["settings"]["recompile"] == "true"
 end
 
+def flush_mod_cache
 
+end
 
 
 def doneCompiling
@@ -209,14 +170,21 @@ end
 
 def loadMods
 	getModLoaderSettings
-	getModLoadOrder
-	getModSettings
-	runModLoadHandlers
-	puts "Compile mods?: " + mustCompileMods?.to_s
-	pbCompileAllModData(true) if mustCompileMods? 
-	puts "Loading mods...."
-	puts "load order is: " + $ModList.to_s
+	$ModList = load_data("Data/Mods/Modloader/mods.dat") if !mustCompileMods? #just load the cache if we dont have to recompile woo
+	
+	if mustCompileMods?
+		puts "Compiling mods:"
+		$ModList = []
+		getModLoadOrder
+		getModSettings
+		runModLoadHandlers
+		pbCompileAllModData(true)
+	end
+
+	puts "Loading mods:"
+	puts "load order is: " + $ModList.map{|mod| mod.name}.to_s
 	puts "mod abilities: #{$ModAbilities.inspect}"
+	puts $ModList.inspect
 	getModMaps
 	cacheModMoves
 	cacheModDex
@@ -226,9 +194,9 @@ def loadMods
 	MessageTypes.loadMessageFile("Data/Mods/Modloader/messages.dat")
 	#load mod scripts from mod subfolders as defined in their modsettings.ini
 	$ModList.each{ | mod |
-		Dir["./Data/Mods/#{mod}/*.rb"].each {|file|
+		Dir["./#{mod.path}/*.rb"].each {|file|
 			load File.expand_path(file) if !(file.end_with?("before_load.rb"))
-			} if $ModSettings[mod]["hasScripts"] == "true"
+			} if mod.settings["hasScripts"] == "true"
 	}
 	
 	#load non-LMPModloader mods
@@ -269,7 +237,6 @@ end
 
 def cacheModDex
 	pbCompileModPokemonData if !File.exists?("Data/Mods/Modloader/dexdata.dat")
-	$ListOfModPokemonByParent = load_data("Data/Mods/Modloader/graphicpaths.dat")
 	$cache.pkmn_dex           = load_data("Data/Mods/Modloader/dexdata.dat")
 	$cache.pkmn_metrics       = load_data("Data/Mods/Modloader/metrics.dat")
 	$cache.pkmn_moves         = load_data("Data/Mods/Modloader/attacksRS.dat")
