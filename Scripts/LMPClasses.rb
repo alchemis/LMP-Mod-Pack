@@ -6,7 +6,7 @@ class Mod
         @name = name
         @path = "Data/Mods/#{name}"
         @species = Hash[] #string internal name => ModSpecies object
-        @maps = Hash[] #int map ID => string map path
+        @maps = Hash[] #int map ID => string map path, unused for now
 		@path_redirects = Hash[] #string old path => string new path
         @load_handler = ModLoadHandler.new(name)
         @settings = Hash[] # string setting => string value
