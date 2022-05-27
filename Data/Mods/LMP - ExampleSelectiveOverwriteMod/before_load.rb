@@ -5,10 +5,10 @@
 
 def createModHandler #we put this code inside of a method so that the variables stay local
     mod_name = "LMP - ExampleSelectiveOverwriteMod" #change this to your mod name
-    puts "Running before_load for mod #{mod_name}"
+    puts "Running before_load for mod #{mod_name}" if $ModDebug
 
-    $ModLoadHandlers[mod_name] = ModLoadHandler.new(mod_name)
-    load_handler = $ModLoadHandlers[mod_name]
+    mod = $Modlist.index{|mod| mod.name == mod_name}
+
 
     
     #this is an example of how to make your mod selectively load stuff based on which other mods are present
@@ -28,17 +28,15 @@ def createModHandler #we put this code inside of a method so that the variables 
     
     #to check other common things, you can access:
 
-    # $ModList = [] #format: array of str Mod names sorted by load order
-    # $ModSettings = Hash[] # format: str Mod => hash of settings, these are the settings under the section [settings] in mod_settings.ini
-    # $CustomModSettings = Hash[] # format: str Mod => hash of settings, these are the settings under the section [custom_settings] in mod_settings.ini
-    # $ModMaps = Hash[] # format: int id => path to the map file, formatted as MapXXXXX.rxdata where XXXXX is the id
-    # $ListOfModPokemonByParent a hash containing [species ID => Hash[:parent => (string) name of the mod that added it, :id => (int) id, :overwrite => (bool) whether this pokemon overwrote another]
+    # $ModList #format: array of mod objects, they have the following properties:
+    # mod.settings #the settings of a mod, these are the ones under the [settings] header
+    # mod.custom_settings #custom settings defined for a mod, these are the ones under the [custom_settings] header
     # PBSpecies::INTERNALNAME will return the ID of a pokemon depending on the internal name, or nil if it doesnt exist.
-    # PBItems, PBAbilities and PBMoves all do the same thing
+    # PBItems, PBAbilities and PBMoves all can do the same thing
     # These can be used to check whether a specific thing is loaded before overwriting it
     # do NOT assign anything to these variables in here
 
-    def load_handler.load_mod? #this is called when trying to load anything
+    def mod.load_handler.load_mod? #this is called when trying to load anything
         return is_loaded_before?("LMP - ExampleMod",@name) 
         #is_loaded_before? checks if a mod is loaded before another mod, in case our mod specifically depends on another mod
         #@name is the name given when creating the ModLoadHandler
@@ -47,31 +45,31 @@ def createModHandler #we put this code inside of a method so that the variables 
 
     #the defs below this point aren't necessary to declare unless you are overwriting them, but this is left here as an example.
     
-    def load_handler.load_move?(move) #this is called when trying to load a move
+    def mod.load_handler.load_move?(move) #this is called when trying to load a move
         return true
     end
 
-    def load_handler.load_ability?(ability) #this is called when trying to load an ability
+    def mod.load_handler.load_ability?(ability) #this is called when trying to load an ability
         return true
     end
 
-    def load_handler.load_species?(species) #this is called when trying to load a pokemon species
+    def mod.load_handler.load_species?(species) #this is called when trying to load a pokemon species
         return true
     end
 
-    def load_handler.load_item?(item) #this is called when trying to load an item
+    def mod.load_handler.load_item?(item) #this is called when trying to load an item
         return true
     end
 
-    def load_handler.load_encounters?(map_id) #this is called when trying to load encounters for the specified map
+    def mod.load_handler.load_encounters?(map_id) #this is called when trying to load encounters for the specified map
         return true
     end
 
-    def load_handler.load_map?(map_id) #this is called when trying to load a map
+    def mod.load_handler.load_map?(map_id) #this is called when trying to load a map
         return true
     end
 
-    def load_handler.load_event?(map_id, event_id) # !not implemented yet as of 2022/5/19!
+    def mod.load_handler.load_event?(map_id, event_id) # !not implemented yet as of 2022/5/19!
         return true
     end
 

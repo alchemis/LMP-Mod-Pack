@@ -785,7 +785,6 @@ def compileModMaps
 
 
 			#remember to update the cache here pls
-
 			new_map_path = sprintf("Data/Mods/Modloader/Maps/Map%05d.rxdata", map_id)
 			$ModMaps[map_id] = new_map_path
 			$cache.mapinfos = new_mapinfos
@@ -834,7 +833,7 @@ def pbCompileModMachines
 	mods = $ModList
 	mods.each{ |mod| 
 		next if !(mod.settings["ModPBS"].include?("tm"))
-		force_overwrite = true if mod.settings["forceOverwriteAbilities"] == "true"
+		sections = Hash[] if mod.settings["forceOverwriteTMs"] == "true"
 		path = "#{mod.path}/PBS/tm.txt"
 		
 		next if !(mod.load_handler.load_mod?)
@@ -1180,7 +1179,7 @@ def pbCompileModPokemonData(overwrite=true)
 		ignoreNewPokemon = false
 		
 		if mod.settings["selectiveOverwrite"] == "true"
-			ignoreNewPokemon = true if mod.settings["ignoreNewPokemon"] == "true"
+			ignoreNewPokemon = true
 			selectiveOverwrite = true
 		end
 		
@@ -1324,9 +1323,19 @@ def pbCompileModPokemonData(overwrite=true)
 					raise _INTL("Kind {1} is greater than 20 characters long (section {2}, PBS/pokemon.txt)",value,dexdata[:ID]) if value.length>20
 					kinds[dexdata[:ID]]=value
 					elsif key=="ModdedGraphics" && dexdata[:ID] != 0
-					if !($ListOfModPokemonByParent.keys.include?(dexdata[:ID]))
-						$ListOfModPokemonByParent[dexdata[:ID]] = Hash[:parent => mod, :id => currentmap, :overwrite => overwrite] if value==1
-					end
+						if value == 1 || value == "1" || value == "true"
+							if dexdata[:ID] < 1000
+								mod.path_redirects[sprintf("Graphics/Battlers/%03d",dexdata[:ID])] = sprintf("#{mod.path}/Graphics/Battlers/%03d",currentmap) 
+								mod.path_redirects[sprintf("Graphics/Battlers/%03dEgg",dexdata[:ID])] = sprintf("#{mod.path}/Graphics/Battlers/%03dEgg",currentmap) 
+								mod.path_redirects[sprintf("Graphics/Icons/icon%03d",dexdata[:ID])] = sprintf("#{mod.path}/Graphics/Icons/icon%03d",currentmap) 
+								mod.path_redirects[sprintf("Graphics/Icons/icon%03degg",dexdata[:ID])] = sprintf("#{mod.path}/Graphics/Icons/icon%03degg",currentmap) 
+							else
+								mod.path_redirects["Graphics/Battlers/#{dexdata[:ID]}"] = "#{mod.path}/Graphics/Battlers/#{currentmap}"
+								mod.path_redirects["Graphics/Battlers/#{dexdata[:ID]}Egg"] = "#{mod.path}/Graphics/Battlers/#{currentmap}Egg"
+								mod.path_redirects["Graphics/Icons/icon#{dexdata[:ID]}"] = "#{mod.path}/Graphics/Icons/icon#{currentmap}"
+								mod.path_redirects["Graphics/Icons/icon#{dexdata[:ID]}egg"] = "#{mod.path}/Graphics/Icons/icon#{currentmap}egg"
+							end
+						end
 					elsif key=="Pokedex" && dexdata[:ID] != 0
 					entries[dexdata[:ID]]=value
 					elsif key=="BattlerPlayerY" && dexdata[:ID] != 0
