@@ -183,6 +183,7 @@ Cache
 MultipleForms
 ================~blank
 LMPClasses
+LMPFormHandler
 LMPModCompiler
 LMPModloader
 LMPGraphicsLoader
