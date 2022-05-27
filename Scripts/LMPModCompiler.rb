@@ -1,6 +1,6 @@
 $ListOfModPokemonByParent = Hash[]
 $ModPBSToLoad = Hash[] if !defined?($ModPBSToLoad)
-
+$ModAbilities = Hash[] # internalName => AbilityEffect object
 
 #This file is extremely hacky, it's based on Compiler.rb from Pokemon Reborn scripts, but some things had to be edited very heavily.
 #It would be kind of useless to mark down which things are modified as most things are.
@@ -13,15 +13,14 @@ $ModPBSToLoad = Hash[] if !defined?($ModPBSToLoad)
 
 #Done PBS files: moves, pokemon, abilities, tm, items
 #TODO: metadata, other pbs that are necessary
+#TODO: switches/variables/self switches compatibilization
 #TODO: finish maps done!
-#TODO: fix graphics system to be universal and better
+#TODO: fix graphics system to be universal and better done!
 
 ## ugly code warning ##
 
 
-def hasModGraphics?(id)
-	return $ListOfModPokemonByParent.has_key?(id)
-end
+
 
 def getAllPokemonMessages(messagetype)
 	messages = []
@@ -222,26 +221,28 @@ def pbCompileModItems
 	constants=moduleToHash(PBItems)
 	maxValue=PBItems.maxValue
 	mods.each{ |mod| 
-		next if !($ModSettings[mod]["ModPBS"].include?("items"))
-		$ModLoadHandlers[mod] = ModLoadHandler.new(mod) if $ModLoadHandlers[mod] == nil
-		next if !($ModLoadHandlers[mod].load_mod?)
+		next if !(mod.settings["ModPBS"].include?("items"))
+		
+		next if !(mod.load_handler.load_mod?)
 		overwriting = false
-		pbCompilerEachCommentedLine("Data/Mods/#{mod}/PBS/items.txt"){|line,lineno|
+		internal_id = nil
+		pbCompilerEachCommentedLine("#{mod.path}/PBS/items.txt"){|line,lineno|
 			
 			linerecord=pbGetCsvRecord(line,lineno,[0,"vnsuusuuUN"])
-			next if !($ModLoadHandlers[mod].load_item?(linerecord[1]))
+			next if !(mod.load_handler.load_item?(linerecord[1]))
 			record=[]
 			if constants.keys.include?(linerecord[1])
 				overwriting = true
 				record[ITEMID] = constants[linerecord[1]] 
 				record[0] = constants[linerecord[1]] 
 			else
-				overwrite = false
+				overwriting = false
+				internal_id = linerecord[0]
 				record[ITEMID] = maxValue + 1
 				constants[linerecord[1]] = maxValue + 1
 				record[0] = maxValue + 1
 			end
-			puts "#{mod}: Added Item with id #{linerecord[0]} and internalname #{linerecord[1]} Overwrite? " + overwriting.to_s if $ModDebug
+			puts "#{mod.name}: Added Item with id #{linerecord[0]} and internalname #{linerecord[1]} Overwrite? " + overwriting.to_s if $ModDebug
 			record[ITEMNAME] = linerecord[2]
 			itemnames[record[0]]=linerecord[2]
 			record[ITEMPOCKET] = linerecord[3]
@@ -258,6 +259,12 @@ def pbCompileModItems
 			end
 			maxValue=[maxValue,record[0]].max
 			records[record[ITEMID]] = record
+			puts internal_id.inspect
+			if record[0] < 1000
+				mod.path_redirects[sprintf("Graphics/Icons/item%03d",record[0])] = sprintf("#{mod.path}/Graphics/Icons/item%03d",internal_id) if !overwriting
+			else
+				mod.path_redirects["Graphics/Icons/item#{record[0]}"] = "#{mod.path}/Graphics/Icons/item#{internal_id}" if !overwriting
+			end
 		}
 	}
 	File.open("Data/Mods/Modloader/items.dat","wb"){|file|
@@ -325,13 +332,13 @@ def pbCompileModEncounters
 	mods = $ModList
 	encounters=$cache.encounters 
 	mods.each{ |mod| 
-		next if !($ModSettings[mod]["ModPBS"].include?("encounters"))
-		$ModLoadHandlers[mod] = ModLoadHandler.new(mod) if $ModLoadHandlers[mod] == nil
-		next if !($ModLoadHandlers[mod].load_mod?)
+		next if !(mod.settings["ModPBS"].include?("encounters"))
+		
+		next if !(mod.load_handler.load_mod?)
 		lines=[]
 		linenos=[]
-		FileLineData.file="Data/Mods/#{mod}/PBS/encounters.txt"
-		File.open("Data/Mods/#{mod}/PBS/encounters.txt","rb"){|f|
+		FileLineData.file="#{mod.path}/PBS/encounters.txt"
+		File.open("#{mod.path}/PBS/encounters.txt","rb"){|f|
 		lineno=1
 		f.each_line {|line|
 			if lineno==1 && line[0]==0xEF && line[1]==0xBB && line[2]==0xBF
@@ -357,7 +364,7 @@ def pbCompileModEncounters
 			FileLineData.setLine(line,linenos[i])
 			mapid=line[/^\d+$/]
 			if mapid
-				next if !($ModLoadHandlers[mod].load_encounters?(mapid))
+				next if !(mod.load_handler.load_encounters?(mapid))
 				lastmapid=mapid
 				if thisenc && (thisenc[1][EncounterTypes::Land] ||
 							thisenc[1][EncounterTypes::LandMorning] ||
@@ -446,10 +453,10 @@ def pbCompileModMoves
 	
 	maxValue=PBMoves.maxValue
 	mods.each{ |mod| 
-		next if !($ModSettings[mod]["ModPBS"].include?("moves"))
-		$ModLoadHandlers[mod] = ModLoadHandler.new(mod) if $ModLoadHandlers[mod] == nil
-		next if !($ModLoadHandlers[mod].load_mod?)
-		pbCompilerEachPreppedLine("Data/Mods/"+mod+"/PBS/moves.txt"){|line,lineno|
+		next if !(mod.settings["ModPBS"].include?("moves"))
+		
+		next if !(mod.load_handler.load_mod?)
+		pbCompilerEachPreppedLine(mod.path+"/PBS/moves.txt"){|line,lineno|
 			thisline=line.clone
 			record=[]
 			overwriting = true
@@ -460,7 +467,7 @@ def pbCompileModMoves
 			#pbCheckWord(record[3],_INTL("Function code"))
 			
 			#Check if there is already a move with the same internal name, if so, set the ID to the same as that move, else, set the ID to that of the last move in the list plus 1
-			next if !($ModLoadHandlers[mod].load_move?(record[1]))
+			next if !(mod.load_handler.load_move?(record[1]))
 			if	!(records.keys.include?(record[1]))
 				record[0] = maxValue+1
 				overwriting = false
@@ -515,7 +522,7 @@ def pbCompileModMoves
 			else
 			records[record[1]] = record[0]
 			end
-			puts "#{mod}: Added Move with id #{record[0]} and internalname #{record[1]} Overwrite? " + overwriting.to_s if $ModDebug
+			puts "#{mod.name}: Added Move with id #{record[0]} and internalname #{record[1]} Overwrite? " + overwriting.to_s if $ModDebug
 		}
 	}
 	File.open("Data/Mods/Modloader/moves.dat","wb"){|file|
@@ -540,20 +547,21 @@ def pbCompileModAbilities()
 	movedescs=getAllPokemonMessages(MessageTypes::AbilityDescs)
 	maxValue=PBAbilities.maxValue
 	mods.each{ |mod| 
-		next if !($ModSettings[mod]["ModPBS"].include?("abilities"))
-		$ModLoadHandlers[mod] = ModLoadHandler.new(mod) if $ModLoadHandlers[mod] == nil
-		next if !($ModLoadHandlers[mod].load_mod?)
-		path = mod + "/PBS/abilities.txt"
+		next if !(mod.settings["ModPBS"].include?("abilities"))
+		
+		next if !(mod.load_handler.load_mod?)
+		path = mod.path + "/PBS/abilities.txt"
 
 		
-		pbCompilerEachPreppedLine("Data/Mods/"+path){|line,lineno|
+		pbCompilerEachPreppedLine(path){|line,lineno|
 			record=pbGetCsvRecord(line,lineno,[0,"vnss"])
-			next if !($ModLoadHandlers[mod].load_ability?(record[1]))
+			next if !(mod.load_handler.load_ability?(record[1]))
 			if	!(records.values.include?(record[1]))
 				record[0] = maxValue+1
 				overwriting = false
 			else
 				record[0] = records[record[1]]
+				overwriting = true
 			end
 			movenames[record[0]]=record[2]
 			movedescs[record[0]]=record[3]
@@ -561,7 +569,10 @@ def pbCompileModAbilities()
 			
 			records.delete(records.key(records[0]))
 			records[record[1]] = record[0]
-			puts "#{mod}: Added Ability with id " + record[0].to_s + " Overwrite? " + overwriting.to_s if $ModDebug
+			if !overwriting #create an AbilityEffect object if the ability is being added
+				$ModAbilities[record[1]] = AbilityEffect.new(record[0],record[1])
+			end
+			puts "#{mod.name}: Added Ability with id " + record[0].to_s + " Overwrite? " + overwriting.to_s if $ModDebug
 		}
 	}
 	MessageTypes.setMessages(MessageTypes::Abilities,movenames)
@@ -676,18 +687,18 @@ def compileModMaps
 	mods = $ModList
 
 	mods.each{ |mod| 
-		next if $ModSettings[mod]["Maps"] == nil
-		$ModLoadHandlers[mod] = ModLoadHandler.new(mod) if $ModLoadHandlers[mod] == nil
-		next if !($ModLoadHandlers[mod].load_mod?)
-		maps_to_load = $ModSettings[mod]["Maps"] if $ModSettings[mod]["Maps"].class == Array
-		maps_to_load = [$ModSettings[mod]["Maps"]] if $ModSettings[mod]["Maps"].class == String
+		next if mod.settings["Maps"] == nil
+		
+		next if !(mod.load_handler.load_mod?)
+		maps_to_load = mod.settings["Maps"] if mod.settings["Maps"].class == Array
+		maps_to_load = [mod.settings["Maps"]] if mod.settings["Maps"].class == String
 		loaded_maps = []
 
 		prefix_for_mod_maps = mods.find_index(mod) + 1 #we use this to avoid id conflicts if several mods add new maps
 		maps_to_fix_references = Hash[]
 
-		if File.exists?("Data/Mods/#{mod}/Maps/MapInfos.rxdata")
-			mod_mapinfos = load_map_rxdata("Data/Mods/#{mod}/Maps/MapInfos.rxdata")
+		if File.exists?("#{mod.path}/Maps/MapInfos.rxdata")
+			mod_mapinfos = load_map_rxdata("#{mod.path}/Maps/MapInfos.rxdata")
 		else 
 			raise _INTL("{1}: has maps but MapInfos.rxdata not found!",mod)
 			next
@@ -698,9 +709,9 @@ def compileModMaps
 			map_id = mapfilename
 			map_id = map_id.delete("^0-9").to_i
 			puts "\n"
-			puts "#{mod}: processing map #{map_id}" if $ModDebug
-			next if !($ModLoadHandlers[mod].load_map?(map_id))
-			map_path = "Data/Mods/#{mod}/Maps/#{mapfilename}.rxdata"
+			puts "#{mod.name}: processing map #{map_id}" if $ModDebug
+			next if !(mod.load_handler.load_map?(map_id))
+			map_path = "#{mod.path}/Maps/#{mapfilename}.rxdata"
 			if File.exists?(map_path)
 				map = load_map_rxdata(map_path)
 			else 
@@ -770,7 +781,6 @@ def compileModMaps
 				mod_mapinfo = mod_mapinfos[map_id]
 				new_mapinfos[map_id] = mod_mapinfo
 				map_to_save = map
-				
 			end
 
 
@@ -823,11 +833,11 @@ def pbCompileModMachines
 	sections=$cache.tm_data
 	mods = $ModList
 	mods.each{ |mod| 
-		next if !($ModSettings[mod]["ModPBS"].include?("tm"))
-		force_overwrite = true if $ModSettings[mod]["forceOverwriteAbilities"] == "true"
-		path = "Data/Mods/#{mod}/PBS/tm.txt"
-		$ModLoadHandlers[mod] = ModLoadHandler.new(mod) if $ModLoadHandlers[mod] == nil
-		next if !($ModLoadHandlers[mod].load_mod?)
+		next if !(mod.settings["ModPBS"].include?("tm"))
+		force_overwrite = true if mod.settings["forceOverwriteAbilities"] == "true"
+		path = "#{mod.path}/PBS/tm.txt"
+		
+		next if !(mod.load_handler.load_mod?)
 		if safeExists?(path)
 		f=File.open(path,"rb")
 		FileLineData.file=path
@@ -839,7 +849,7 @@ def pbCompileModMachines
 			FileLineData.setLine(line,lineno)
 			if !line[/^\#/] && !line[/^\s*$/]
 				if line[/^\s*\[\s*(.*)\s*\]\s*$/]
-					next if !($ModLoadHandlers[mod].load_move?($~[1])) #maybe? test it out later, pretty sure this should be the an internal id
+					next if !(mod.load_handler.load_move?($~[1])) #maybe? test it out later, pretty sure this should be the an internal id
 					sectionname=parseMove($~[1])
 					puts " processing tms for move #{sectionname}" if $ModDebug
 					
@@ -852,7 +862,7 @@ def pbCompileModMachines
 					specieslist=line.sub(/\s+$/,"").split(",")
 					for species in specieslist
 						next if !species || species==""
-						next if !($ModLoadHandlers[mod].load_species?(species))
+						next if !(mod.load_handler.load_species?(species))
 						if species[0,1] == "!"
 							removing = true
 							species.slice!(0)
@@ -1162,20 +1172,20 @@ def pbCompileModPokemonData(overwrite=true)
 
 	#Begin loading mod files
 	mods.each{ |mod| 
-		next if !($ModSettings[mod]["ModPBS"].include?("pokemon"))
-		$ModLoadHandlers[mod] = ModLoadHandler.new(mod) if $ModLoadHandlers[mod] == nil
-		next if !($ModLoadHandlers[mod].load_mod?)
+		next if !(mod.settings["ModPBS"].include?("pokemon"))
+		
+		next if !(mod.load_handler.load_mod?)
 		overwriteKeys = []
 		selectiveOverwrite = false
 		ignoreNewPokemon = false
 		
-		if $ModSettings[mod]["selectiveOverwrite"] == "true"
-		ignoreNewPokemon = true if $ModSettings[mod]["ignoreNewPokemon"] == "true"
-		selectiveOverwrite = true
+		if mod.settings["selectiveOverwrite"] == "true"
+			ignoreNewPokemon = true if mod.settings["ignoreNewPokemon"] == "true"
+			selectiveOverwrite = true
 		end
 		
-		File.open("Data/Mods/" + mod + "/PBS/pokemon.txt","rb"){|f|
-		FileLineData.file="Data/Mods/" + mod + "/PBS/pokemon.txt"
+		File.open(mod.path+"/PBS/pokemon.txt","rb"){|f|
+		FileLineData.file=mod.path+"/PBS/pokemon.txt"
 		pbEachFileSection(f){|lastsection,currentmap|
 			dexdata=initdata.clone
 			
@@ -1199,8 +1209,8 @@ def pbCompileModPokemonData(overwrite=true)
 			end
 			end
 			if selectiveOverwrite
-			optionaltypes = requiredtypes.merge(optionaltypes)
-			requiredtypes = { "InternalName"=>[0,"c"] }
+				optionaltypes = requiredtypes.merge(optionaltypes)
+				requiredtypes = { "InternalName"=>[0,"c"] }
 			end
 			[requiredtypes,optionaltypes].each{|hash|
 			for key in hash.keys
@@ -1260,7 +1270,7 @@ def pbCompileModPokemonData(overwrite=true)
 						raise _INTL("Invalid internal name: {1} (section {2}, PBS/pokemon.txt)",value,dexdata[:ID]) if !value[/^(?![0-9])\w*$/]
 						#constants+="#{value}=#{currentmap}\n"
 						#puts 
-						if (constants.keys.include?(value) && ($ModLoadHandlers[mod].load_species?(value)))
+						if (constants.keys.include?(value) && (mod.load_handler.load_species?(value)))
 							#puts "overwriting " + value if $ModDebug
 
 							dexdata[:ID] = constants[value]
@@ -1268,14 +1278,25 @@ def pbCompileModPokemonData(overwrite=true)
 							speciesnames[dexdata[:ID]]=tempname
 							$ListOfModPokemonByParent[dexdata[:ID]] = Hash[:parent => mod, :id => currentmap, :overwrite => overwrite]
 						else
-							if ignoreNewPokemon == true || !($ModLoadHandlers[mod].load_species?(value))
+							if ignoreNewPokemon == true || !(mod.load_handler.load_species?(value))
 								dexdata[:ID] = 0
 							else
-								raise _INTL("#{mod} Error: pokemon #{value} is being added (not overwritten) and selectiveOverwrite is enabled in mod_settings.txt Check the internalname?") if selectiveOverwrite
+								raise _INTL("#{mod.name} Error: pokemon #{value} is being added (not overwritten) and selectiveOverwrite is enabled in mod_settings.txt Check the internalname?") if selectiveOverwrite
 								dexdata[:ID] = maxValue+1
 								speciesnames[dexdata[:ID]]=tempname 
 								constants[value] = dexdata[:ID]
 								#puts "adding " + dexdata[:ID].to_s + " with internalname/speciesname = " + value + "/" + tempname if $ModDebug
+								if dexdata[:ID] < 1000
+									mod.path_redirects[sprintf("Graphics/Battlers/%03d",dexdata[:ID])] = sprintf("#{mod.path}/Graphics/Battlers/%03d",currentmap) 
+									mod.path_redirects[sprintf("Graphics/Battlers/%03dEgg",dexdata[:ID])] = sprintf("#{mod.path}/Graphics/Battlers/%03dEgg",currentmap) 
+									mod.path_redirects[sprintf("Graphics/Icons/icon%03d",dexdata[:ID])] = sprintf("#{mod.path}/Graphics/Icons/icon%03d",currentmap) 
+									mod.path_redirects[sprintf("Graphics/Icons/icon%03degg",dexdata[:ID])] = sprintf("#{mod.path}/Graphics/Icons/icon%03degg",currentmap) 
+								else
+									mod.path_redirects["Graphics/Battlers/#{dexdata[:ID]}"] = "#{mod.path}/Graphics/Battlers/#{currentmap}"
+									mod.path_redirects["Graphics/Battlers/#{dexdata[:ID]}Egg"] = "#{mod.path}/Graphics/Battlers/#{currentmap}Egg"
+									mod.path_redirects["Graphics/Icons/icon#{dexdata[:ID]}"] = "#{mod.path}/Graphics/Icons/icon#{currentmap}"
+									mod.path_redirects["Graphics/Icons/icon#{dexdata[:ID]}egg"] = "#{mod.path}/Graphics/Icons/icon#{currentmap}egg"
+								end
 								$ListOfModPokemonByParent[dexdata[:ID]] = Hash[:parent => mod, :id => currentmap, :overwrite => overwrite]
 							end
 							overwrite = false
@@ -1351,9 +1372,9 @@ def pbCompileModPokemonData(overwrite=true)
 			dexdata[:EggGroups] = egggrouparray if lastsection.keys.include?("Compatibility") && dexdata[:ID] != 0
 			dexdatas.update(dexdata[:ID] => dexdata)
 			if dexdata[:ID] != 0
-				puts "#{mod}: Added pokemon with id " + dexdata[:ID].to_s + " and speciesname " + speciesnames[dexdata[:ID]].to_s + " Overwrite? " + overwrite.to_s + " selectiveOverwrite? " + selectiveOverwrite.to_s
+				puts "#{mod.name}: Added pokemon with id " + dexdata[:ID].to_s + " and speciesname " + speciesnames[dexdata[:ID]].to_s + " Overwrite? " + overwrite.to_s + " selectiveOverwrite? " + selectiveOverwrite.to_s
 			else 
-				puts "#{mod}: Ignored pokemon #{currentmap}, ignoreNewPokemon is set to #{ignoreNewPokemon} (from mod_settings.ini), ModloadHandler response: #{$ModLoadHandlers[mod].load_species?(currentmap)}"
+				puts "#{mod.name}: Ignored pokemon #{currentmap}, ignoreNewPokemon is set to #{ignoreNewPokemon} (from mod_settings.ini), ModloadHandler response: #{mod.load_handler.load_species?(currentmap)}"
 			end
 		}
 		
@@ -1404,8 +1425,8 @@ def pbCompileModPokemonData(overwrite=true)
 	$cache.pkmn_egg = eggmoves
 	$cache.pkmn_evo = evolutions
 	
-	File.open("Data/Mods/Modloader/graphicpaths.dat","wb"){|f|
-		Marshal.dump($ListOfModPokemonByParent,f)
+	File.open("Data/Mods/Modloader/mods.dat","wb"){|f|
+		Marshal.dump($Modlist,f)
 	}	
 	File.open("Data/Mods/Modloader/evolutions.dat","wb"){|f|
 		Marshal.dump(evolutions,f)

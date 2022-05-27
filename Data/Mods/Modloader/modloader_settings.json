@@ -4,8 +4,6 @@
     "debug": "true"
   },
   "loadOrder": [
-    "LMP - PLAStatus",
-    "LMP - ExampleMod",
-    "LMP - ExampleSelectiveOverwriteMod"
+    "LMP - AbilTest"
   ]
 }

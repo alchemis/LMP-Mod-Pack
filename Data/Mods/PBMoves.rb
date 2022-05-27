@@ -770,7 +770,6 @@ JUDGMENTDARK=768
 JUDGMENTSTEEL=769
 JUDGMENTFAIRY=770
 JUDGMENTQMARKS=771
-EXAMPLEMOVE=772
 BREAKNECKBLITZ=10001
 ALLOUTPUMMELING=10002
 SUPERSONICSKYSTRIKE=10003
@@ -811,9 +810,9 @@ return pbGetMessage(MessageTypes::Moves,id) if id < 10000
 return PokeBattle_ZMoves::ZMOVENAMES[id-10001]
 end
 def self.getCount
-return 806
+return 805
 end
 def self.maxValue
-return 772
+return 771
 end
 end
