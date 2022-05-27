@@ -10,17 +10,21 @@ def buildClientData
     $idk[:saveslot] = 1 if $idk[:saveslot] == 0
     savefile = RTP.getSaveSlotPath($idk[:saveslot])
     if File.exists?(savefile)
-        File.open(savefile){|f|
-            Marshal.load(f)
-            Marshal.load(f)
-            Marshal.load(f)
-            settings = Marshal.load(f)
-            if settings.is_a?(String)
-                $idk[:settings]=PokemonOptions.new
-            else
-                $idk[:settings]=PokemonOptions.new(settings) 
-            end
-        }
+        begin
+            File.open(savefile){|f|
+                Marshal.load(f)
+                Marshal.load(f)
+                Marshal.load(f)
+                settings = Marshal.load(f)
+                if settings.is_a?(String)
+                    $idk[:settings]=PokemonOptions.new
+                else
+                    $idk[:settings]=PokemonOptions.new(settings) 
+                end
+            }
+        rescue 
+            print ("Save file could not be loaded and may be corrupt. Please restore a backup save.") 
+        end
     else
         $idk[:settings]=PokemonOptions.new
     end
